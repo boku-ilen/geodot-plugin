@@ -26,7 +26,7 @@ int main() {
     pszSrcWKT = GDALGetProjectionRef(hSrcDS);
     CPLAssert(pszSrcWKT != NULL && strlen(pszSrcWKT) > 0);
 
-    // Setup output coordinate system that is UTM 11 WGS84.
+    // Get Webmercator coordinate system
     OGRSpatialReference oSRS;
     oSRS.importFromEPSG(3857);
     oSRS.exportToWkt(const_cast<char **>(&pszDstWKT));
@@ -49,10 +49,40 @@ int main() {
                                    GDALGenImgProjTransform, hTransformArg,
                                    adfDstGeoTransform, &nPixels, &nLines);
     CPLAssert(eErr == CE_None);
+
     GDALDestroyGenImgProjTransformer(hTransformArg);
 
+    //the affine transformation information, you will need to adjust this to properly
+    //display the clipped raster
+    double transform[6];
+    GDALGetGeoTransform(hSrcDS, transform);
+
+    double new_top_left_x = 4563262.0;
+    double new_top_left_y = 2707690.0;
+    double new_size = 1000.0;
+
+    double x_diff = new_top_left_x - transform[0];
+    double y_diff = new_top_left_y - transform[3];
+
+    adfDstGeoTransform[0] += x_diff;
+    adfDstGeoTransform[3] += y_diff;
+
+    std::cout << transform[0] << std::endl;
+    std::cout << transform[3] << std::endl;
+
+    //adjust top left coordinates
+    transform[0] = new_top_left_x;
+    transform[3] = new_top_left_y;
+
+    //determine dimensions of the new (cropped) raster in cells
+    int xSize = round(new_size/transform[1]);
+    int ySize = round(new_size/transform[1]);
+
+    std::cout << nPixels << std::endl;
+    std::cout << nLines << std::endl;
+
     // Create the output file.
-    hDstDS = GDALCreate(hDriver, "data/out.tif", nPixels, nLines,
+    hDstDS = GDALCreate(hDriver, "data/out2.tif", nPixels / 4.0, nLines / 4.0,
                         GDALGetRasterCount(hSrcDS), eDT, NULL);
     CPLAssert(hDstDS != NULL);
 
