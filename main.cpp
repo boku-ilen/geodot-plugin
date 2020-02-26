@@ -114,19 +114,31 @@ void clip(std::string infile, std::string outfile, double top_left_x, double top
     double transform[6];
     GDALGetGeoTransform(source, transform);
 
-    std::cout << transform[0] << std::endl;
-    std::cout << transform[3] << std::endl;
+    std::cout << transform[1] << std::endl;
+    std::cout << transform[5] << std::endl;
 
     //adjust top left coordinates
     transform[0] = top_left_x;
     transform[3] = top_left_y;
 
     //determine dimensions of the new (cropped) raster in cells
-    int xSize = round(size / transform[1]);
-    int ySize = xSize;
+    int img_size = 256;
+
+    double previous_pixel_size = transform[1];
+
+    // TODO: Varying the pixel size changes the resolution!
+    //  But increasing the new_size by a factor of 10 also increases the new_pixel_size by a factor of 10.
+    double new_pixel_size = size / img_size;
+
+    transform[1] = new_pixel_size;
+    transform[5] = -new_pixel_size;
+
+    int map_size = round(size / transform[1]);
+
+    std::cout << map_size << std::endl;
 
     //create the new (cropped) dataset
-    dest = GDALCreate(pDriver, outfile.c_str(), xSize, ySize,
+    dest = GDALCreate(pDriver, outfile.c_str(), map_size, map_size,
                         GDALGetRasterCount(source), GDT_Float32, NULL);
 
     // Get Source coordinate system.
@@ -173,8 +185,8 @@ void clip(std::string infile, std::string outfile, double top_left_x, double top
     GDALWarpOperation oOperation;
     oOperation.Initialize(psWarpOptions);
     oOperation.ChunkAndWarpImage(0, 0,
-                                 GDALGetRasterXSize(dest),
-                                 GDALGetRasterYSize(dest));
+                                 map_size,
+                                 map_size);
     GDALDestroyGenImgProjTransformer(psWarpOptions->pTransformerArg);
     GDALDestroyWarpOptions(psWarpOptions);
 
@@ -189,71 +201,9 @@ int main() {
 
     float new_top_left_x = 1470287.0;
     float new_top_left_y = 6013574.0;
-    float new_size = 5000.0;
+    float new_size = 500000.0;
 
     clip("data/25m_EU_clip_webm.tif", "data/25m_EU_clip_webm_tile.tif", new_top_left_x, new_top_left_y, new_size);
-
-    return 0;
-}
-
-int oldmain() {
-    std::string filename = "data/25m_EU_clip.tif";
-    float new_top_left_x = 4563262.0;
-    float new_top_left_y = 2707690.0;
-    float new_size = 1000.0;
-
-    GDALDataset *poDataset;
-    GDALAllRegister();
-    poDataset = (GDALDataset *) GDALOpen(filename.c_str(), GA_ReadOnly);
-
-    if (poDataset == nullptr) {
-        return 1;
-    }
-
-    double adfGeoTransform[6];
-    printf("Driver: %s/%s\n",
-           poDataset->GetDriver()->GetDescription(),
-           poDataset->GetDriver()->GetMetadataItem(GDAL_DMD_LONGNAME));
-    printf("Size is %dx%dx%d\n",
-           poDataset->GetRasterXSize(), poDataset->GetRasterYSize(),
-           poDataset->GetRasterCount());
-    if (poDataset->GetProjectionRef() != NULL)
-        printf("Projection is `%s'\n", poDataset->GetProjectionRef());
-    if (poDataset->GetGeoTransform(adfGeoTransform) == CE_None) {
-        printf("Origin = (%.6f,%.6f)\n",
-               adfGeoTransform[0], adfGeoTransform[3]);
-        printf("Pixel Size = (%.6f,%.6f)\n",
-               adfGeoTransform[1], adfGeoTransform[5]);
-    }
-
-    GDALRasterBand *poBand;
-    int nBlockXSize, nBlockYSize;
-    int bGotMin, bGotMax;
-    double adfMinMax[2];
-    poBand = poDataset->GetRasterBand(1);
-    poBand->GetBlockSize(&nBlockXSize, &nBlockYSize);
-    printf("Block=%dx%d Type=%s, ColorInterp=%s\n",
-           nBlockXSize, nBlockYSize,
-           GDALGetDataTypeName(poBand->GetRasterDataType()),
-           GDALGetColorInterpretationName(
-                   poBand->GetColorInterpretation()));
-    adfMinMax[0] = poBand->GetMinimum(&bGotMin);
-    adfMinMax[1] = poBand->GetMaximum(&bGotMax);
-    if (!(bGotMin && bGotMax))
-        GDALComputeRasterMinMax((GDALRasterBandH) poBand, TRUE, adfMinMax);
-    printf("Min=%.3fd, Max=%.3f\n", adfMinMax[0], adfMinMax[1]);
-    if (poBand->GetOverviewCount() > 0)
-        printf("Band has %d overviews.\n", poBand->GetOverviewCount());
-    if (poBand->GetColorTable() != NULL)
-        printf("Band has a color table with %d entries.\n",
-               poBand->GetColorTable()->GetColorEntryCount());
-
-    float *pafScanline;
-    int nXSize = poBand->GetXSize();
-    pafScanline = (float *) CPLMalloc(sizeof(float) * nXSize);
-    poBand->RasterIO(GF_Read, 0, 0, nXSize, 1,
-                     pafScanline, nXSize, 1, GDT_Float32,
-                     0, 0);
 
     return 0;
 }
