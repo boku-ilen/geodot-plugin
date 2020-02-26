@@ -15,19 +15,19 @@ void reproject_to_webmercator(const std::string &infile, const std::string &outf
 
     // Open the source file.
     hSrcDS = GDALOpen(infile.c_str(), GA_ReadOnly);
-    CPLAssert(hSrcDS != NULL);
+    CPLAssert(hSrcDS != NULL)
 
     // Create output with same datatype as first input band.
     eDT = GDALGetRasterDataType(GDALGetRasterBand(hSrcDS, 1));
 
     // Get output driver (GeoTIFF format)
     hDriver = GDALGetDriverByName("GTiff");
-    CPLAssert(hDriver != NULL);
+    CPLAssert(hDriver != NULL)
 
     // Get Source coordinate system.
-    const char *pszSrcWKT, *pszDstWKT = NULL;
+    const char *pszSrcWKT, *pszDstWKT = nullptr;
     pszSrcWKT = GDALGetProjectionRef(hSrcDS);
-    CPLAssert(pszSrcWKT != NULL && strlen(pszSrcWKT) > 0);
+    CPLAssert(pszSrcWKT != NULL && strlen(pszSrcWKT) > 0)
 
     // Get Webmercator coordinate system
     OGRSpatialReference oSRS;
@@ -40,9 +40,9 @@ void reproject_to_webmercator(const std::string &infile, const std::string &outf
     // handle (setting it to NULL).
     void *hTransformArg;
     hTransformArg =
-            GDALCreateGenImgProjTransformer(hSrcDS, pszSrcWKT, NULL, pszDstWKT,
+            GDALCreateGenImgProjTransformer(hSrcDS, pszSrcWKT, nullptr, pszDstWKT,
                                             FALSE, 0, 1);
-    CPLAssert(hTransformArg != NULL);
+    CPLAssert(hTransformArg != NULL)
 
     // Get approximate output georeferenced bounds and resolution for file.
     double adfDstGeoTransform[6];
@@ -51,14 +51,14 @@ void reproject_to_webmercator(const std::string &infile, const std::string &outf
     eErr = GDALSuggestedWarpOutput(hSrcDS,
                                    GDALGenImgProjTransform, hTransformArg,
                                    adfDstGeoTransform, &nPixels, &nLines);
-    CPLAssert(eErr == CE_None);
+    CPLAssert(eErr == CE_None)
 
     GDALDestroyGenImgProjTransformer(hTransformArg);
 
     // Create the output file.
     hDstDS = GDALCreate(hDriver, outfile.c_str(), nPixels, nLines,
-                        GDALGetRasterCount(hSrcDS), eDT, NULL);
-    CPLAssert(hDstDS != NULL);
+                        GDALGetRasterCount(hSrcDS), eDT, nullptr);
+    CPLAssert(hDstDS != NULL)
 
     // Write out the projection definition.
     GDALSetProjection(hDstDS, pszDstWKT);
@@ -67,7 +67,7 @@ void reproject_to_webmercator(const std::string &infile, const std::string &outf
     // Copy the color table, if required.
     GDALColorTableH hCT;
     hCT = GDALGetRasterColorTable(GDALGetRasterBand(hSrcDS, 1));
-    if (hCT != NULL)
+    if (hCT != nullptr)
         GDALSetRasterColorTable(GDALGetRasterBand(hDstDS, 1), hCT);
 
     // Setup warp options.
@@ -106,7 +106,7 @@ void reproject_to_webmercator(const std::string &infile, const std::string &outf
 }
 
 /// Clip the infile to a 256x256 image starting at top_left_x, top_left_y with a given size (in meters).
-void clip(std::string infile, std::string outfile, double top_left_x, double top_left_y, double size) {
+void clip(const std::string& infile, const std::string& outfile, double top_left_x, double top_left_y, double size) {
     GDALDatasetH source, dest;
     GDALDriverH pDriver;
     pDriver = GDALGetDriverByName("GTiff");
@@ -132,10 +132,10 @@ void clip(std::string infile, std::string outfile, double top_left_x, double top
 
     // Create a new geoimage at the given path with our img_size
     dest = GDALCreate(pDriver, outfile.c_str(), img_size, img_size,
-                        GDALGetRasterCount(source), GDT_Float32, NULL);
+                        GDALGetRasterCount(source), GDT_Float32, nullptr);
 
     // Get Source coordinate system.
-    const char *pszDstWKT = NULL;
+    const char *pszDstWKT = nullptr;
 
     // Get Webmercator coordinate system
     OGRSpatialReference oSRS;
@@ -149,7 +149,7 @@ void clip(std::string infile, std::string outfile, double top_left_x, double top
     // Copy the color table, if required.
     GDALColorTableH hCT;
     hCT = GDALGetRasterColorTable(GDALGetRasterBand(source, 1));
-    if (hCT != NULL)
+    if (hCT != nullptr)
         GDALSetRasterColorTable(GDALGetRasterBand(dest, 1), hCT);
 
     // Warp the data from the input file into our new destination with the new Transform and size
