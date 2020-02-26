@@ -2,6 +2,11 @@
 #include <gdal/gdal_priv.h>
 #include <gdal/gdalwarper.h>
 
+// TODO: As a proof-of-concept, this is currently a standalone executable. It should be turned into a library and called
+//  from Godot.
+
+/// Reproject the raster file at infile to Webmercator and save the result to outfile.
+/// Adapted from https://gdal.org/tutorials/warp_tut.html
 void reproject_to_webmercator(const std::string &infile, const std::string &outfile) {
     GDALDriverH hDriver;
     GDALDataType eDT;
@@ -50,9 +55,6 @@ void reproject_to_webmercator(const std::string &infile, const std::string &outf
 
     GDALDestroyGenImgProjTransformer(hTransformArg);
 
-    //the affine transformation information, you will need to adjust this to properly
-    //display the clipped raster
-
     // Create the output file.
     hDstDS = GDALCreate(hDriver, outfile.c_str(), nPixels, nLines,
                         GDALGetRasterCount(hSrcDS), eDT, NULL);
@@ -98,10 +100,12 @@ void reproject_to_webmercator(const std::string &infile, const std::string &outf
                                  GDALGetRasterYSize(hDstDS));
     GDALDestroyGenImgProjTransformer(psWarpOptions->pTransformerArg);
     GDALDestroyWarpOptions(psWarpOptions);
+
     GDALClose(hDstDS);
     GDALClose(hSrcDS);
 }
 
+/// Clip the infile to a 256x256 image starting at top_left_x, top_left_y with a given size (in meters).
 void clip(std::string infile, std::string outfile, double top_left_x, double top_left_y, double size) {
     GDALDatasetH source, dest;
     GDALDriverH pDriver;
@@ -109,36 +113,25 @@ void clip(std::string infile, std::string outfile, double top_left_x, double top
 
     source = GDALOpen(infile.c_str(), GA_ReadOnly);
 
-    //the affine transformation information, you will need to adjust this to properly
-    //display the clipped raster
+    // Get the current Transform of the source image
     double transform[6];
     GDALGetGeoTransform(source, transform);
 
-    std::cout << transform[1] << std::endl;
-    std::cout << transform[5] << std::endl;
-
-    //adjust top left coordinates
+    // Adjust the top left coordinates according to the input variables
     transform[0] = top_left_x;
     transform[3] = top_left_y;
 
-    //determine dimensions of the new (cropped) raster in cells
     int img_size = 256;
 
-    double previous_pixel_size = transform[1];
-
-    // TODO: Varying the pixel size changes the resolution!
-    //  But increasing the new_size by a factor of 10 also increases the new_pixel_size by a factor of 10.
+    // We want to fit an image of the given size (in meters) into our img_size (in pixels)
     double new_pixel_size = size / img_size;
 
+    // Adjust the pixel size
     transform[1] = new_pixel_size;
     transform[5] = -new_pixel_size;
 
-    int map_size = round(size / transform[1]);
-
-    std::cout << map_size << std::endl;
-
-    //create the new (cropped) dataset
-    dest = GDALCreate(pDriver, outfile.c_str(), map_size, map_size,
+    // Create a new geoimage at the given path with our img_size
+    dest = GDALCreate(pDriver, outfile.c_str(), img_size, img_size,
                         GDALGetRasterCount(source), GDT_Float32, NULL);
 
     // Get Source coordinate system.
@@ -149,6 +142,7 @@ void clip(std::string infile, std::string outfile, double top_left_x, double top
     oSRS.importFromEPSG(3857);
     oSRS.exportToWkt(const_cast<char **>(&pszDstWKT));
 
+    // Apply Webmercator and our previously built Transform to the destination file
     GDALSetProjection(dest, pszDstWKT);
     GDALSetGeoTransform(dest, transform);
 
@@ -158,8 +152,8 @@ void clip(std::string infile, std::string outfile, double top_left_x, double top
     if (hCT != NULL)
         GDALSetRasterColorTable(GDALGetRasterBand(dest, 1), hCT);
 
-    // FIXME: We reproject to get the data into the image. This is unnecessarily complex though, there must be a simpler way
-    // Setup warp options.
+    // Warp the data from the input file into our new destination with the new Transform and size
+    // Setup warp options
     GDALWarpOptions *psWarpOptions = GDALCreateWarpOptions();
     psWarpOptions->hSrcDS = source;
     psWarpOptions->hDstDS = dest;
@@ -184,12 +178,11 @@ void clip(std::string infile, std::string outfile, double top_left_x, double top
     // Initialize and execute the warp operation.
     GDALWarpOperation oOperation;
     oOperation.Initialize(psWarpOptions);
-    oOperation.ChunkAndWarpImage(0, 0,
-                                 map_size,
-                                 map_size);
+    oOperation.ChunkAndWarpImage(0, 0, img_size, img_size);
     GDALDestroyGenImgProjTransformer(psWarpOptions->pTransformerArg);
     GDALDestroyWarpOptions(psWarpOptions);
 
+    // Cleanup
     GDALClose(dest);
     GDALClose(source);
 }
@@ -197,7 +190,8 @@ void clip(std::string infile, std::string outfile, double top_left_x, double top
 int main() {
     GDALAllRegister();
 
-    // reproject_to_webmercator("data/25m_EU_clip.tif", "data/25m_EU_clip_webm.tif");
+    // TODO: Only call this if the input file is not Webmercator already or if we haven't reprojected
+    reproject_to_webmercator("data/25m_EU_clip.tif", "data/25m_EU_clip_webm.tif");
 
     float new_top_left_x = 1470287.0;
     float new_top_left_y = 6013574.0;
