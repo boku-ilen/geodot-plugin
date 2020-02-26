@@ -39,5 +39,5 @@ void Geodot::reproject_to_webmercator(String infile, String outfile) {
 void Geodot::save_tile_from_heightmap(String infile, String outfile, float new_top_left_x, float new_top_left_y, float new_size, int img_size) {
     RasterTileExtractor rte;
 
-    Godot::print("Extracting tile from " + infile + "...");
+    rte.clip(infile.utf8().get_data(), outfile.utf8().get_data(), new_top_left_x, new_top_left_y, new_size, img_size);
 }
