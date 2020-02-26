@@ -5,14 +5,14 @@ RasterTileExtractor::RasterTileExtractor() {
     GDALAllRegister();
 }
 
-void RasterTileExtractor::reproject_to_webmercator(const std::string &infile, const std::string &outfile) {
+void RasterTileExtractor::reproject_to_webmercator(const char *infile, const char *outfile) {
     GDALDriverH hDriver;
     GDALDataType eDT;
     GDALDatasetH hDstDS;
     GDALDatasetH hSrcDS;
 
     // Open the source file.
-    hSrcDS = GDALOpen(infile.c_str(), GA_ReadOnly);
+    hSrcDS = GDALOpen(infile, GA_ReadOnly);
     CPLAssert(hSrcDS != NULL)
 
     // Create output with same datatype as first input band.
@@ -54,7 +54,7 @@ void RasterTileExtractor::reproject_to_webmercator(const std::string &infile, co
     GDALDestroyGenImgProjTransformer(hTransformArg);
 
     // Create the output file.
-    hDstDS = GDALCreate(hDriver, outfile.c_str(), nPixels, nLines,
+    hDstDS = GDALCreate(hDriver, outfile, nPixels, nLines,
                         GDALGetRasterCount(hSrcDS), eDT, nullptr);
     CPLAssert(hDstDS != NULL)
 
@@ -104,13 +104,13 @@ void RasterTileExtractor::reproject_to_webmercator(const std::string &infile, co
 }
 
 void
-RasterTileExtractor::clip(const std::string &infile, const std::string &outfile, double top_left_x, double top_left_y,
+RasterTileExtractor::clip(const char *infile, const char *outfile, double top_left_x, double top_left_y,
                           double size_meters, int img_size) {
     GDALDatasetH source, dest;
     GDALDriverH pDriver;
     pDriver = GDALGetDriverByName("GTiff");
 
-    source = GDALOpen(infile.c_str(), GA_ReadOnly);
+    source = GDALOpen(infile, GA_ReadOnly);
 
     // Get the current Transform of the source image
     double transform[6];
@@ -128,7 +128,7 @@ RasterTileExtractor::clip(const std::string &infile, const std::string &outfile,
     transform[5] = -new_pixel_size;
 
     // Create a new geoimage at the given path with our img_size
-    dest = GDALCreate(pDriver, outfile.c_str(), img_size, img_size,
+    dest = GDALCreate(pDriver, outfile, img_size, img_size,
                       GDALGetRasterCount(source), GDT_Float32, nullptr);
 
     // Get Source coordinate system.

@@ -13,3 +13,5 @@ func _ready():
 
 func _process(delta):
 	print(Geodot.get_time_passed())
+	
+	Geodot.save_tile_from_heightmap("test", "test2", 0, 0, 1, 1)

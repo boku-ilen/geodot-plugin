@@ -19,6 +19,10 @@ godot_headers_path = "godot-cpp/godot_headers/"
 cpp_bindings_path = "godot-cpp/"
 cpp_library = "libgodot-cpp"
 
+rte_cpp_path = "src/raster-tile-extractor"
+rte_libpath = "src/raster-tile-extractor/cmake-build-debug/"
+rte_library = "libRasterTileExtractor"
+
 # only support 64 at this time..
 bits = 64
 
@@ -91,9 +95,9 @@ else:
 cpp_library += '.' + str(bits)
 
 # make sure our binding library is properly includes
-env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/'])
-env.Append(LIBPATH=[cpp_bindings_path + 'bin/'])
-env.Append(LIBS=[cpp_library])
+env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/', rte_cpp_path])
+env.Append(LIBPATH=[cpp_bindings_path + 'bin/', rte_libpath])
+env.Append(LIBS=[cpp_library, rte_library])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])

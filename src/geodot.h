@@ -23,6 +23,10 @@ public:
     void _process(float delta);
     
     float get_time_passed();
+
+    void reproject_to_webmercator(String infile, String outfile);
+
+    void save_tile_from_heightmap(String infile, String outfile, float new_top_left_x, float new_top_left_y, float new_size, int img_size);
 };
 
 }
