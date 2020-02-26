@@ -1,13 +1,11 @@
-#include <iostream>
-#include <gdal/gdal_priv.h>
-#include <gdal/gdalwarper.h>
+#include "RasterTileExtractor.h"
 
-// TODO: As a proof-of-concept, this is currently a standalone executable. It should be turned into a library and called
-//  from Godot.
+RasterTileExtractor::RasterTileExtractor() {
+    // Register all drivers - without this, GDALGetDriverByName doesn't work
+    GDALAllRegister();
+}
 
-/// Reproject the raster file at infile to Webmercator and save the result to outfile.
-/// Adapted from https://gdal.org/tutorials/warp_tut.html
-void reproject_to_webmercator(const std::string &infile, const std::string &outfile) {
+void RasterTileExtractor::reproject_to_webmercator(const std::string &infile, const std::string &outfile) {
     GDALDriverH hDriver;
     GDALDataType eDT;
     GDALDatasetH hDstDS;
@@ -105,9 +103,9 @@ void reproject_to_webmercator(const std::string &infile, const std::string &outf
     GDALClose(hSrcDS);
 }
 
-/// Clip the infile to an image starting at top_left_x, top_left_y with a given size (in meters).
-/// The resulting image has the resolution img_size x img_size (pixels).
-void clip(const std::string& infile, const std::string& outfile, double top_left_x, double top_left_y, double size_meters, int img_size) {
+void
+RasterTileExtractor::clip(const std::string &infile, const std::string &outfile, double top_left_x, double top_left_y,
+                          double size_meters, int img_size) {
     GDALDatasetH source, dest;
     GDALDriverH pDriver;
     pDriver = GDALGetDriverByName("GTiff");
@@ -131,7 +129,7 @@ void clip(const std::string& infile, const std::string& outfile, double top_left
 
     // Create a new geoimage at the given path with our img_size
     dest = GDALCreate(pDriver, outfile.c_str(), img_size, img_size,
-                        GDALGetRasterCount(source), GDT_Float32, nullptr);
+                      GDALGetRasterCount(source), GDT_Float32, nullptr);
 
     // Get Source coordinate system.
     const char *pszDstWKT = nullptr;
@@ -184,20 +182,4 @@ void clip(const std::string& infile, const std::string& outfile, double top_left
     // Cleanup
     GDALClose(dest);
     GDALClose(source);
-}
-
-int main() {
-    GDALAllRegister();
-
-    // TODO: Only call this if the input file is not Webmercator already or if we haven't reprojected
-    reproject_to_webmercator("data/25m_EU_clip.tif", "data/25m_EU_clip_webm.tif");
-
-    float new_top_left_x = 1470287.0;
-    float new_top_left_y = 6013574.0;
-    float new_size = 500000.0;
-    int img_size = 256;
-
-    clip("data/25m_EU_clip_webm.tif", "data/25m_EU_clip_webm_tile.tif", new_top_left_x, new_top_left_y, new_size, img_size);
-
-    return 0;
 }
