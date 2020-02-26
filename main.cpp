@@ -105,8 +105,9 @@ void reproject_to_webmercator(const std::string &infile, const std::string &outf
     GDALClose(hSrcDS);
 }
 
-/// Clip the infile to a 256x256 image starting at top_left_x, top_left_y with a given size (in meters).
-void clip(const std::string& infile, const std::string& outfile, double top_left_x, double top_left_y, double size) {
+/// Clip the infile to an image starting at top_left_x, top_left_y with a given size (in meters).
+/// The resulting image has the resolution img_size x img_size (pixels).
+void clip(const std::string& infile, const std::string& outfile, double top_left_x, double top_left_y, double size_meters, int img_size) {
     GDALDatasetH source, dest;
     GDALDriverH pDriver;
     pDriver = GDALGetDriverByName("GTiff");
@@ -121,10 +122,8 @@ void clip(const std::string& infile, const std::string& outfile, double top_left
     transform[0] = top_left_x;
     transform[3] = top_left_y;
 
-    int img_size = 256;
-
     // We want to fit an image of the given size (in meters) into our img_size (in pixels)
-    double new_pixel_size = size / img_size;
+    double new_pixel_size = size_meters / img_size;
 
     // Adjust the pixel size
     transform[1] = new_pixel_size;
@@ -196,8 +195,9 @@ int main() {
     float new_top_left_x = 1470287.0;
     float new_top_left_y = 6013574.0;
     float new_size = 500000.0;
+    int img_size = 256;
 
-    clip("data/25m_EU_clip_webm.tif", "data/25m_EU_clip_webm_tile.tif", new_top_left_x, new_top_left_y, new_size);
+    clip("data/25m_EU_clip_webm.tif", "data/25m_EU_clip_webm_tile.tif", new_top_left_x, new_top_left_y, new_size, img_size);
 
     return 0;
 }
