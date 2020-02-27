@@ -63,6 +63,11 @@ if env['platform'] == "osx":
 elif env['platform'] in ('x11', 'linux'):
     env['target_path'] += 'x11/'
     cpp_library += '.linux'
+
+    env.Append(LINKFLAGS=[
+        '-Wl,-rpath,\'$$ORIGIN\'/lib'
+    ])
+
     if env['target'] in ('debug', 'd'):
         env.Append(CCFLAGS=['-fPIC', '-g3', '-Og'])
         env.Append(CXXFLAGS=['-std=c++17'])
