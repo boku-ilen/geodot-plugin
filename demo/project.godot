@@ -26,7 +26,3 @@ Geodot="*res://bin/geodot.gdns"
 [gdnative]
 
 singletons=[  ]
-
-[rendering]
-
-environment/default_environment="res://default_env.tres"

@@ -36,8 +36,40 @@ void Geodot::reproject_to_webmercator(String infile, String outfile) {
     rte.reproject_to_webmercator(infile.utf8().get_data(), outfile.utf8().get_data());
 }
 
-void Geodot::save_tile_from_heightmap(String infile, String outfile, float new_top_left_x, float new_top_left_y, float new_size, int img_size) {
+union {
+    float fval;
+    int8_t bval[4];
+} floatAsBytes;
+
+Ref<Image> Geodot::save_tile_from_heightmap(String infile, String outfile, float new_top_left_x, float new_top_left_y, float new_size, int img_size) const {
     RasterTileExtractor rte;
 
-    rte.clip(infile.utf8().get_data(), outfile.utf8().get_data(), new_top_left_x, new_top_left_y, new_size, img_size);
+    float *data = new float[sizeof(float) * img_size * img_size];
+    rte.clip(infile.utf8().get_data(), outfile.utf8().get_data(), new_top_left_x, new_top_left_y, new_size, img_size, data);
+    
+    PoolByteArray pba;
+    
+    pba.resize(256*256*4);
+
+    int index = 0;
+
+    // Put the raw image data into a PoolByteArray
+    for (int y = 0; y < 256; y++) {
+        for (int x = 0; x < 256; x++) {
+            // We need to convert the float into 4 bytes because that's the format Godot expects
+            floatAsBytes.fval = data[y * 256 + x];
+
+            pba.set(index, floatAsBytes.bval[0]);
+            pba.set(index, floatAsBytes.bval[1]);
+            pba.set(index, floatAsBytes.bval[2]);
+            pba.set(index, floatAsBytes.bval[3]);
+        }
+    }
+
+    Image *img = Image::_new();
+    img->create_from_data(256, 256, false, Image::Format::FORMAT_RF, pba);
+
+    // TODO: We may be leaking memory!
+
+    return Ref<Image>(img);
 }

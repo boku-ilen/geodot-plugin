@@ -1,3 +1,4 @@
+#include <iostream>
 #include "RasterTileExtractor.h"
 
 RasterTileExtractor::RasterTileExtractor() {
@@ -6,6 +7,8 @@ RasterTileExtractor::RasterTileExtractor() {
 }
 
 void RasterTileExtractor::reproject_to_webmercator(const char *infile, const char *outfile) {
+    bool save_to_disk = false;
+
     GDALDriverH hDriver;
     GDALDataType eDT;
     GDALDatasetH hDstDS;
@@ -18,7 +21,7 @@ void RasterTileExtractor::reproject_to_webmercator(const char *infile, const cha
     // Create output with same datatype as first input band.
     eDT = GDALGetRasterDataType(GDALGetRasterBand(hSrcDS, 1));
 
-    // Get output driver (GeoTIFF format)
+
     hDriver = GDALGetDriverByName("GTiff");
     CPLAssert(hDriver != NULL)
 
@@ -105,10 +108,15 @@ void RasterTileExtractor::reproject_to_webmercator(const char *infile, const cha
 
 void
 RasterTileExtractor::clip(const char *infile, const char *outfile, double top_left_x, double top_left_y,
-                          double size_meters, int img_size) {
+                          double size_meters, int img_size, float *result_target) {
     GDALDatasetH source, dest;
     GDALDriverH pDriver;
-    pDriver = GDALGetDriverByName("GTiff");
+
+    if (false) {
+        pDriver = GDALGetDriverByName("GTiff");
+    } else {
+        pDriver = GDALGetDriverByName("MEM");
+    }
 
     source = GDALOpen(infile, GA_ReadOnly);
 
@@ -178,6 +186,21 @@ RasterTileExtractor::clip(const char *infile, const char *outfile, double top_le
     oOperation.ChunkAndWarpImage(0, 0, img_size, img_size);
     GDALDestroyGenImgProjTransformer(psWarpOptions->pTransformerArg);
     GDALDestroyWarpOptions(psWarpOptions);
+
+    GDALRasterBandH hBand = GDALGetRasterBand(dest, 1);
+
+    float *pafScanline;
+    int   nXSize = GDALGetRasterBandXSize( hBand );
+    size_t img_mem_size = sizeof(float) * nXSize * nXSize;
+
+    pafScanline = (float *) CPLMalloc(img_mem_size);
+
+    GDALRasterIO( hBand, GF_Read, 0, 0, nXSize, nXSize,
+                  pafScanline, nXSize, nXSize, GDT_Float32,
+                  0, 0 );
+
+    // TODO: Not sure if required. Also we're probably leaking memory!
+    memcpy(result_target, pafScanline, img_mem_size);
 
     // Cleanup
     GDALClose(dest);
