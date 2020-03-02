@@ -199,8 +199,11 @@ RasterTileExtractor::clip(const char *infile, const char *outfile, double top_le
                   pafScanline, nXSize, nXSize, GDT_Float32,
                   0, 0 );
 
-    // TODO: Not sure if required. Also we're probably leaking memory!
+    // Freeing 'result_target' is up to the caller.
     memcpy(result_target, pafScanline, img_mem_size);
+
+    // Since we copied pafScanline into the caller's result_target. pafScanline can be freed.
+    CPLFree(pafScanline);
 
     // Cleanup
     GDALClose(dest);

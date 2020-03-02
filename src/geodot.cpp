@@ -68,10 +68,11 @@ Ref<Image> Geodot::save_tile_from_heightmap(String infile, String outfile, float
         }
     }
 
+    // All content of data is now in pba, so we can delete it
+    delete[] data;
+
     Image *img = Image::_new();
     img->create_from_data(256, 256, false, Image::Format::FORMAT_RF, pba);
-
-    // TODO: We may be leaking memory!
 
     return Ref<Image>(img);
 }
