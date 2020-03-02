@@ -20,15 +20,12 @@ func _ready():
 		256
 	)
 	
-	var tex = ImageTexture.new()
-	tex.create_from_image(img)
-	
-	get_node("MeshInstance").mesh.surface_get_material(0).set_shader_param("heightmap", tex)
+	get_node("MeshInstance").mesh.surface_get_material(0).set_shader_param("heightmap", img)
 
 
 func _process(delta):
 	var img = Geodot.save_tile_from_heightmap(
-		"/home/retour/LandscapeLab/testdata/DGM_K_5m.tif",
+		"/home/retour/LandscapeLab/testdata/webm.tif",
 		"/home/retour/LandscapeLab/testdata/tile.tif",
 		1546670.0,
 		5918250.0,
@@ -36,9 +33,6 @@ func _process(delta):
 		256
 	)
 	
-	var tex = ImageTexture.new()
-	tex.create_from_image(img)
-	
-	get_node("MeshInstance").mesh.surface_get_material(0).set_shader_param("heightmap", tex)
+	get_node("MeshInstance").mesh.surface_get_material(0).set_shader_param("heightmap", img)
 	
 	print(Geodot.get_time_passed())

@@ -2,7 +2,7 @@
 
 [ext_resource path="res://World.gd" type="Script" id=1]
 
-[sub_resource type="Shader" id=3]
+[sub_resource type="Shader" id=1]
 code = "shader_type spatial;
 
 uniform sampler2D heightmap;
@@ -11,17 +11,17 @@ void fragment() {
 	ALBEDO = vec3(texture(heightmap, UV).r) / 1000.0;
 }"
 
-[sub_resource type="ShaderMaterial" id=4]
-shader = SubResource( 3 )
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
 
-[sub_resource type="PlaneMesh" id=2]
-material = SubResource( 4 )
+[sub_resource type="PlaneMesh" id=3]
+material = SubResource( 2 )
 
 [node name="World" type="Spatial"]
 script = ExtResource( 1 )
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
-mesh = SubResource( 2 )
+mesh = SubResource( 3 )
 material/0 = null
 
 [node name="Camera" type="Camera" parent="."]

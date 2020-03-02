@@ -41,7 +41,7 @@ union {
     int8_t bval[4];
 } floatAsBytes;
 
-Ref<Image> Geodot::save_tile_from_heightmap(String infile, String outfile, float new_top_left_x, float new_top_left_y, float new_size, int img_size) const {
+Ref<ImageTexture> Geodot::save_tile_from_heightmap(String infile, String outfile, float new_top_left_x, float new_top_left_y, float new_size, int img_size) const {
     RasterTileExtractor rte;
 
     float *data = new float[sizeof(float) * img_size * img_size];
@@ -49,15 +49,16 @@ Ref<Image> Geodot::save_tile_from_heightmap(String infile, String outfile, float
     
     PoolByteArray pba;
     
-    pba.resize(256*256*4);
+    // Multiply by 4 since we want to put 32-float values into a byte array
+    pba.resize(img_size * img_size * 4);
 
     int index = 0;
 
     // Put the raw image data into a PoolByteArray
-    for (int y = 0; y < 256; y++) {
-        for (int x = 0; x < 256; x++) {
+    for (int y = 0; y < img_size; y++) {
+        for (int x = 0; x < img_size; x++) {
             // We need to convert the float into 4 bytes because that's the format Godot expects
-            floatAsBytes.fval = data[y * 256 + x];
+            floatAsBytes.fval = data[y * img_size + x];
 
             pba.set(index, floatAsBytes.bval[0]);
             pba.set(++index, floatAsBytes.bval[1]);
@@ -71,8 +72,14 @@ Ref<Image> Geodot::save_tile_from_heightmap(String infile, String outfile, float
     // All content of data is now in pba, so we can delete it
     delete[] data;
 
+    // Create an image from the PoolByteArray
     Image *img = Image::_new();
-    img->create_from_data(256, 256, false, Image::Format::FORMAT_RF, pba);
+    img->create_from_data(img_size, img_size, false, Image::Format::FORMAT_RF, pba);
 
-    return Ref<Image>(img);
+    // Create an ImageTexture wrapping the Image
+    ImageTexture *imgTex = ImageTexture::_new();
+    imgTex->set_storage(ImageTexture::STORAGE_RAW);
+    imgTex->create_from_image(Ref<Image>(img), 0);
+
+    return Ref<ImageTexture>(imgTex);
 }

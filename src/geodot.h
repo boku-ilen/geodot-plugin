@@ -4,6 +4,7 @@
 #include <Godot.hpp>
 #include <Node.hpp>
 #include <Image.hpp>
+#include <ImageTexture.hpp>
 
 namespace godot {
 
@@ -27,7 +28,7 @@ public:
 
     void reproject_to_webmercator(String infile, String outfile);
 
-    Ref<Image> save_tile_from_heightmap(String infile, String outfile, float new_top_left_x, float new_top_left_y, float new_size, int img_size) const;
+    Ref<ImageTexture> save_tile_from_heightmap(String infile, String outfile, float new_top_left_x, float new_top_left_y, float new_size, int img_size) const;
 };
 
 }
