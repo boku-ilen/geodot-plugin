@@ -60,9 +60,11 @@ Ref<Image> Geodot::save_tile_from_heightmap(String infile, String outfile, float
             floatAsBytes.fval = data[y * 256 + x];
 
             pba.set(index, floatAsBytes.bval[0]);
-            pba.set(index, floatAsBytes.bval[1]);
-            pba.set(index, floatAsBytes.bval[2]);
-            pba.set(index, floatAsBytes.bval[3]);
+            pba.set(++index, floatAsBytes.bval[1]);
+            pba.set(++index, floatAsBytes.bval[2]);
+            pba.set(++index, floatAsBytes.bval[3]);
+
+            index++;
         }
     }
 
