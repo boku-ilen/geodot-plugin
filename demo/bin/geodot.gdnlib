@@ -13,6 +13,6 @@ OSX.64="res://bin/osx/libgeodot.dylib"
 
 [dependencies]
 
-X11.64=[ "res://bin/x11/lib/libRasterTileExtractor.so" ]
+X11.64=[ "res://bin/x11/lib/libRasterTileExtractor.so", "res://bin/x11/lib/libgdal.so.20" ]
 Windows.64=[ "res://bin/win64/lib/libRasterTileExtractor.dll" ]
 OSX.64=[ "res://bin/osx/lib/libRasterTileExtractor.dylib" ]
