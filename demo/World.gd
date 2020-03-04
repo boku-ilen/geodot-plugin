@@ -16,7 +16,7 @@ func _ready():
 		"/home/retour/LandscapeLab/testdata/tile.tif",
 		1546670.0,
 		5918250.0,
-		50000.0,
+		500.0,
 		256
 	)
 	
@@ -27,9 +27,9 @@ func _process(delta):
 	var img = Geodot.save_tile_from_heightmap(
 		"/home/retour/LandscapeLab/testdata/webm.tif",
 		"/home/retour/LandscapeLab/testdata/tile.tif",
-		1546670.0,
+		1546670.0 + Geodot.get_time_passed() * 1000,
 		5918250.0,
-		50000.0,
+		500.0,
 		256
 	)
 	

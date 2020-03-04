@@ -20,6 +20,7 @@ Geodot::~Geodot() {
 void Geodot::_init() {
     // initialize any variables here
     time_passed = 0.0;
+    load_mutex = Ref<Mutex>(Mutex::_new());
 }
 
 void Geodot::_process(float delta) {
@@ -41,7 +42,10 @@ union {
     int8_t bval[4];
 } floatAsBytes;
 
-Ref<ImageTexture> Geodot::save_tile_from_heightmap(String infile, String outfile, float new_top_left_x, float new_top_left_y, float new_size, int img_size) const {
+Ref<ImageTexture> Geodot::save_tile_from_heightmap(String infile, String outfile, float new_top_left_x, float new_top_left_y, float new_size, int img_size) {
+    // We need to lock a mutex because the RasterTileExtractor seems not to be thread-safe (due to gdal?)
+    load_mutex->lock();
+
     RasterTileExtractor rte;
 
     float *data = new float[sizeof(float) * img_size * img_size];
@@ -51,6 +55,8 @@ Ref<ImageTexture> Geodot::save_tile_from_heightmap(String infile, String outfile
     
     // Multiply by 4 since we want to put 32-float values into a byte array
     pba.resize(img_size * img_size * 4);
+
+    load_mutex->unlock();
 
     int index = 0;
 
@@ -79,7 +85,7 @@ Ref<ImageTexture> Geodot::save_tile_from_heightmap(String infile, String outfile
     // Create an ImageTexture wrapping the Image
     ImageTexture *imgTex = ImageTexture::_new();
     imgTex->set_storage(ImageTexture::STORAGE_RAW);
-    imgTex->create_from_image(Ref<Image>(img), 0);
+    imgTex->create_from_image(Ref<Image>(img), ImageTexture::FLAG_FILTER);
 
     return Ref<ImageTexture>(imgTex);
 }

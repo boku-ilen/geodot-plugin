@@ -4,6 +4,7 @@ project(RasterTileExtractor)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_INSTALL_RPATH "\$ORIGIN")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH on)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 find_library(GDAL gdal)
 
