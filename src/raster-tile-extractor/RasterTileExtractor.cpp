@@ -130,6 +130,7 @@ RasterTileExtractor::clip(const char *infile, const char *outfile, double top_le
 
     // We want to fit an image of the given size (in meters) into our img_size (in pixels)
     double new_pixel_size = size_meters / img_size;
+    double previous_pixel_size = transform[1];
 
     // Adjust the pixel size
     transform[1] = new_pixel_size;
@@ -170,6 +171,13 @@ RasterTileExtractor::clip(const char *infile, const char *outfile, double top_le
             (int *) CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
     psWarpOptions->panDstBands[0] = 1;
     psWarpOptions->pfnProgress = GDALTermProgress;
+
+    // If we are going beyond the available resolution, use bilinear scaling
+    if (new_pixel_size < previous_pixel_size) {
+        psWarpOptions->eResampleAlg = GRA_Bilinear;
+    } else {
+        psWarpOptions->eResampleAlg = GRA_NearestNeighbour;
+    }
 
     // Establish reprojection transformer.
     psWarpOptions->pTransformerArg =
