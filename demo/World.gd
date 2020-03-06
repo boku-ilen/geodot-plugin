@@ -1,9 +1,7 @@
 extends Spatial
 
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
+var instanced_image_count = 0
 
 
 # Called when the node enters the scene tree for the first time.
@@ -13,11 +11,11 @@ func _ready():
 	
 	var img = Geodot.save_tile_from_heightmap(
 		"/home/retour/LandscapeLab/testdata/webm.tif",
-		"/home/retour/LandscapeLab/testdata/tile.tif",
 		1546670.0,
 		5918250.0,
 		500.0,
-		256
+		256,
+		1
 	)
 	
 	get_node("MeshInstance").mesh.surface_get_material(0).set_shader_param("heightmap", img)
@@ -26,13 +24,15 @@ func _ready():
 func _process(delta):
 	var img = Geodot.save_tile_from_heightmap(
 		"/home/retour/LandscapeLab/testdata/webm.tif",
-		"/home/retour/LandscapeLab/testdata/tile.tif",
-		1546670.0 + Geodot.get_time_passed() * 1000,
+		1546670.0,
 		5918250.0,
 		500.0,
-		256
+		256,
+		1
 	)
+	
+	instanced_image_count += 1
 	
 	get_node("MeshInstance").mesh.surface_get_material(0).set_shader_param("heightmap", img)
 	
-	print(Geodot.get_time_passed())
+	print(instanced_image_count / Geodot.get_time_passed())

@@ -18,6 +18,22 @@ private:
     Ref<Mutex> load_mutex;
 
 public:
+    // TODO: Not exportable? https://github.com/godotengine/godot/issues/15922
+    enum INTERPOLATION {
+        NEAREST,
+        BILINEAR,
+        CUBIC,
+        CUBICSPLINE,
+        LANCZOS,
+        AVG,
+        MODE,
+        MAX,
+        MIN,
+        MED,
+        Q1,
+        Q2,
+    };
+    
     static void _register_methods();
 
     Geodot();
@@ -31,7 +47,7 @@ public:
 
     void reproject_to_webmercator(String infile, String outfile);
 
-    Ref<ImageTexture> save_tile_from_heightmap(String infile, String outfile, float new_top_left_x, float new_top_left_y, float new_size, int img_size);
+    Ref<ImageTexture> save_tile_from_heightmap(String infile, float new_top_left_x, float new_top_left_y, float new_size, int img_size, int interpolation);
 };
 
 }

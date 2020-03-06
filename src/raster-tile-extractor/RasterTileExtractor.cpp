@@ -107,8 +107,8 @@ void RasterTileExtractor::reproject_to_webmercator(const char *infile, const cha
 }
 
 void
-RasterTileExtractor::clip(const char *infile, const char *outfile, double top_left_x, double top_left_y,
-                          double size_meters, int img_size, float *result_target) {
+RasterTileExtractor::clip(const char *infile, double top_left_x, double top_left_y, double size_meters, int img_size,
+                          int interpolation_type, float *result_target) {
     GDALDatasetH source, dest;
     GDALDriverH pDriver;
 
@@ -119,6 +119,9 @@ RasterTileExtractor::clip(const char *infile, const char *outfile, double top_le
     }
 
     source = GDALOpen(infile, GA_ReadOnly);
+
+    // TODO: Use this datatype instead of Float32 only! (Requires changes in Geodot itself as well)
+    GDALDataType datatype = GDALGetRasterDataType(GDALGetRasterBand(source, 1));
 
     // Get the current Transform of the source image
     double transform[6];
@@ -137,7 +140,8 @@ RasterTileExtractor::clip(const char *infile, const char *outfile, double top_le
     transform[5] = -new_pixel_size;
 
     // Create a new geoimage at the given path with our img_size
-    dest = GDALCreate(pDriver, outfile, img_size, img_size,
+    // The outfile path is empty since it's only in RAM
+    dest = GDALCreate(pDriver, "", img_size, img_size,
                       GDALGetRasterCount(source), GDT_Float32, nullptr);
 
     // Get Source coordinate system.
@@ -174,7 +178,7 @@ RasterTileExtractor::clip(const char *infile, const char *outfile, double top_le
 
     // If we are going beyond the available resolution, use bilinear scaling
     if (new_pixel_size < previous_pixel_size) {
-        psWarpOptions->eResampleAlg = GRA_Bilinear;
+        psWarpOptions->eResampleAlg = static_cast<GDALResampleAlg>(interpolation_type);
     } else {
         psWarpOptions->eResampleAlg = GRA_NearestNeighbour;
     }

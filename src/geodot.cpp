@@ -42,14 +42,14 @@ union {
     int8_t bval[4];
 } floatAsBytes;
 
-Ref<ImageTexture> Geodot::save_tile_from_heightmap(String infile, String outfile, float new_top_left_x, float new_top_left_y, float new_size, int img_size) {
+Ref<ImageTexture> Geodot::save_tile_from_heightmap(String infile, float new_top_left_x, float new_top_left_y, float new_size, int img_size, int interpolation) {
     // We need to lock a mutex because the RasterTileExtractor seems not to be thread-safe (due to gdal?)
     load_mutex->lock();
 
     RasterTileExtractor rte;
 
     float *data = new float[sizeof(float) * img_size * img_size];
-    rte.clip(infile.utf8().get_data(), outfile.utf8().get_data(), new_top_left_x, new_top_left_y, new_size, img_size, data);
+    rte.clip(infile.utf8().get_data(), new_top_left_x, new_top_left_y, new_size, img_size, interpolation, data);
     
     PoolByteArray pba;
     
@@ -85,7 +85,17 @@ Ref<ImageTexture> Geodot::save_tile_from_heightmap(String infile, String outfile
     // Create an ImageTexture wrapping the Image
     ImageTexture *imgTex = ImageTexture::_new();
     imgTex->set_storage(ImageTexture::STORAGE_RAW);
-    imgTex->create_from_image(Ref<Image>(img), ImageTexture::FLAG_FILTER);
+
+    // By default, the returned texture has the FILTER flag. Only if the interpolation method
+    //  is nearest neighbor or one of the modal types, it is disabled, since we most likely
+    //  want crisp textures then.
+    int flag = ImageTexture::FLAG_FILTER;
+    if (interpolation == INTERPOLATION::NEAREST
+        || interpolation > 5) {
+        flag = 0;
+    }
+    
+    imgTex->create_from_image(Ref<Image>(img), flag);
 
     return Ref<ImageTexture>(imgTex);
 }

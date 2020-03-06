@@ -18,7 +18,7 @@ int main() {
     int img_size = 256;
 
     auto *result = new float[sizeof(float) * img_size * img_size];
-    rte.clip("/home/retour/LandscapeLab/testdata/DGM_K_5m.tif", "/home/retour/LandscapeLab/testdata/tile.tif", new_top_left_x, new_top_left_y, new_size, img_size, result);
+    rte.clip("/home/retour/LandscapeLab/testdata/DGM_K_5m.tif", new_top_left_x, new_top_left_y, new_size, img_size, 0, result);
 
     std::cout << result[0] << std::endl;
 

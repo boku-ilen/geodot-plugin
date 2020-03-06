@@ -15,8 +15,8 @@ public:
 
     /// Clip the infile to an image starting at top_left_x, top_left_y with a given size (in meters).
     /// The resulting image has the resolution img_size x img_size (pixels).
-    void clip(const char *infile, const char *outfile, double top_left_x, double top_left_y,
-                     double size_meters, int img_size, float *result_target);
+    void clip(const char *infile, double top_left_x, double top_left_y, double size_meters, int img_size,
+              int interpolation_type, float *result_target);
 };
 
 
