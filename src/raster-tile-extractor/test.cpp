@@ -1,7 +1,4 @@
-
-
-// TODO: As a proof-of-concept, this is currently a standalone executable. It should be turned into a library and called
-//  from Godot.
+// Used for testing the libRasterTileExtractor library.
 
 #include <iostream>
 #include "RasterTileExtractor.h"
