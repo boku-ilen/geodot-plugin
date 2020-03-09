@@ -3,6 +3,6 @@
 [ext_resource path="res://bin/geodot.gdnlib" type="GDNativeLibrary" id=1]
 
 [resource]
-resource_name = "geodot"
+resource_name = "Geodot"
 class_name = "Geodot"
 library = ExtResource( 1 )

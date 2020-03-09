@@ -22,6 +22,10 @@ func _ready():
 
 
 func _process(delta):
+	var ti = Geodot.get_image()
+	
+	ti.test_print()
+	
 	var img = Geodot.save_tile_from_heightmap(
 		"/home/retour/LandscapeLab/testdata/webm.tif",
 		1546670.0,

@@ -8,6 +8,7 @@ void Geodot::_register_methods() {
     register_method("get_time_passed", &Geodot::get_time_passed);
     register_method("reproject_to_webmercator", &Geodot::reproject_to_webmercator);
     register_method("save_tile_from_heightmap", &Geodot::save_tile_from_heightmap);
+    register_method("get_image", &Geodot::get_image);
 }
 
 Geodot::Geodot() {
@@ -37,6 +38,12 @@ void Geodot::reproject_to_webmercator(String infile, String outfile) {
     rte.reproject_to_webmercator(infile.utf8().get_data(), outfile.utf8().get_data());
 }
 
+Ref<GeoImage> Geodot::get_image() {
+    Ref<GeoImage> image = GeoImage::_new();
+
+    return image;
+}
+
 union {
     float fval;
     int8_t bval[4];
@@ -50,9 +57,9 @@ Ref<ImageTexture> Geodot::save_tile_from_heightmap(String infile, float new_top_
 
     float *data = new float[sizeof(float) * img_size * img_size];
     rte.clip(infile.utf8().get_data(), new_top_left_x, new_top_left_y, new_size, img_size, interpolation, data);
-    
+
     PoolByteArray pba;
-    
+
     // Multiply by 4 since we want to put 32-float values into a byte array
     pba.resize(img_size * img_size * 4);
 
@@ -94,8 +101,31 @@ Ref<ImageTexture> Geodot::save_tile_from_heightmap(String infile, float new_top_
         || interpolation > 5) {
         flag = 0;
     }
-    
+
     imgTex->create_from_image(Ref<Image>(img), flag);
 
     return Ref<ImageTexture>(imgTex);
+}
+
+// Geodot::GeoImage
+
+GeoImage::GeoImage() {
+
+}
+
+GeoImage::~GeoImage() {
+
+}
+
+void GeoImage::_init() {
+    // This is required - returning a Reference to a locally created GeoImage throws a segfault otherwise!
+    init_ref();
+}
+
+void GeoImage::_register_methods() {
+    register_method("test_print", &GeoImage::test_print);
+}
+
+void GeoImage::test_print() {
+    Godot::print("Test");
 }
