@@ -7,6 +7,7 @@
 #include <Mutex.hpp>
 #include <Resource.hpp>
 #include <ImageTexture.hpp>
+#include <Array.hpp>
 
 namespace godot {
 
@@ -17,11 +18,21 @@ public:
     GeoImage();
     ~GeoImage();
 
+    // Create a new GeoImage with a GeoTIF, position and size
+
+    // Create a new GeoImage with a pre-tiled pyramid path, position and LOD
+
     void _init();
 
     static void _register_methods();
 
     void test_print();
+
+    Ref<Image> get_image();
+
+    Ref<ImageTexture> get_image_texture();
+
+    Array get_histogram(int number_of_entries);
 };
 
 class Geodot : public Node {

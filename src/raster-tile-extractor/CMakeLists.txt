@@ -10,7 +10,7 @@ find_library(GDAL gdal)
 
 add_library(RasterTileExtractor SHARED
         RasterTileExtractor.cpp
-        RasterTileExtractor.h)
+        RasterTileExtractor.h GeoRaster.cpp GeoRaster.h)
 
 add_executable(test
         test.cpp)
