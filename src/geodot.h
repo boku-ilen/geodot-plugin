@@ -11,6 +11,7 @@
 
 namespace godot {
 
+// Wrapper for a RasterTileExtractor GDALDataset.
 class GeoImage : public Resource {
     GODOT_CLASS(GeoImage, Resource)
 

@@ -1,12 +1,13 @@
 #include <iostream>
 #include "RasterTileExtractor.h"
+#include <filesystem>
 
 RasterTileExtractor::RasterTileExtractor() {
     // Register all drivers - without this, GDALGetDriverByName doesn't work
     GDALAllRegister();
 }
 
-void RasterTileExtractor::reproject_to_webmercator(const char *infile, const char *outfile) {
+void RasterTileExtractor::reproject_to_webmercator(const char *base_path, const char *outfile) {
     bool save_to_disk = false;
 
     GDALDriverH hDriver;
@@ -15,7 +16,7 @@ void RasterTileExtractor::reproject_to_webmercator(const char *infile, const cha
     GDALDatasetH hSrcDS;
 
     // Open the source file.
-    hSrcDS = GDALOpen(infile, GA_ReadOnly);
+    hSrcDS = GDALOpen(base_path, GA_ReadOnly);
     CPLAssert(hSrcDS != NULL)
 
     // Create output with same datatype as first input band.
@@ -106,10 +107,10 @@ void RasterTileExtractor::reproject_to_webmercator(const char *infile, const cha
     GDALClose(hSrcDS);
 }
 
-void
-RasterTileExtractor::clip(const char *infile, double top_left_x, double top_left_y, double size_meters, int img_size,
-                          int interpolation_type, float *result_target) {
-    GDALDatasetH source, dest;
+GDALDataset
+*RasterTileExtractor::clip(const char *base_path, double top_left_x, double top_left_y, double size_meters, int img_size,
+                          int interpolation_type) {
+    GDALDataset *source, *dest;
     GDALDriverH pDriver;
 
     if (false) {
@@ -118,14 +119,12 @@ RasterTileExtractor::clip(const char *infile, double top_left_x, double top_left
         pDriver = GDALGetDriverByName("MEM");
     }
 
-    source = GDALOpen(infile, GA_ReadOnly);
-
-    // TODO: Use this datatype instead of Float32 only! (Requires changes in Geodot itself as well)
-    GDALDataType datatype = GDALGetRasterDataType(GDALGetRasterBand(source, 1));
+    source = (GDALDataset *) GDALOpen(base_path, GA_ReadOnly);
+    GDALDataType datatype = source->GetRasterBand(1)->GetRasterDataType();
 
     // Get the current Transform of the source image
     double transform[6];
-    GDALGetGeoTransform(source, transform);
+    source->GetGeoTransform(transform);
 
     // Adjust the top left coordinates according to the input variables
     transform[0] = top_left_x;
@@ -141,8 +140,8 @@ RasterTileExtractor::clip(const char *infile, double top_left_x, double top_left
 
     // Create a new geoimage at the given path with our img_size
     // The outfile path is empty since it's only in RAM
-    dest = GDALCreate(pDriver, "", img_size, img_size,
-                      GDALGetRasterCount(source), GDT_Float32, nullptr);
+    dest = (GDALDataset *) GDALCreate(pDriver, "", img_size, img_size,
+                      GDALGetRasterCount(source), datatype, nullptr);
 
     // Get Source coordinate system.
     const char *pszDstWKT = nullptr;
@@ -153,10 +152,11 @@ RasterTileExtractor::clip(const char *infile, double top_left_x, double top_left
     oSRS.exportToWkt(const_cast<char **>(&pszDstWKT));
 
     // Apply Webmercator and our previously built Transform to the destination file
-    GDALSetProjection(dest, pszDstWKT);
-    GDALSetGeoTransform(dest, transform);
+    dest->SetProjection(pszDstWKT);
+    dest->SetGeoTransform(transform);
 
     // Copy the color table, if required.
+    // TODO: What exactly does this do? We probably need to do this for all bands?
     GDALColorTableH hCT;
     hCT = GDALGetRasterColorTable(GDALGetRasterBand(source, 1));
     if (hCT != nullptr)
@@ -167,13 +167,13 @@ RasterTileExtractor::clip(const char *infile, double top_left_x, double top_left
     GDALWarpOptions *psWarpOptions = GDALCreateWarpOptions();
     psWarpOptions->hSrcDS = source;
     psWarpOptions->hDstDS = dest;
-    psWarpOptions->nBandCount = 1;
+    psWarpOptions->nBandCount = 1; // TODO: We want to support RGBA (multiple bands) too
     psWarpOptions->panSrcBands =
             (int *) CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
-    psWarpOptions->panSrcBands[0] = 1;
+    psWarpOptions->panSrcBands[0] = 1; // TODO: We want to support RGBA (multiple bands) too
     psWarpOptions->panDstBands =
             (int *) CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
-    psWarpOptions->panDstBands[0] = 1;
+    psWarpOptions->panDstBands[0] = 1; // TODO: We want to support RGBA (multiple bands) too
     psWarpOptions->pfnProgress = GDALTermProgress;
 
     // If we are going beyond the available resolution, use bilinear scaling
@@ -199,25 +199,69 @@ RasterTileExtractor::clip(const char *infile, double top_left_x, double top_left
     GDALDestroyGenImgProjTransformer(psWarpOptions->pTransformerArg);
     GDALDestroyWarpOptions(psWarpOptions);
 
-    GDALRasterBandH hBand = GDALGetRasterBand(dest, 1);
-
-    float *pafScanline;
-    int   nXSize = GDALGetRasterBandXSize( hBand );
-    size_t img_mem_size = sizeof(float) * nXSize * nXSize;
-
-    pafScanline = (float *) CPLMalloc(img_mem_size);
-
-    GDALRasterIO( hBand, GF_Read, 0, 0, nXSize, nXSize,
-                  pafScanline, nXSize, nXSize, GDT_Float32,
-                  0, 0 );
-
-    // Freeing 'result_target' is up to the caller.
-    memcpy(result_target, pafScanline, img_mem_size);
-
-    // Since we copied pafScanline into the caller's result_target. pafScanline can be freed.
-    CPLFree(pafScanline);
-
-    // Cleanup
-    GDALClose(dest);
     GDALClose(source);
+
+    return dest;
+}
+
+#define PYRAMID_DIRECTORY_ENDING "pyramid"
+
+GeoRaster *RasterTileExtractor::get_raster_at_position(const char *base_path, const char *file_ending, double top_left_x, double top_left_y,
+                                                      double size_meters, int img_size, int interpolation_type) {
+    // First, check if we have a pre-tiled pyramid of this data
+    std::string pyramid_name_string = std::string(base_path) + "." + std::string(PYRAMID_DIRECTORY_ENDING);
+
+    if (std::filesystem::exists(pyramid_name_string)) {
+        // We have a pre-tiled pyramid
+        // TODO: Get format
+        return new GeoRaster(get_from_pyramid(pyramid_name_string.c_str(), file_ending, top_left_x, top_left_y, size_meters, img_size, interpolation_type), GeoRaster::BYTE);
+    } else {
+        // Check if there is a single image with the given path
+        std::string raster_path_string = std::string(base_path) + "." + std::string(file_ending);
+
+        if (std::filesystem::exists(raster_path_string)) {
+            // TODO: Get format
+            return new GeoRaster(clip(raster_path_string.c_str(), top_left_x, top_left_y, size_meters, img_size, interpolation_type), GeoRaster::RF);
+        }
+    }
+
+    // If there was neither a single file nor a pyramid, return null
+    return nullptr;
+}
+
+#define WEBMERCATOR_MAX 20037508.0
+#define PI 3.14159265358979323846
+#define CIRCUMEFERENCE 40075016.686
+
+class path;
+
+GDALDataset *
+RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_ending, double top_left_x, double top_left_y, double size_meters,
+                                      int img_size, int interpolation_type) {
+    // Norm webmercator position (in meters) to value between -1 and 1
+    double norm_x = (0.5 + top_left_x / WEBMERCATOR_MAX) * 0.5;
+    double norm_y = 1.0 - (0.5 + (top_left_y / WEBMERCATOR_MAX)) * 0.5;
+
+    // Get latitude and use it to calculate the zoom level here
+    double latitude = norm_y * PI;
+    // Original formula: size = C * cos(latitude) / pow(2, zoom_level) (from https://wiki.openstreetmap.org/wiki/Zoom_levels)
+    int zoom_level = int(round(log2(CIRCUMEFERENCE * cos(latitude) / size_meters)));
+
+    // Number of tiles at this zoom level
+    int num_tiles = pow(2.0, zoom_level);
+
+    // Tile coordinates in OSM pyramid
+    double tile_x = floor(norm_x * num_tiles);
+    double tile_y = floor(norm_y * num_tiles);
+
+    // Build the complete path
+    std::filesystem::path path = std::filesystem::path(base_path);
+    path += std::filesystem::path(std::to_string(zoom_level));
+    path += std::filesystem::path(std::to_string(tile_x));
+    path += std::filesystem::path(std::to_string(tile_y));
+    path += ".";
+    path += file_ending;
+
+    // Load the result as a GDALDataset and return it
+    return (GDALDataset *) GDALOpen(base_path, GA_ReadOnly);
 }

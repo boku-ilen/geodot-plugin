@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(RasterTileExtractor)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_INSTALL_RPATH "\$ORIGIN")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH on)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
