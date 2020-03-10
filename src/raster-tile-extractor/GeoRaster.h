@@ -9,12 +9,13 @@
 class GeoRaster {
 public:
     enum FORMAT {
+        RGB,   // 3 8-bit int channels
         RGBA,  // 4 8-bit int channels
         RF,    // 1 32-bit float channel
         BYTE   // 1 8-bit int channel
     };
 
-    GeoRaster(GDALDataset *data, FORMAT format) : data(data), format(format) {};
+    GeoRaster(GDALDataset *data);
 
     ~GeoRaster();
 

@@ -5,7 +5,7 @@ GeoRaster::~GeoRaster() {
 }
 
 void *GeoRaster::get_as_array() {
-    // TODO: Implement for BYTE and RGBA
+    // TODO: Implement for BYTE, RGBA, RGB
 
     if (format == RF) {
         GDALRasterBand *band = data->GetRasterBand(1);
@@ -30,6 +30,8 @@ int GeoRaster::get_size_in_bytes() {
         return pixels * 4;  // 32-bit float
     } else if (format == RGBA) {
         return pixels * 4;
+    } else if (format == RGB) {
+        return pixels * 3;
     } else {
         // Invalid format!
         return 0;
@@ -58,4 +60,26 @@ int *GeoRaster::get_histogram(int number_of_entries) {
 
     // TODO: This breaks the array
     return reinterpret_cast<int *>(histogram);
+}
+
+GeoRaster::GeoRaster(GDALDataset *data) : data(data) {
+    int raster_count = data->GetRasterCount();
+    GDALDataType raster_type = data->GetRasterBand(1)->GetRasterDataType();
+
+    if (raster_count == 3 && raster_type == GDT_Byte) {
+        format = RGB;
+    }
+
+    if (raster_type == GDT_Byte) {
+        if (raster_count == 4) {
+            format = RGBA;
+        } else if (raster_count == 3) {
+            format = RGB;
+        } else {
+            format = BYTE;
+        }
+    } else {
+        // TODO: Is this fine as a fallback, or would another type be better? Maybe we should assert?
+        format = RF;
+    }
 }
