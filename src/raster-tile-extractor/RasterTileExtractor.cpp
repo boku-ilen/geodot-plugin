@@ -213,14 +213,12 @@ GeoRaster *RasterTileExtractor::get_raster_at_position(const char *base_path, co
 
     if (std::filesystem::exists(pyramid_name_string)) {
         // We have a pre-tiled pyramid
-        // TODO: Get format
         return new GeoRaster(get_from_pyramid(pyramid_name_string.c_str(), file_ending, top_left_x, top_left_y, size_meters, img_size, interpolation_type));
     } else {
         // Check if there is a single image with the given path
         std::string raster_path_string = std::string(base_path) + "." + std::string(file_ending);
 
         if (std::filesystem::exists(raster_path_string)) {
-            // TODO: Get format
             return new GeoRaster(clip(raster_path_string.c_str(), top_left_x, top_left_y, size_meters, img_size, interpolation_type));
         }
     }
