@@ -2,7 +2,7 @@
 #include "RasterTileExtractor.h"
 #include <filesystem>
 
-RasterTileExtractor::RasterTileExtractor() {
+void RasterTileExtractor::initialize() {
     // Register all drivers - without this, GDALGetDriverByName doesn't work
     GDALAllRegister();
 }

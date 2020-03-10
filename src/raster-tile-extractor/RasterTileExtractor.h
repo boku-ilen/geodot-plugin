@@ -8,7 +8,8 @@
 
 class RasterTileExtractor {
 public:
-    RasterTileExtractor();
+    /// Must be called before any other function to initialize GDAL.
+    static void initialize();
 
     /// Reproject the raster file at infile to Webmercator and save the result to outfile.
     /// Adapted from https://gdal.org/tutorials/warp_tut.html

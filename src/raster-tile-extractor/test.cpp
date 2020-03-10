@@ -4,10 +4,7 @@
 #include "RasterTileExtractor.h"
 
 int main() {
-    RasterTileExtractor rte;
-
-    // TODO: Only call this if the input file is not Webmercator already or if we haven't reprojected
-    // rte.reproject_to_webmercator("data/25m_EU_clip.tif", "data/25m_EU_clip_webm.tif");
+    RasterTileExtractor::initialize();
 
     float new_top_left_x = 1546670.0;
     float new_top_left_y = 5918250.0;
