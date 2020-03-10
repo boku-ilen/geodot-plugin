@@ -214,7 +214,7 @@ GeoRaster *RasterTileExtractor::get_raster_at_position(const char *base_path, co
     if (std::filesystem::exists(pyramid_name_string)) {
         // We have a pre-tiled pyramid
         // TODO: Get format
-        return new GeoRaster(get_from_pyramid(pyramid_name_string.c_str(), file_ending, top_left_x, top_left_y, size_meters, img_size, interpolation_type), GeoRaster::BYTE);
+        return new GeoRaster(get_from_pyramid(pyramid_name_string.c_str(), file_ending, top_left_x, top_left_y, size_meters, img_size, interpolation_type), GeoRaster::RGBA);
     } else {
         // Check if there is a single image with the given path
         std::string raster_path_string = std::string(base_path) + "." + std::string(file_ending);
@@ -239,29 +239,30 @@ GDALDataset *
 RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_ending, double top_left_x, double top_left_y, double size_meters,
                                       int img_size, int interpolation_type) {
     // Norm webmercator position (in meters) to value between -1 and 1
-    double norm_x = (0.5 + top_left_x / WEBMERCATOR_MAX) * 0.5;
-    double norm_y = 1.0 - (0.5 + (top_left_y / WEBMERCATOR_MAX)) * 0.5;
+    double norm_x = 0.5 + ((top_left_x + size_meters / 2.0) / WEBMERCATOR_MAX) * 0.5;
+
+    double norm_y = 1.0 - (0.5 + ((top_left_y + size_meters / 2.0) / WEBMERCATOR_MAX) * 0.5);
 
     // Get latitude and use it to calculate the zoom level here
-    double latitude = norm_y * PI;
+    double latitude = 0.8; // TODO: Finding the actual latitude requires a more complex calculation due to projection
     // Original formula: size = C * cos(latitude) / pow(2, zoom_level) (from https://wiki.openstreetmap.org/wiki/Zoom_levels)
-    int zoom_level = int(round(log2(CIRCUMEFERENCE * cos(latitude) / size_meters)));
+    int zoom_level = (int)round(log2(CIRCUMEFERENCE * cos(latitude) / size_meters));
 
     // Number of tiles at this zoom level
     int num_tiles = pow(2.0, zoom_level);
 
     // Tile coordinates in OSM pyramid
-    double tile_x = floor(norm_x * num_tiles);
-    double tile_y = floor(norm_y * num_tiles);
+    int tile_x = (int)floor(norm_x * num_tiles);
+    int tile_y = (int)floor(norm_y * num_tiles);
 
     // Build the complete path
     std::filesystem::path path = std::filesystem::path(base_path);
-    path += std::filesystem::path(std::to_string(zoom_level));
-    path += std::filesystem::path(std::to_string(tile_x));
-    path += std::filesystem::path(std::to_string(tile_y));
+    path /= std::filesystem::path(std::to_string(zoom_level));
+    path /= std::filesystem::path(std::to_string(tile_x));
+    path /= std::filesystem::path(std::to_string(tile_y));
     path += ".";
     path += file_ending;
 
     // Load the result as a GDALDataset and return it
-    return (GDALDataset *) GDALOpen(base_path, GA_ReadOnly);
+    return (GDALDataset *) GDALOpen(path.c_str(), GA_ReadOnly);
 }
