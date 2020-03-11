@@ -132,3 +132,38 @@ GeoRaster::GeoRaster(GDALDataset *data) : data(data) {
         format = RF;
     }
 }
+
+int get_index_of_highest_value(const uint64_t *array, int array_size) {
+    int max_index = 0;
+    int max_value = 0;
+
+    for (int index = 0; index < array_size; index++) {
+        if (array[index] > max_value) {
+            max_value = array[index];
+            max_index = index;
+        }
+    }
+
+    return max_index;
+}
+
+int *GeoRaster::get_most_common(int number_of_elements) {
+    int *elements = new int[number_of_elements];
+    uint64_t *histogram = get_histogram();
+
+    for (int element_index = 0; element_index < number_of_elements; element_index++) {
+        // Get the index of the currently highest value
+        int highest_index = get_index_of_highest_value(histogram, 256);
+
+        // Add the currently highest index to the returned array
+        // The index is used, not the value, since the value corresponds to the number of occurences which we don't care about; we want the ID
+        elements[element_index] = highest_index;
+
+        // Set the value at this position to 0 so that it is not found again next iteration
+        histogram[highest_index] = 0;
+    }
+
+    delete[] histogram;
+
+    return elements;
+}

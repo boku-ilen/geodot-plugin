@@ -40,6 +40,11 @@ public:
     /// Only works with BYTE images!
     uint64_t *get_histogram();
 
+    /// Returns the number_of_elements most common IDs in the GeoRaster.
+    /// Note: This function is optimized for few elements (less than ~10). For use cases where a more complete sorted
+    ///  list is required, the array should be sorted with a proper sorting algorithm.
+    int *get_most_common(int number_of_elements);
+
 private:
     GDALDataset *data;
 
