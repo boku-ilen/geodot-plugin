@@ -16,4 +16,5 @@ add_executable(test
         test.cpp)
 
 target_link_libraries(RasterTileExtractor gdal)
+target_link_libraries(RasterTileExtractor stdc++fs)
 target_link_libraries(test RasterTileExtractor)
