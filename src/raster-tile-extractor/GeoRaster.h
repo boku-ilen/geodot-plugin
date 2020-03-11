@@ -36,8 +36,9 @@ public:
 
     int get_pixel_size_y();
 
-    /// Return the (approximate) number_of_entries most common entries in the GeoRaster.
-    int *get_histogram(int number_of_entries);
+    /// Returns a histogram in the format of ID -> number of occurrences.
+    /// Only works with BYTE images!
+    uint64_t *get_histogram();
 
 private:
     GDALDataset *data;

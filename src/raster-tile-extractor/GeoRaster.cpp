@@ -99,16 +99,16 @@ int GeoRaster::get_pixel_size_y() {
     return data->GetRasterYSize();
 }
 
-int *GeoRaster::get_histogram(int number_of_entries) {
+uint64_t *GeoRaster::get_histogram() {
     // TODO: Make sure this is only called on a GeoRaster with format BYTE
     //  It doesn't make sense for Float32 and we would need a different method for RGBA
     GDALRasterBand *band = data->GetRasterBand(1);
-    GUIntBig *histogram = new GUIntBig[number_of_entries];
+    GUIntBig *histogram = new GUIntBig[256];
 
-    band->GetHistogram(0.0, 255.5, number_of_entries, histogram, false, true, GDALDummyProgress, nullptr);
+    band->GetHistogram(-0.5, 255.5, 256, histogram, false, true, GDALDummyProgress, nullptr);
 
     // TODO: This breaks the array
-    return reinterpret_cast<int *>(histogram);
+    return reinterpret_cast<uint64_t *>(histogram);
 }
 
 GeoRaster::GeoRaster(GDALDataset *data) : data(data) {
