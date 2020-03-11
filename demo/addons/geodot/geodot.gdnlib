@@ -1,0 +1,18 @@
+[general]
+
+singleton=false
+load_once=true
+symbol_prefix="godot_"
+reloadable=false
+
+[entry]
+
+X11.64="res://addons/geodot/x11/libgeodot.so"
+Windows.64="res://addons/geodot/win64/libgeodot.dll"
+OSX.64="res://addons/geodot/osx/libgeodot.dylib"
+
+[dependencies]
+
+X11.64=[ "res://addons/geodot/x11/libRasterTileExtractor.so", "res://addons/geodot/x11/libgdal.so.20" ]
+Windows.64=[ "res://addons/geodot/win64/libRasterTileExtractor.dll" ]
+OSX.64=[ "res://addons/geodot/osx/libRasterTileExtractor.dylib" ]

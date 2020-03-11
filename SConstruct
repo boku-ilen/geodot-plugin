@@ -1,18 +1,11 @@
 #!python
 import os, subprocess
+from shutil import copyfile
 
 opts = Variables([], ARGUMENTS)
 
 # Gets the standard flags CC, CCX, etc.
 env = DefaultEnvironment()
-
-# Define our options
-opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r', 'release']))
-opts.Add(EnumVariable('platform', "Compilation platform", '', ['', 'windows', 'x11', 'linux', 'osx']))
-opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 'windows', 'x11', 'linux', 'osx']))
-opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
-opts.Add(PathVariable('target_path', 'The path where the lib is installed.', 'demo/bin/'))
-opts.Add(PathVariable('target_name', 'The library name.', 'libgeodot', PathVariable.PathAccept))
 
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot_headers/"
@@ -22,6 +15,18 @@ cpp_library = "libgodot-cpp"
 rte_cpp_path = "src/raster-tile-extractor"
 rte_libpath = "src/raster-tile-extractor/cmake-build-debug/"
 rte_library = "libRasterTileExtractor"
+
+demo_path = "demo/addons/geodot/"
+
+lib_file_ending = ""
+
+# Define our options
+opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r', 'release']))
+opts.Add(EnumVariable('platform', "Compilation platform", '', ['', 'windows', 'x11', 'linux', 'osx']))
+opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 'windows', 'x11', 'linux', 'osx']))
+opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
+opts.Add(PathVariable('target_path', 'The path where the lib is installed.', demo_path))
+opts.Add(PathVariable('target_name', 'The library name.', 'libgeodot', PathVariable.PathAccept))
 
 # only support 64 at this time..
 bits = 64
@@ -51,6 +56,7 @@ if env['platform'] == '':
 
 # Check our platform specifics
 if env['platform'] == "osx":
+    lib_file_ending = ".dylib"
     env['target_path'] += 'osx/'
     cpp_library += '.osx'
     if env['target'] in ('debug', 'd'):
@@ -61,11 +67,12 @@ if env['platform'] == "osx":
         env.Append(LINKFLAGS=['-arch', 'x86_64'])
 
 elif env['platform'] in ('x11', 'linux'):
+    lib_file_ending = ".so"
     env['target_path'] += 'x11/'
     cpp_library += '.linux'
 
     env.Append(LINKFLAGS=[
-        '-Wl,-rpath,\'$$ORIGIN\'/lib'
+        '-Wl,-rpath,\'$$ORIGIN\''
     ])
 
     if env['target'] in ('debug', 'd'):
@@ -76,6 +83,7 @@ elif env['platform'] in ('x11', 'linux'):
         env.Append(CXXFLAGS=['-std=c++17'])
 
 elif env['platform'] == "windows":
+    lib_file_ending = ".dll"
     env['target_path'] += 'win64/'
     cpp_library += '.windows'
     # This makes sure to keep the session environment variables on windows,
@@ -91,7 +99,7 @@ elif env['platform'] == "windows":
     else:
         env.Append(CPPDEFINES=['NDEBUG'])
         env.Append(CCFLAGS=['-O2', '-EHsc', '-MD'])
-
+rte_libpath
 if env['target'] in ('debug', 'd'):
     cpp_library += '.debug'
 else:
@@ -114,3 +122,7 @@ Default(library)
 
 # Generates help for the -h scons option.
 Help(opts.GenerateHelpText(env))
+
+# Copy the libRasterTileExtractor dependency
+copyfile(os.path.join(rte_libpath, rte_library) + lib_file_ending, os.path.join(env['target_path'], rte_library) + lib_file_ending)
+

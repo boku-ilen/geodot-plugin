@@ -21,7 +21,7 @@ config/icon="res://icon.png"
 
 [autoload]
 
-Geodot="*res://bin/geodot.gdns"
+Geodot="*res://addons/geodot/geodot.gdns"
 
 [gdnative]
 
