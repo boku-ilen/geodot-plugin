@@ -65,7 +65,6 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
 
     int size = raster->get_size_in_bytes();
 
-    float *data = (float *)raster->get_as_array(); // TODO: Make it work for other types
     PoolByteArray pba;
 
     // Multiply by 4 since we want to put 32-float values into a byte array
@@ -75,21 +74,29 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
     int img_size_x = raster->get_pixel_size_x();
     int img_size_y = raster->get_pixel_size_y();
 
+    Image *img = Image::_new();
+
     // Depending on the data type, the insertion of the raw image into the PoolByteArray is different.
     // The format is dependent on how Godot handles Image->create_from_data.
     GeoRaster::FORMAT format = raster->get_format();
+
     if (format == GeoRaster::RGB) {
-        // Copy each of the 3 bands
+        uint8_t *data = (uint8_t *)raster->get_as_array();
+
+        // This copy is straightforward since the result if ImageRaster::get_data is already in the correct format.
         // Format of the PoolByteArray: (RGB)(RGB)(RGB)...
-        for (int y = 0; y < img_size_y; y++) {
-            for (int x = 0; x < img_size_x; x++) {
-                int rgba_index = y * img_size_x + x;
-                pba.set(index++, data[rgba_index * 3 + 0]);
-                pba.set(index++, data[rgba_index * 3 + 1]);
-                pba.set(index++, data[rgba_index * 3 + 2]);
-            }
+        for (int i = 0; i < img_size_x * img_size_y * 3; i++) {
+            pba.set(i, data[i]);
         }
+
+        // All content of data is now in pba, so we can delete it
+        delete[] data; 
+
+        // Create an image from the PoolByteArray
+        img->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGB8, pba);
     } else if (format == GeoRaster::RGBA) {
+        uint8_t *data = (uint8_t *)raster->get_as_array();
+
         // Copy each of the 4 bands
         // Format of the PoolByteArray: (RGBA)(RGBA)(RGBA)...
         for (int y = 0; y < img_size_y; y++) {
@@ -101,7 +108,15 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
                 pba.set(index++, data[rgba_index * 4 + 3]);
             }
         }
+
+        // All content of data is now in pba, so we can delete it
+        delete[] data;
+
+        // Create an image from the PoolByteArray
+        img->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGBA8, pba);
     } else if (format == GeoRaster::BYTE) {
+        uint8_t *data = (uint8_t *)raster->get_as_array();
+
         // 1:1 copy
         // Format of the PoolByteArray: (B)(B)(B)...
         for (int y = 0; y < img_size_y; y++) {
@@ -110,7 +125,15 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
                 pba.set(index++, data[y * img_size_x + x]);
             }
         }
+
+        // All content of data is now in pba, so we can delete it
+        delete[] data;
+
+        // Create an image from the PoolByteArray
+        img->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_R8, pba);
     } else if (format == GeoRaster::RF) {
+        float *data = (float *)raster->get_as_array();
+
         // Convert the float into 4 bytes and add those to the array
         // Format of the PoolByteArray: (F1F2F3F4)(F1F2F3F4)(F1F2F3F4)...
         for (int y = 0; y < img_size_y; y++) {
@@ -125,17 +148,13 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
                 index++;
             }
         }
+
+        // All content of data is now in pba, so we can delete it
+        delete[] data;
+
+        // Create an image from the PoolByteArray
+        img->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RF, pba);
     }
-
-    // Put the raw image data into a PoolByteArray
-
-
-    // All content of data is now in pba, so we can delete it
-    delete[] data;
-
-    // Create an image from the PoolByteArray
-    Image *img = Image::_new();
-    img->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RF, pba);
 
     image = Ref<Image>(img);
 }

@@ -19,20 +19,24 @@ public:
 
     ~GeoRaster();
 
-    // Return the data of the GeoRaster as an array. The array contains type of the raster format (get_format).
+    /// Return the data of the GeoRaster as an array. The array contains type of the raster format (get_format).
+    /// BYTE -> (B)(B)(B) with B of type uint8_t
+    /// RGB -> (RGB)(RGB)(RGB) with R, G, B of type uint8_t
+    /// RGBA -> (RGBA)(RGBA)(RGBA) with R, G, B, A of type uint8_t
+    /// RF -> (F)(F)(F) with F of type float
     void *get_as_array();
 
-    // Returns the total size of the data in bytes. Useful in conjunction with get_as_array.
+    /// Returnsthe total size of the data in bytes. Useful in conjunction with get_as_array.
     int get_size_in_bytes();
 
-    // Returns the format of the data of this GeoRaster.
+    /// Return the format of the data of this GeoRaster.
     FORMAT get_format();
 
     int get_pixel_size_x();
 
     int get_pixel_size_y();
 
-    // Returns the (approximate) number_of_entries most common entries in the GeoRaster.
+    /// Return the (approximate) number_of_entries most common entries in the GeoRaster.
     int *get_histogram(int number_of_entries);
 
 private:

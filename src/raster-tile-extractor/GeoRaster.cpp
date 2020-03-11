@@ -5,15 +5,64 @@ GeoRaster::~GeoRaster() {
 }
 
 void *GeoRaster::get_as_array() {
-    // TODO: Implement for BYTE, RGBA, RGB
-
+    // Depending on the image format, we need to structure the resulting array differently and/or read multiple bands.
     if (format == RF) {
+        // Write the data directly into a float array.
         GDALRasterBand *band = data->GetRasterBand(1);
         float *array = new float[get_size_in_bytes()];
 
         GDALRasterIO(band, GF_Read, 0, 0, get_pixel_size_x(), get_pixel_size_y(),
                       array, get_pixel_size_x(), get_pixel_size_y(), GDT_Float32,
                       0, 0 );
+
+        return array;
+    } else if (format == RGBA) {
+        // Write the data into a byte array like this:
+        // R   R   R
+        //  G   G   G
+        //   B   B   B
+        //    A   A   A
+        // So that the result is RGBARGBARGBA.
+        uint8_t *array = new uint8_t[get_size_in_bytes()];
+
+        for (int band_number = 1; band_number < 5; band_number++) {
+            GDALRasterBand *band = data->GetRasterBand(band_number);
+
+            // Read into the array with 4 bytes between the pixels
+            band->RasterIO(GF_Read, 0, 0, get_pixel_size_x(), get_pixel_size_y(),
+                           array + (band_number - 1), get_pixel_size_x(), get_pixel_size_y(), GDT_Byte,
+                           4, 0);
+        }
+
+        return array;
+    } else if (format == RGB) {
+        // Write the data into a byte array like this:
+        // R  R  R
+        //  G  G  G
+        //   B  B  B
+        // So that the result is RGBRGBRGB.
+        uint8_t *array = new uint8_t[get_size_in_bytes()];
+
+        for (int band_number = 1; band_number < 4; band_number++) {
+            GDALRasterBand *band = data->GetRasterBand(band_number);
+
+            // Read into the array with 3 bytes between the pixels
+            band->RasterIO(GF_Read, 0, 0, get_pixel_size_x(), get_pixel_size_y(),
+                           array + (band_number - 1), get_pixel_size_x(), get_pixel_size_y(), GDT_Byte,
+                           3, 0);
+        }
+
+        return array;
+    } else if (format == BYTE) {
+        // Simply write the bytes directly into a byte array.
+        uint8_t *array = new uint8_t[get_size_in_bytes()];
+
+        GDALRasterBand *band = data->GetRasterBand(1);
+
+        // Read into the array with 4 bytes between the pixels
+        band->RasterIO(GF_Read, 0, 0, get_pixel_size_x(), get_pixel_size_y(),
+                       array, get_pixel_size_x(), get_pixel_size_y(), GDT_Byte,
+                       0, 0);
 
         return array;
     }
