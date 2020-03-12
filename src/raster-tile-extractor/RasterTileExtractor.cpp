@@ -242,9 +242,9 @@ RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_en
     double norm_y = 1.0 - (0.5 + ((top_left_y + size_meters / 2.0) / WEBMERCATOR_MAX) * 0.5);
 
     // Get latitude and use it to calculate the zoom level here
-    double latitude = 0.8; // TODO: Finding the actual latitude requires a more complex calculation due to projection
+    double latitude = 0.81777; // TODO: Finding the actual latitude requires a more complex calculation due to projection
     // Original formula: size = C * cos(latitude) / pow(2, zoom_level) (from https://wiki.openstreetmap.org/wiki/Zoom_levels)
-    int zoom_level = (int)round(log2(CIRCUMEFERENCE * cos(latitude) / size_meters));
+    int zoom_level = (int)round(log2(CIRCUMEFERENCE * cos(latitude) / size_meters)) + 1;
 
     // Number of tiles at this zoom level
     int num_tiles = pow(2.0, zoom_level);
