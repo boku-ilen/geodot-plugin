@@ -239,7 +239,7 @@ RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_en
     // Norm webmercator position (in meters) to value between -1 and 1
     double norm_x = 0.5 + ((top_left_x + size_meters / 2.0) / WEBMERCATOR_MAX) * 0.5;
 
-    double norm_y = 1.0 - (0.5 + ((top_left_y + size_meters / 2.0) / WEBMERCATOR_MAX) * 0.5);
+    double norm_y = 1.0 - (0.5 + ((top_left_y - size_meters / 2.0) / WEBMERCATOR_MAX) * 0.5);
 
     // Get latitude and use it to calculate the zoom level here
     double latitude = 0.81777; // TODO: Finding the actual latitude requires a more complex calculation due to projection
