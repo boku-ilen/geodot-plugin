@@ -56,7 +56,7 @@ void GeoImage::_init() {
 void GeoImage::_register_methods() {
     register_method("get_image", &GeoImage::get_image);
     register_method("get_image_texture", &GeoImage::get_image_texture);
-    register_method("get_histogram", &GeoImage::get_histogram);
+    register_method("get_most_common", &GeoImage::get_most_common);
 }
 
 void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
@@ -90,7 +90,7 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         }
 
         // All content of data is now in pba, so we can delete it
-        delete[] data; 
+        delete[] data;
 
         // Create an image from the PoolByteArray
         img->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGB8, pba);
@@ -182,6 +182,15 @@ Ref<ImageTexture> GeoImage::get_image_texture() {
     return Ref<ImageTexture>(imgTex);
 }
 
-Array GeoImage::get_histogram(int number_of_entries) {
-    return Array(); // TODO
+Array GeoImage::get_most_common(int number_of_entries) {
+    int *most_common = raster->get_most_common(number_of_entries);
+    Array ret_array = Array();
+    ret_array.resize(number_of_entries);
+
+    // Translate C-style array to Godot Array
+    for (int i = 0; i < number_of_entries; i++) {
+        ret_array[i] = most_common[i];
+    }
+
+    return ret_array;
 }

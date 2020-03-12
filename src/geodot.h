@@ -31,7 +31,7 @@ public:
 
     Ref<ImageTexture> get_image_texture();
 
-    Array get_histogram(int number_of_entries);
+    Array get_most_common(int number_of_entries);
 
 private:
     GeoRaster *raster;
