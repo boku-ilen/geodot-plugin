@@ -124,5 +124,7 @@ Default(library)
 Help(opts.GenerateHelpText(env))
 
 # Copy the libRasterTileExtractor dependency
+# First, make sure the target path exists
+if not os.path.exists(env['target_path']):
+    os.makedirs(env['target_path'])
 copyfile(os.path.join(rte_libpath, rte_library) + lib_file_ending, os.path.join(env['target_path'], rte_library) + lib_file_ending)
-
