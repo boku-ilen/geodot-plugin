@@ -8,8 +8,6 @@ void RasterTileExtractor::initialize() {
 }
 
 void RasterTileExtractor::reproject_to_webmercator(const char *base_path, const char *outfile) {
-    bool save_to_disk = false;
-
     GDALDriverH hDriver;
     GDALDataType eDT;
     GDALDatasetH hDstDS;
@@ -67,22 +65,25 @@ void RasterTileExtractor::reproject_to_webmercator(const char *base_path, const 
     GDALSetGeoTransform(hDstDS, adfDstGeoTransform);
 
     // Copy the color table, if required.
+    // TODO: Only supports one raster band - are more required?
     GDALColorTableH hCT;
     hCT = GDALGetRasterColorTable(GDALGetRasterBand(hSrcDS, 1));
     if (hCT != nullptr)
         GDALSetRasterColorTable(GDALGetRasterBand(hDstDS, 1), hCT);
 
+    int band_count = GDALGetRasterCount(hSrcDS);
+
     // Setup warp options.
     GDALWarpOptions *psWarpOptions = GDALCreateWarpOptions();
     psWarpOptions->hSrcDS = hSrcDS;
     psWarpOptions->hDstDS = hDstDS;
-    psWarpOptions->nBandCount = 1;
+    psWarpOptions->nBandCount = band_count;
     psWarpOptions->panSrcBands =
             (int *) CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
-    psWarpOptions->panSrcBands[0] = 1;
+    psWarpOptions->panSrcBands[0] = band_count;
     psWarpOptions->panDstBands =
             (int *) CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
-    psWarpOptions->panDstBands[0] = 1;
+    psWarpOptions->panDstBands[0] = band_count;
     psWarpOptions->pfnProgress = GDALTermProgress;
 
     // Establish reprojection transformer.
@@ -113,6 +114,7 @@ GDALDataset
     GDALDataset *source, *dest;
     GDALDriverH pDriver;
 
+    // TODO: Add the option of saving to a GTiff for caching
     if (false) {
         pDriver = GDALGetDriverByName("GTiff");
     } else {
@@ -121,6 +123,8 @@ GDALDataset
 
     source = (GDALDataset *) GDALOpen(base_path, GA_ReadOnly);
     GDALDataType datatype = source->GetRasterBand(1)->GetRasterDataType();
+
+    int band_count = source->GetRasterCount();
 
     // Get the current Transform of the source image
     double transform[6];
@@ -156,7 +160,7 @@ GDALDataset
     dest->SetGeoTransform(transform);
 
     // Copy the color table, if required.
-    // TODO: What exactly does this do? We probably need to do this for all bands?
+    // TODO: Only supports one raster band - are more required?
     GDALColorTableH hCT;
     hCT = GDALGetRasterColorTable(GDALGetRasterBand(source, 1));
     if (hCT != nullptr)
@@ -167,13 +171,13 @@ GDALDataset
     GDALWarpOptions *psWarpOptions = GDALCreateWarpOptions();
     psWarpOptions->hSrcDS = source;
     psWarpOptions->hDstDS = dest;
-    psWarpOptions->nBandCount = 1; // TODO: We want to support RGBA (multiple bands) too
+    psWarpOptions->nBandCount = band_count;
     psWarpOptions->panSrcBands =
             (int *) CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
-    psWarpOptions->panSrcBands[0] = 1; // TODO: We want to support RGBA (multiple bands) too
+    psWarpOptions->panSrcBands[0] = band_count;
     psWarpOptions->panDstBands =
             (int *) CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
-    psWarpOptions->panDstBands[0] = 1; // TODO: We want to support RGBA (multiple bands) too
+    psWarpOptions->panDstBands[0] = band_count;
     psWarpOptions->pfnProgress = GDALTermProgress;
 
     // If we are going beyond the available resolution, use bilinear scaling
