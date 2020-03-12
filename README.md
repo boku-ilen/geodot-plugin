@@ -6,6 +6,26 @@ A Godot plugin for loading geospatial data. Written in GDNative with C++.
 
 Images and ImageTextures can be created from geodata anywhere in the file system. Georeferenced images (such as GeoTIFFs) and pre-tiled pyramids (according to the OSM standard) are supported. The desired area is extracted using geocoordinates and a size.
 
+## Usage
+
+Try the demo project or add the geodot addon to your game and add `addons/geodot/geodot.gdns` as a Singleton. Then, you can get geoimages like this:
+
+```gdscript
+var geoimg = Geodot.get_image(
+	path_to_file,
+	file_ending,
+	position_m_x,
+	position_m_y,
+	size_meters,
+	size_pixels,
+	interpolation
+)
+```
+
+[Until we have a proper documentation](https://github.com/boku-ilen/geodot-plugin/issues/9), check the source (`geodot.h`) for additional functions and details.
+
+__You will need some sort of geodata to use this plugin.__ A good starting point is a GeoTIFF with a heightmap. If you need such a file for testing, you can get a heightmap for Austria [at data.gv.at](https://www.data.gv.at/katalog/dataset/b5de6975-417b-4320-afdb-eb2a9e2a1dbf) (licensed under CC-BY-4.0).
+
 ## Building
 
 ### Preparation
