@@ -11,9 +11,9 @@ func _process(delta):
 	var img = Geodot.get_image(
 		"/home/karl/Documents/dhm/5m_K_clip",
 		"tif",
-		1546670.0,
-		5918250.0,
-		500.0,
+		1492193 + time_passed * 2000.0,
+		5919331,
+		10000.0,
 		256,
 		1
 	)
@@ -21,5 +21,6 @@ func _process(delta):
 	instanced_image_count += 1
 	
 	get_node("MeshInstance").mesh.surface_get_material(0).set_shader_param("heightmap", img.get_image_texture())
+	get_node("MeshInstance").mesh.surface_get_material(0).set_shader_param("ortho", img.get_image_texture())
 	
 	print(instanced_image_count / time_passed)

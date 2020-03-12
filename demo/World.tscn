@@ -1,14 +1,19 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://World.gd" type="Script" id=1]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type spatial;
 
+uniform sampler2D ortho: hint_albedo;
 uniform sampler2D heightmap;
 
+void vertex() {
+	VERTEX.y = texture(heightmap, UV).r / 5000.0;
+}
+
 void fragment() {
-	ALBEDO = vec3(texture(heightmap, UV).r) / 1000.0;
+	ALBEDO = vec3(texture(ortho, UV).r / 2000.0);
 }"
 
 [sub_resource type="ShaderMaterial" id=2]
@@ -16,6 +21,12 @@ shader = SubResource( 1 )
 
 [sub_resource type="PlaneMesh" id=3]
 material = SubResource( 2 )
+subdivide_width = 256
+subdivide_depth = 256
+
+[sub_resource type="Environment" id=4]
+background_mode = 1
+background_color = Color( 0.713726, 0.807843, 0.796078, 1 )
 
 [node name="World" type="Spatial"]
 script = ExtResource( 1 )
@@ -26,3 +37,10 @@ material/0 = null
 
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( 1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 1, 1 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( -0.671708, 0.635416, -0.380861, 0.519558, 0.770541, 0.369223, 0.528079, 0.0501303, -0.847714, 0, 2, 0 )
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 4 )
