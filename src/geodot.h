@@ -89,7 +89,7 @@ public:
                             int img_size, int interpolation_type);
 
     Geodot();
-    ~Geodot
+    ~Geodot();
 };
 
 }
