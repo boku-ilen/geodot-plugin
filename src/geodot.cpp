@@ -23,11 +23,18 @@ Ref<GeoImage> Geodot::get_image(String path, String file_ending,
                                 int img_size, int interpolation_type) {
     Ref<GeoImage> image = GeoImage::_new();
 
-    image->set_raster(RasterTileExtractor::get_raster_at_position(
+    GeoRaster *raster = RasterTileExtractor::get_raster_at_position(
         path.utf8().get_data(),
         file_ending.utf8().get_data(),
         top_left_x, top_left_y, size_meters,
-        img_size, interpolation_type), interpolation_type);
+        img_size, interpolation_type);
+
+    if (raster == nullptr) {
+        Godot::print_error("No valid data was available for the requested path and position!", "Geodot::get_image", "geodot.cpp", 26);
+        return image;
+    }
+
+    image->set_raster(raster, interpolation_type);
 
     return image;
 }
