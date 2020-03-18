@@ -217,7 +217,11 @@ GeoRaster *RasterTileExtractor::get_raster_at_position(const char *base_path, co
 
     if (std::filesystem::exists(pyramid_name_string)) {
         // We have a pre-tiled pyramid
-        return new GeoRaster(get_from_pyramid(pyramid_name_string.c_str(), file_ending, top_left_x, top_left_y, size_meters, img_size, interpolation_type));
+        GDALDataset *dataset_from_pyramid = get_from_pyramid(pyramid_name_string.c_str(), file_ending, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
+
+        if (dataset_from_pyramid != nullptr) {
+            return new GeoRaster(dataset_from_pyramid);
+        }
     } else {
         // Check if there is a single image with the given path
         std::string raster_path_string = std::string(base_path) + "." + std::string(file_ending);
