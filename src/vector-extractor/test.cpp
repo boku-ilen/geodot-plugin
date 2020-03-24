@@ -1,6 +1,7 @@
 #include <iostream>
+#include "VectorExtractor.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    VectorExtractor::print_first_feature();
     return 0;
 }
