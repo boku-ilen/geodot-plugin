@@ -8,7 +8,8 @@ void VectorExtractor::print_first_feature() {
 
     GDALDataset *poDS;
 
-    poDS = (GDALDataset *) GDALOpenEx("/home/karl/BOKU/geodata/streets/2_linknetz_ogd_WM.shp", GDAL_OF_VECTOR, nullptr, nullptr, nullptr);
+    poDS = (GDALDataset *) GDALOpenEx("/home/karl/BOKU/geodata/streets/2_linknetz_ogd_WM.shp", GDAL_OF_VECTOR, nullptr,
+                                      nullptr, nullptr);
     if (poDS == nullptr) {
         printf("Open failed.\n");
         exit(1);
@@ -21,5 +22,20 @@ void VectorExtractor::print_first_feature() {
 
     for (auto &&oField: *poFeature) {
         std::cout << oField.GetName() << ": " << oField.GetAsString() << std::endl;
+    }
+
+    OGRGeometry *poGeometry = poFeature->GetGeometryRef();
+
+    if (poGeometry != nullptr
+        && wkbFlatten(poGeometry->getGeometryType()) == wkbLineString) {
+        OGRLineString *line = poGeometry->toLineString();
+
+        int point_count = line->getNumPoints();
+
+        for (int i = 0; i < point_count; i++) {
+            std::cout << "Line point: " << line->getX(i) << ", " << line->getY(i) << ", " << line->getZ(i) << std::endl;
+        }
+    } else {
+        std::cout << "No line geometry..." << std::endl;
     }
 }
