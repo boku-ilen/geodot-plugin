@@ -16,6 +16,10 @@ rte_cpp_path = "src/raster-tile-extractor"
 rte_libpath = "src/raster-tile-extractor/cmake-build-debug/"
 rte_library = "libRasterTileExtractor"
 
+vector_cpp_path = "src/vector-extractor"
+vector_libpath = "src/vector-extractor/cmake-build-debug/"
+vector_library = "libVectorExtractor"
+
 demo_path = "demo/addons/geodot/"
 
 lib_file_ending = ""
@@ -108,9 +112,9 @@ else:
 cpp_library += '.' + str(bits)
 
 # make sure our binding library is properly includes
-env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/', rte_cpp_path])
-env.Append(LIBPATH=[cpp_bindings_path + 'bin/', rte_libpath])
-env.Append(LIBS=[cpp_library, rte_library])
+env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/', rte_cpp_path, vector_cpp_path])
+env.Append(LIBPATH=[cpp_bindings_path + 'bin/', rte_libpath, vector_libpath])
+env.Append(LIBS=[cpp_library, rte_library, vector_library])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])
@@ -128,3 +132,4 @@ Help(opts.GenerateHelpText(env))
 if not os.path.exists(env['target_path']):
     os.makedirs(env['target_path'])
 copyfile(os.path.join(rte_libpath, rte_library) + lib_file_ending, os.path.join(env['target_path'], rte_library) + lib_file_ending)
+copyfile(os.path.join(vector_libpath, vector_library) + lib_file_ending, os.path.join(env['target_path'], vector_library) + lib_file_ending)
