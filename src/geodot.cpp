@@ -44,10 +44,10 @@ Ref<GeoImage> Geodot::get_image(String path, String file_ending,
     return image;
 }
 
-Array Geodot::get_lines_near_position(String path, double pos_x, double pos_y, double radius) {
+Array Geodot::get_lines_near_position(String path, double pos_x, double pos_y, double radius, int max_lines) {
     Array lines = Array();
 
-    std::list<LineFeature *> linefeatures = VectorExtractor::get_lines_near_position(path.utf8().get_data(), pos_x, pos_y, radius, 10);
+    std::list<LineFeature *> linefeatures = VectorExtractor::get_lines_near_position(path.utf8().get_data(), pos_x, pos_y, radius, max_lines);
 
     for (LineFeature *linefeature : linefeatures) {
         Ref<GeoLine> line = GeoLine::_new();
@@ -261,7 +261,7 @@ Ref<Curve3D> GeoLine::get_as_curve3d_offset(int offset_x, int offset_y, int offs
         // Note: y and z are swapped because of differences in the coordinate system!
         double x = line->get_line_point_x(i) + static_cast<double>(offset_x);
         double y = line->get_line_point_z(i) + static_cast<double>(offset_y);
-        double z = line->get_line_point_y(i) + static_cast<double>(offset_z);
+        double z = -(line->get_line_point_y(i) + static_cast<double>(offset_z));
 
         curve->add_point(Vector3(x, y, z));
     }
