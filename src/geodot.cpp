@@ -241,6 +241,7 @@ void GeoLine::_register_methods() {
     register_method("get_attribute", &GeoLine::get_attribute);
     register_method("get_as_curve3d", &GeoLine::get_as_curve3d);
     register_method("get_as_curve3d", &GeoLine::get_as_curve3d);
+    register_method("get_as_curve3d_offset", &GeoLine::get_as_curve3d_offset);
 }
 
 void GeoLine::set_line(LineFeature *line) {
@@ -251,15 +252,23 @@ String GeoLine::get_attribute(String name) {
     return line->get_attribute(name.utf8().get_data());
 }
 
-Ref<Curve3D> GeoLine::get_as_curve3d() {
+Ref<Curve3D> GeoLine::get_as_curve3d_offset(int offset_x, int offset_y, int offset_z) {
     Ref<Curve3D> curve = Curve3D::_new();
 
     int point_count = line->get_point_count();
 
     for (int i = 0; i < point_count; i++) {
         // Note: y and z are swapped because of differences in the coordinate system!
-        curve->add_point(Vector3(line->get_line_point_x(i), line->get_line_point_z(i), line->get_line_point_y(i)));
+        double x = line->get_line_point_x(i) + static_cast<double>(offset_x);
+        double y = line->get_line_point_z(i) + static_cast<double>(offset_y);
+        double z = line->get_line_point_y(i) + static_cast<double>(offset_z);
+
+        curve->add_point(Vector3(x, y, z));
     }
 
     return curve;
+}
+
+Ref<Curve3D> GeoLine::get_as_curve3d() {
+    return get_as_curve3d_offset(0, 0, 0);
 }

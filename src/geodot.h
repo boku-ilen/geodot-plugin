@@ -73,6 +73,8 @@ public:
 
     String get_attribute(String name);
 
+    Ref<Curve3D> get_as_curve3d_offset(int offset_x, int offset_y, int offset_z);
+
     Ref<Curve3D> get_as_curve3d();
 
 private:
