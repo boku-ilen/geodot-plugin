@@ -8,14 +8,22 @@
 
 class LineFeature {
 public:
+    LineFeature(OGRFeature *feature);
+
     std::map<std::string, std::string> get_attributes();
 
     std::string get_attribute(const std::string& name);
 
-    double *get_line_point(int index);
+    std::vector<double> get_line_point(int index);
+
+    int get_point_count();
 
 private:
     OGRFeature *feature;
+
+    OGRLineString *line;
+
+    int point_count;
 };
 
 
