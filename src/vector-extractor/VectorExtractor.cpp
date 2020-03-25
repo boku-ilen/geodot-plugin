@@ -3,7 +3,7 @@
 #include <gdal/gdal.h>
 #include <iostream>
 
-void VectorExtractor::print_first_feature() {
+LineFeature VectorExtractor::get_first_feature() {
     GDALAllRegister();
 
     GDALDataset *poDS;
@@ -15,27 +15,8 @@ void VectorExtractor::print_first_feature() {
         exit(1);
     }
 
-    std::cout << poDS->GetLayerCount() << " layers" << std::endl;
+    // TODO: Check poDS->GetLayerCount() to make sure there's exactly one layer? Or handle >1 layers too?
     OGRLayer *poLayer = poDS->GetLayers()[0];
 
-    OGRFeature *poFeature = poLayer->GetNextFeature();
-
-    for (auto &&oField: *poFeature) {
-        std::cout << oField.GetName() << ": " << oField.GetAsString() << std::endl;
-    }
-
-    OGRGeometry *poGeometry = poFeature->GetGeometryRef();
-
-    if (poGeometry != nullptr
-        && wkbFlatten(poGeometry->getGeometryType()) == wkbLineString) {
-        OGRLineString *line = poGeometry->toLineString();
-
-        int point_count = line->getNumPoints();
-
-        for (int i = 0; i < point_count; i++) {
-            std::cout << "Line point: " << line->getX(i) << ", " << line->getY(i) << ", " << line->getZ(i) << std::endl;
-        }
-    } else {
-        std::cout << "No line geometry..." << std::endl;
-    }
+    return LineFeature(poLayer->GetNextFeature());
 }

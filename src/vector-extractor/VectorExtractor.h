@@ -2,10 +2,12 @@
 #define VECTOREXTRACTOR_VECTOREXTRACTOR_H
 
 
+#include "LineFeature.h"
+
 class VectorExtractor {
 public:
     /// Test function for vector functionality, mostly from https://gdal.org/tutorials/vector_api_tut.html.
-    static void print_first_feature();
+    static LineFeature get_first_feature();
 };
 
 
