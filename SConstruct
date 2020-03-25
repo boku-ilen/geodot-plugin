@@ -103,7 +103,7 @@ elif env['platform'] == "windows":
     else:
         env.Append(CPPDEFINES=['NDEBUG'])
         env.Append(CCFLAGS=['-O2', '-EHsc', '-MD'])
-rte_libpath
+
 if env['target'] in ('debug', 'd'):
     cpp_library += '.debug'
 else:
