@@ -83,7 +83,6 @@ public:
     ///  Note that for pre-tiled data, the position and size of the returned image can't exactly match the given position and size - the closest tile is chosen.
     ///  The format follows the OSM standard: <path>.pyramid/<zoom>/<tile_x>/<tile_y>.<file_ending>
     /// Otherwise, a georaster named <path>.<file_ending> is loaded and used.
-    /// FIXME: If neither exist, the program crashes. We'd want a proper error in that case.
     Ref<GeoImage> get_image(String path, String file_ending,
                             double top_left_x, double top_left_y, double size_meters,
                             int img_size, int interpolation_type);
