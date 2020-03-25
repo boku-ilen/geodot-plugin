@@ -16,6 +16,12 @@ public:
 
     std::vector<double> get_line_point(int index);
 
+    double get_line_point_x(int index);
+
+    double get_line_point_y(int index);
+
+    double get_line_point_z(int index);
+
     int get_point_count();
 
 private:

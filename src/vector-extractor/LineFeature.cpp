@@ -26,3 +26,15 @@ std::vector<double> LineFeature::get_line_point(int index) {
 int LineFeature::get_point_count() {
     return point_count;
 }
+
+double LineFeature::get_line_point_x(int index) {
+    return line->getX(index);
+}
+
+double LineFeature::get_line_point_y(int index) {
+    return line->getY(index);
+}
+
+double LineFeature::get_line_point_z(int index) {
+    return line->getZ(index);
+}
