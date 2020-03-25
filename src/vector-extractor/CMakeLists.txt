@@ -10,7 +10,9 @@ find_library(GDAL gdal)
 
 add_library(VectorExtractor SHARED
         VectorExtractor.cpp
-        VectorExtractor.h)
+        VectorExtractor.h
+        LineFeature.cpp
+        LineFeature.h)
 
 add_executable(test
         test.cpp)
