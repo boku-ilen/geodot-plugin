@@ -43,6 +43,12 @@ Ref<GeoImage> Geodot::get_image(String path, String file_ending,
     return image;
 }
 
+Array Geodot::get_lines_near_position(String path, double pos_x, double pos_y, double radius) {
+    Array lines = Array();
+
+    return lines;
+}
+
 union {
     float fval;
     int8_t bval[4];

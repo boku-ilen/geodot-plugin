@@ -8,8 +8,12 @@
 #include <Resource.hpp>
 #include <ImageTexture.hpp>
 #include <Array.hpp>
+#include <Path.hpp>
+#include <Curve3D.hpp>
 #include "GeoRaster.h"
 #include "RasterTileExtractor.h"
+#include "LineFeature.h"
+#include "VectorExtractor.h"
 
 namespace godot {
 
@@ -50,6 +54,30 @@ private:
     int interpolation;
 };
 
+// Wrapper for a LineFeature from the VectorExtractor.
+class GeoLine : public Resource {
+    GODOT_CLASS(GeoLine, Resource)
+
+public:
+    GeoLine();
+    ~GeoLine();
+
+    /// Automatically called by Godot
+    void _init();
+    static void _register_methods();
+
+    /// Import a LineFeature from the libVectorExtractor
+    /// Should not be called from the outside
+    void set_line(LineFeature *line);
+
+    Ref<Curve3D> get_as_curve3d();
+
+    Ref<Path> get_as_path();
+
+private:
+    LineFeature line;
+};
+
 class Geodot : public Node {
     GODOT_CLASS(Geodot, Node)
 
@@ -86,6 +114,8 @@ public:
     Ref<GeoImage> get_image(String path, String file_ending,
                             double top_left_x, double top_left_y, double size_meters,
                             int img_size, int interpolation_type);
+
+    Array get_lines_near_position(String path, double pos_x, double pos_y, double radius);
 
     Geodot();
     ~Geodot();
