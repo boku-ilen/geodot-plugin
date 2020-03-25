@@ -254,5 +254,12 @@ String GeoLine::get_attribute(String name) {
 Ref<Curve3D> GeoLine::get_as_curve3d() {
     Ref<Curve3D> curve = Curve3D::_new();
 
+    int point_count = line->get_point_count();
+
+    for (int i = 0; i < point_count; i++) {
+        // Note: y and z are swapped because of differences in the coordinate system!
+        curve->add_point(Vector3(line->get_line_point_x(i), line->get_line_point_z(i), line->get_line_point_y(i)));
+    }
+
     return curve;
 }

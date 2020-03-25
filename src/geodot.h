@@ -9,6 +9,7 @@
 #include <ImageTexture.hpp>
 #include <Array.hpp>
 #include <Path.hpp>
+#include <Vector3.hpp>
 #include <Curve3D.hpp>
 #include "GeoRaster.h"
 #include "RasterTileExtractor.h"

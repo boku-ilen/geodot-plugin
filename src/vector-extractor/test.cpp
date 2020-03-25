@@ -9,6 +9,9 @@ int main() {
     std::cout << "Points:" << std::endl;
 
     int point_count = line->get_point_count();
+
+    std::cout << point_count << " points" << std::endl;
+    
     for (int i = 0; i < point_count; i++) {
         std::cout << line->get_line_point_x(i) << ", " << line->get_line_point_y(i) << ", " << line->get_line_point_z(i) << std::endl;
     }

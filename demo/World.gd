@@ -26,4 +26,7 @@ func _process(delta):
 	var lines = Geodot.get_lines_near_position("/home/karl/BOKU/geodata/streets/2_linknetz_ogd_WM.shp", 0.0, 0.0, 0.0, 10)
 	print(lines[0].get_attribute("LENGTH"))
 	
+	var curve = lines[0].get_as_curve3d()
+	print(curve.get_baked_length())
+	
 	print(instanced_image_count / time_passed)
