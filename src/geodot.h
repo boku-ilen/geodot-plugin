@@ -70,12 +70,12 @@ public:
     /// Should not be called from the outside
     void set_line(LineFeature *line);
 
+    String get_attribute(String name);
+
     Ref<Curve3D> get_as_curve3d();
 
-    Ref<Path> get_as_path();
-
 private:
-    LineFeature line;
+    LineFeature *line;
 };
 
 class Geodot : public Node {

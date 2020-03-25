@@ -15,8 +15,8 @@ std::map<std::string, std::string> LineFeature::get_attributes() {
     return ret;
 }
 
-std::string LineFeature::get_attribute(const std::string& name) {
-    return feature->GetFieldAsString(name.c_str());
+const char *LineFeature::get_attribute(const char *name) {
+    return feature->GetFieldAsString(name);
 }
 
 std::vector<double> LineFeature::get_line_point(int index) {

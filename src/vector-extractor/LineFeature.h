@@ -12,7 +12,7 @@ public:
 
     std::map<std::string, std::string> get_attributes();
 
-    std::string get_attribute(const std::string& name);
+    const char *get_attribute(const char *name);
 
     std::vector<double> get_line_point(int index);
 

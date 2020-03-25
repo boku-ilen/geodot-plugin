@@ -23,4 +23,7 @@ func _process(delta):
 	get_node("MeshInstance").mesh.surface_get_material(0).set_shader_param("heightmap", img.get_image_texture())
 	get_node("MeshInstance").mesh.surface_get_material(0).set_shader_param("ortho", img.get_image_texture())
 	
+	var lines = Geodot.get_lines_near_position("/home/karl/BOKU/geodata/streets/2_linknetz_ogd_WM.shp", 0.0, 0.0, 0.0, 10)
+	print(lines[0].get_attribute("LENGTH"))
+	
 	print(instanced_image_count / time_passed)
