@@ -144,8 +144,7 @@ GDALDataset
 
     // Create a new geoimage at the given path with our img_size
     // The outfile path is empty since it's only in RAM
-    dest = (GDALDataset *) GDALCreate(pDriver, "", img_size, img_size,
-                      GDALGetRasterCount(source), datatype, nullptr);
+    dest = (GDALDataset *) GDALCreate(pDriver, "", img_size, img_size, band_count, datatype, nullptr);
 
     // Get Source coordinate system.
     const char *pszDstWKT = nullptr;
@@ -161,10 +160,21 @@ GDALDataset
 
     // Copy the color table, if required.
     // TODO: Only supports one raster band - are more required?
-    GDALColorTableH hCT;
-    hCT = GDALGetRasterColorTable(GDALGetRasterBand(source, 1));
-    if (hCT != nullptr)
-        GDALSetRasterColorTable(GDALGetRasterBand(dest, 1), hCT);
+    GDALColorTable *hCT = source->GetRasterBand(1)->GetColorTable();
+    if (hCT != nullptr) {
+        dest->GetRasterBand(1)->SetColorTable(hCT);
+    }
+
+    // Get the band names to pass to the warp options
+    // We need identical arrays for the source and destination band names because GDAL does a double free otherwise
+    int *src_bands = new int[band_count];
+    int *dst_bands = new int[band_count];
+    int i = 0;
+    for (auto *band : source->GetBands()) {
+        src_bands[i] = band->GetBand();
+        dst_bands[i] = band->GetBand();
+        i++;
+    }
 
     // Warp the data from the input file into our new destination with the new Transform and size
     // Setup warp options
@@ -172,12 +182,8 @@ GDALDataset
     psWarpOptions->hSrcDS = source;
     psWarpOptions->hDstDS = dest;
     psWarpOptions->nBandCount = band_count;
-    psWarpOptions->panSrcBands =
-            (int *) CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
-    psWarpOptions->panSrcBands[0] = band_count;
-    psWarpOptions->panDstBands =
-            (int *) CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
-    psWarpOptions->panDstBands[0] = band_count;
+    psWarpOptions->panSrcBands = src_bands;
+    psWarpOptions->panDstBands = dst_bands;
     psWarpOptions->pfnProgress = GDALTermProgress;
 
     // If we are going beyond the available resolution, use bilinear scaling
@@ -201,6 +207,7 @@ GDALDataset
     oOperation.Initialize(psWarpOptions);
     oOperation.ChunkAndWarpImage(0, 0, img_size, img_size);
     GDALDestroyGenImgProjTransformer(psWarpOptions->pTransformerArg);
+
     GDALDestroyWarpOptions(psWarpOptions);
 
     GDALClose(source);
