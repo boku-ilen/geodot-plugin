@@ -6,9 +6,13 @@ A Godot plugin for loading geospatial data. Written in GDNative with C++.
 
 Images and ImageTextures can be created from geodata anywhere in the file system. Georeferenced images (such as GeoTIFFs) and pre-tiled pyramids (according to the OSM standard) are supported. The desired area is extracted using geocoordinates and a size.
 
+Vector data with LineString features such as OSM street data is supported. Line geometry near a given position, within a given radius, can be extracted from the dataset as a Curve3D. Attributes of the feature can also be retrieved.
+
 ## Usage
 
-Try the demo project or add the geodot addon to your game and add `addons/geodot/geodot.gdns` as a Singleton. Then, you can get geoimages like this:
+The demo Godot project offers a RasterDemo and a VectorDemo. I recommend looking through that code to get started.
+
+If you want to add the geodot addon to your game, copy the `addons/geodot` directory and add `addons/geodot/geodot.gdns` as a Singleton. Then, you can get GeoImages like this:
 
 ```gdscript
 var geoimg = Geodot.get_image(
@@ -19,6 +23,18 @@ var geoimg = Geodot.get_image(
 	size_meters,
 	size_pixels,
 	interpolation
+)
+```
+
+An Array of LineFeatures can be retreived like this:
+
+```gdscript
+var lines = Geodot.get_lines(
+	path_to_file,
+	position_m_x,
+	position_m_y,
+	radius_meters,
+	max_lines
 )
 ```
 
@@ -39,13 +55,17 @@ __You will need some sort of geodata to use this plugin.__ A good starting point
 
 The RasterTileExtractor is a separate CMake project. CLion is recommended for development; for building, CMake is enough.
 
+### VectorExtractor
+
+Same as RasterTileExtractor.
+
 ### Geodot-Plugin
 
 Run `scons platform=<platform>` in the root directory. The compiled plugin and the RasterTileExtractor library dependency will be placed in the demo project. (`<platform>` must be replaced with your platform, e.g. `linux`.)
 
 ### Packaging
 
-For building a self-contained plugin for use in other projects, it is recommended to move `libgdal` into the same directory as `libgeodot` and `libRasterTileExtractor` (`demo/addons/geodot/<platform>/`)
+For building a self-contained plugin for use in other projects, it is recommended to move `libgdal` into the same directory as `libgeodot` and the other libraries (`demo/addons/geodot/<platform>/`).
 
 Note: This is currently only possible on Linux because rpath is used. [Help is needed for building and packaging on Windows!](https://github.com/boku-ilen/geodot-plugin/issues/1)
 
@@ -71,7 +91,7 @@ The reason why Geodot doesn't directly call GDAL functions without this addition
 
 ## Contributing
 
-Help is greatly appreciated! You can check out known [issues](https://github.com/boku-ilen/geodot-plugin/issues) or submit new functionality.
+Help is greatly appreciated! You can test and report bugs, fix known [issues](https://github.com/boku-ilen/geodot-plugin/issues) or submit new functionality.
 
 ### Adding a new feature
 
