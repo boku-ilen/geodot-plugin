@@ -1,8 +1,10 @@
 #ifndef RASTERTILEEXTRACTOR_GEORASTER_H
 #define RASTERTILEEXTRACTOR_GEORASTER_H
 
+#include <cstdint>
 
-#include <gdal/gdal_priv.h>
+// Forward declaration of GDALDataset from <gdal/gdal_priv.h>
+class GDALDataset;
 
 /// Wrapper for GDALDataset and its relevant functions.
 /// Provides easy access without GDAL dependencies to library users.

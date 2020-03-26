@@ -1,8 +1,6 @@
 #ifndef RASTEREXTRACTOR_RASTERTILEEXTRACTOR_H
 #define RASTEREXTRACTOR_RASTERTILEEXTRACTOR_H
 
-#include <gdal/gdal_priv.h>
-#include <gdal/gdalwarper.h>
 #include "GeoRaster.h"
 
 

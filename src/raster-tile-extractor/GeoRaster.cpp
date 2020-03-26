@@ -1,4 +1,5 @@
 #include "GeoRaster.h"
+#include <gdal/gdal_priv.h>
 
 GeoRaster::~GeoRaster() {
     GDALClose(data);
