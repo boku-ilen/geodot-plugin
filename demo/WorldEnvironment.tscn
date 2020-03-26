@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="Environment" id=1]
+background_mode = 1
+background_color = Color( 0.713726, 0.807843, 0.796078, 1 )
+
+[node name="WorldEnvironment" type="WorldEnvironment"]
+environment = SubResource( 1 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 0.815906, 0.500723, 0.289093, 0, -0.5, 0.866025, 0.578185, -0.706595, -0.407953, 0, 0, 0 )

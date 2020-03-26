@@ -1,0 +1,43 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://RasterDemo.gd" type="Script" id=1]
+[ext_resource path="res://WorldEnvironment.tscn" type="PackedScene" id=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type spatial;
+
+uniform sampler2D ortho: hint_albedo;
+uniform sampler2D heightmap;
+
+void vertex() {
+	VERTEX.y = texture(heightmap, UV).r / 30.0;
+}
+
+void fragment() {
+	ALBEDO = texture(ortho, UV).rgb;
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+
+[sub_resource type="PlaneMesh" id=3]
+material = SubResource( 2 )
+subdivide_width = 256
+subdivide_depth = 256
+
+[node name="RasterDemo" type="Spatial"]
+script = ExtResource( 1 )
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+mesh = SubResource( 3 )
+material/0 = null
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( -1.62921e-07, -0.744824, 0.667261, 0, 0.667261, 0.744824, -1, 1.21347e-07, -1.08711e-07, 1.358, 2.642, 0 )
+far = 10000.0
+
+[node name="WorldEnvironment" parent="." instance=ExtResource( 2 )]
+
+[node name="DirectionalLight" type="DirectionalLight" parent="WorldEnvironment"]
+transform = Transform( -0.671708, 0.635416, -0.380861, 0.519558, 0.770541, 0.369223, 0.528079, 0.0501306, -0.847714, 0, 2, 0 )
+shadow_enabled = true

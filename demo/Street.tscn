@@ -1,0 +1,17 @@
+[gd_scene format=2]
+
+[node name="Street" type="Path"]
+curve = null
+
+[node name="PathFollow" type="PathFollow" parent="."]
+
+[node name="CSGPolygon" type="CSGPolygon" parent="PathFollow"]
+invert_faces = true
+polygon = PoolVector2Array( -7, 0, -7, 1, 0, 1, 7, 1, 7, 0 )
+mode = 2
+path_node = NodePath("../..")
+path_interval = 1.0
+path_rotation = 2
+path_local = false
+path_continuous_u = false
+path_joined = false
