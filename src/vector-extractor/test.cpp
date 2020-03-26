@@ -3,7 +3,7 @@
 
 int main() {
     VectorExtractor::initialize();
-    
+
     LineFeature *line = VectorExtractor::get_lines_near_position("/home/karl/BOKU/geodata/streets/2_linknetz_ogd_WM.shp", 1755382.5, 6156320.8, 1000.0, 10).front();
 
     if (line) {

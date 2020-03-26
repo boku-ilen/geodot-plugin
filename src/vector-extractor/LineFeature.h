@@ -4,7 +4,10 @@
 
 #include <map>
 #include <list>
-#include <gdal/gdal_priv.h>
+#include <vector>
+
+class OGRFeature;
+class OGRLineString;
 
 class LineFeature {
 public:
