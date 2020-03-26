@@ -28,7 +28,7 @@ public:
     /// RF -> (F)(F)(F) with F of type float
     void *get_as_array();
 
-    /// Returnsthe total size of the data in bytes. Useful in conjunction with get_as_array.
+    /// Return the total size of the data in bytes. Useful in conjunction with get_as_array.
     int get_size_in_bytes();
 
     /// Return the format of the data of this GeoRaster.
@@ -38,11 +38,11 @@ public:
 
     int get_pixel_size_y();
 
-    /// Returns a histogram in the format of ID -> number of occurrences.
+    /// Return a histogram in the format of ID -> number of occurrences.
     /// Only works with BYTE images!
     uint64_t *get_histogram();
 
-    /// Returns the number_of_elements most common IDs in the GeoRaster.
+    /// Return the number_of_elements most common IDs in the GeoRaster.
     /// Note: This function is optimized for few elements (less than ~10). For use cases where a more complete sorted
     ///  list is required, the array should be sorted with a proper sorting algorithm.
     int *get_most_common(int number_of_elements);
