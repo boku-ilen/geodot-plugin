@@ -1,5 +1,7 @@
 # geodot-plugin
 
+<img align="right" width="256" height="256" src="https://github.com/boku-ilen/geodot-plugin/blob/master/demo/icon.png">
+
 A Godot plugin for loading geospatial data. Written in GDNative with C++.
 
 ## Functional features
