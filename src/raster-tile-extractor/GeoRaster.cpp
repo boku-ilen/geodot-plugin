@@ -13,8 +13,8 @@ void *GeoRaster::get_as_array() {
         float *array = new float[get_size_in_bytes()];
 
         GDALRasterIO(band, GF_Read, 0, 0, get_pixel_size_x(), get_pixel_size_y(),
-                      array, get_pixel_size_x(), get_pixel_size_y(), GDT_Float32,
-                      0, 0 );
+                     array, get_pixel_size_x(), get_pixel_size_y(), GDT_Float32,
+                     0, 0);
 
         return array;
     } else if (format == RGBA) {

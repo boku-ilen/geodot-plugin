@@ -7,6 +7,7 @@
 #include <vector>
 
 class OGRFeature;
+
 class OGRLineString;
 
 class LineFeature {

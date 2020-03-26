@@ -111,7 +111,8 @@ void RasterTileExtractor::reproject_to_webmercator(const char *base_path, const 
 }
 
 GDALDataset
-*RasterTileExtractor::clip(const char *base_path, double top_left_x, double top_left_y, double size_meters, int img_size,
+*
+RasterTileExtractor::clip(const char *base_path, double top_left_x, double top_left_y, double size_meters, int img_size,
                           int interpolation_type) {
     GDALDataset *source, *dest;
     GDALDriverH pDriver;
@@ -219,14 +220,17 @@ GDALDataset
 
 #define PYRAMID_DIRECTORY_ENDING "pyramid"
 
-GeoRaster *RasterTileExtractor::get_raster_at_position(const char *base_path, const char *file_ending, double top_left_x, double top_left_y,
-                                                      double size_meters, int img_size, int interpolation_type) {
+GeoRaster *
+RasterTileExtractor::get_raster_at_position(const char *base_path, const char *file_ending, double top_left_x,
+                                            double top_left_y,
+                                            double size_meters, int img_size, int interpolation_type) {
     // First, check if we have a pre-tiled pyramid of this data
     std::string pyramid_name_string = std::string(base_path) + "." + std::string(PYRAMID_DIRECTORY_ENDING);
 
     if (std::filesystem::exists(pyramid_name_string)) {
         // We have a pre-tiled pyramid
-        GDALDataset *dataset_from_pyramid = get_from_pyramid(pyramid_name_string.c_str(), file_ending, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
+        GDALDataset *dataset_from_pyramid = get_from_pyramid(pyramid_name_string.c_str(), file_ending, top_left_x,
+                                                             top_left_y, size_meters, img_size, interpolation_type);
 
         if (dataset_from_pyramid != nullptr) {
             return new GeoRaster(dataset_from_pyramid);
@@ -236,7 +240,8 @@ GeoRaster *RasterTileExtractor::get_raster_at_position(const char *base_path, co
         std::string raster_path_string = std::string(base_path) + "." + std::string(file_ending);
 
         if (std::filesystem::exists(raster_path_string)) {
-            return new GeoRaster(clip(raster_path_string.c_str(), top_left_x, top_left_y, size_meters, img_size, interpolation_type));
+            return new GeoRaster(clip(raster_path_string.c_str(), top_left_x, top_left_y, size_meters, img_size,
+                                      interpolation_type));
         }
     }
 
@@ -251,7 +256,8 @@ GeoRaster *RasterTileExtractor::get_raster_at_position(const char *base_path, co
 class path;
 
 GDALDataset *
-RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_ending, double top_left_x, double top_left_y, double size_meters,
+RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_ending, double top_left_x,
+                                      double top_left_y, double size_meters,
                                       int img_size, int interpolation_type) {
     // Norm webmercator position (in meters) to value between -1 and 1
     double norm_x = 0.5 + ((top_left_x + size_meters / 2.0) / WEBMERCATOR_MAX) * 0.5;
@@ -261,14 +267,14 @@ RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_en
     // Get latitude and use it to calculate the zoom level here
     double latitude = 0.81777; // TODO: Finding the actual latitude requires a more complex calculation due to projection
     // Original formula: size = C * cos(latitude) / pow(2, zoom_level) (from https://wiki.openstreetmap.org/wiki/Zoom_levels)
-    int zoom_level = (int)round(log2(CIRCUMEFERENCE * cos(latitude) / size_meters)) + 1;
+    int zoom_level = (int) round(log2(CIRCUMEFERENCE * cos(latitude) / size_meters)) + 1;
 
     // Number of tiles at this zoom level
     int num_tiles = pow(2.0, zoom_level);
 
     // Tile coordinates in OSM pyramid
-    int tile_x = (int)floor(norm_x * num_tiles);
-    int tile_y = (int)floor(norm_y * num_tiles);
+    int tile_x = (int) floor(norm_x * num_tiles);
+    int tile_y = (int) floor(norm_y * num_tiles);
 
     // Build the complete path
     std::filesystem::path path = std::filesystem::path(base_path);
