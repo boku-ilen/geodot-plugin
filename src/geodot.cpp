@@ -16,6 +16,7 @@ Geodot::~Geodot() {
 
 void Geodot::_init() {
     RasterTileExtractor::initialize();
+    VectorExtractor::initialize();
     load_mutex = Ref<Mutex>(Mutex::_new());
 }
 

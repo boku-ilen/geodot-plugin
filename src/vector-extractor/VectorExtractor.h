@@ -6,6 +6,8 @@
 
 class VectorExtractor {
 public:
+    static void initialize();
+
     static std::list<LineFeature *> get_lines_near_position(const char *path, double pos_x, double pos_y, double radius, int max_amount);
 };
 

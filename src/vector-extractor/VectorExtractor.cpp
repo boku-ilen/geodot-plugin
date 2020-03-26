@@ -3,11 +3,13 @@
 #include <gdal/gdal.h>
 #include <iostream>
 
+void VectorExtractor::initialize() {
+    GDALAllRegister();
+}
+
 std::list<LineFeature *>
 VectorExtractor::get_lines_near_position(const char *path, double pos_x, double pos_y, double radius, int max_amount) {
     auto list = std::list<LineFeature *>();
-
-    GDALAllRegister();
 
     GDALDataset *poDS;
 
