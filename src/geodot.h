@@ -73,9 +73,9 @@ public:
 
     String get_attribute(String name);
 
-    Ref<Curve3D> get_as_curve3d_offset(int offset_x, int offset_y, int offset_z);
+    Ref<Curve3D> get_offset_curve3d(int offset_x, int offset_y, int offset_z);
 
-    Ref<Curve3D> get_as_curve3d();
+    Ref<Curve3D> get_curve3d();
 
 private:
     LineFeature *line;
@@ -118,7 +118,7 @@ public:
                             double top_left_x, double top_left_y, double size_meters,
                             int img_size, int interpolation_type);
 
-    Array get_lines_near_position(String path, double pos_x, double pos_y, double radius, int max_lines);
+    Array get_lines(String path, double pos_x, double pos_y, double radius, int max_lines);
 
     Geodot();
     ~Geodot();

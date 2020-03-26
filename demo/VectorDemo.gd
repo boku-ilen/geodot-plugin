@@ -11,12 +11,12 @@ var street_scene = preload("res://Street.tscn")
 
 
 func _ready() -> void:
-	var lines = Geodot.get_lines_near_position(streets_shapefile_path, center_webmercator_x, center_webmercator_y, radius, max_streets)
+	var lines = Geodot.get_lines(streets_shapefile_path, center_webmercator_x, center_webmercator_y, radius, max_streets)
 	print(lines.size())
 
 	for line in lines:
 		var street = street_scene.instance()
-		street.curve = line.get_as_curve3d_offset(-center_webmercator_x, 0, -center_webmercator_y)
+		street.curve = line.get_offset_curve3d(-center_webmercator_x, 0, -center_webmercator_y)
 
 		var width = float(line.get_attribute("WIDTH"))
 		width = max(width, 2) # It's sometimes -1 in the data

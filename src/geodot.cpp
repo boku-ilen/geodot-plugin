@@ -5,7 +5,7 @@ using namespace godot;
 
 void Geodot::_register_methods() {
     register_method("get_image", &Geodot::get_image);
-    register_method("get_lines_near_position", &Geodot::get_lines_near_position);
+    register_method("get_lines", &Geodot::get_lines);
 }
 
 Geodot::Geodot() {
@@ -45,7 +45,7 @@ Ref<GeoImage> Geodot::get_image(String path, String file_ending,
     return image;
 }
 
-Array Geodot::get_lines_near_position(String path, double pos_x, double pos_y, double radius, int max_lines) {
+Array Geodot::get_lines(String path, double pos_x, double pos_y, double radius, int max_lines) {
     Array lines = Array();
 
     std::list<LineFeature *> linefeatures = VectorExtractor::get_lines_near_position(path.utf8().get_data(), pos_x, pos_y, radius, max_lines);
@@ -240,9 +240,8 @@ void GeoLine::_init() {
 
 void GeoLine::_register_methods() {
     register_method("get_attribute", &GeoLine::get_attribute);
-    register_method("get_as_curve3d", &GeoLine::get_as_curve3d);
-    register_method("get_as_curve3d", &GeoLine::get_as_curve3d);
-    register_method("get_as_curve3d_offset", &GeoLine::get_as_curve3d_offset);
+    register_method("get_curve3d", &GeoLine::get_curve3d);
+    register_method("get_offset_curve3d", &GeoLine::get_offset_curve3d);
 }
 
 void GeoLine::set_line(LineFeature *line) {
@@ -253,7 +252,7 @@ String GeoLine::get_attribute(String name) {
     return line->get_attribute(name.utf8().get_data());
 }
 
-Ref<Curve3D> GeoLine::get_as_curve3d_offset(int offset_x, int offset_y, int offset_z) {
+Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
     Ref<Curve3D> curve = Curve3D::_new();
 
     int point_count = line->get_point_count();
@@ -270,6 +269,6 @@ Ref<Curve3D> GeoLine::get_as_curve3d_offset(int offset_x, int offset_y, int offs
     return curve;
 }
 
-Ref<Curve3D> GeoLine::get_as_curve3d() {
-    return get_as_curve3d_offset(0, 0, 0);
+Ref<Curve3D> GeoLine::get_curve3d() {
+    return get_offset_curve3d(0, 0, 0);
 }
