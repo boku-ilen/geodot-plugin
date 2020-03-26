@@ -23,7 +23,7 @@ private:
     /// Clip the infile to an image starting at top_left_x, top_left_y with a given size (in meters).
     /// The resulting image has the resolution img_size x img_size (pixels).
     /// __The returned GDALDataset needs to be closed with GDALClose()!__
-    static GDALDataset *clip(const char *infile, double top_left_x, double top_left_y, double size_meters, int img_size,
+    static GeoRaster *clip(const char *infile, double top_left_x, double top_left_y, double size_meters, int img_size,
                              int interpolation_type);
 
     /// Get an image from a pre-tiled raster pyramid (named according to the Slippy tilenames).

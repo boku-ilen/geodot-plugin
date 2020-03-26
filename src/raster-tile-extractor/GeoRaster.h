@@ -17,7 +17,9 @@ public:
         BYTE   // 1 8-bit int channel
     };
 
-    explicit GeoRaster(GDALDataset *data);
+    GeoRaster(GDALDataset *data);
+
+    GeoRaster(GDALDataset *data, int pixel_offset_x, int pixel_offset_y, int source_window_size_pixels, int destination_window_size_pixels);
 
     ~GeoRaster();
 
@@ -51,6 +53,14 @@ private:
     GDALDataset *data;
 
     FORMAT format;
+
+    int pixel_offset_x;
+
+    int pixel_offset_y;
+
+    int source_window_size_pixels;
+
+    int destination_window_size_pixels;
 };
 
 

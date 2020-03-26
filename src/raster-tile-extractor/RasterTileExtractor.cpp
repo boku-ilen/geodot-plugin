@@ -110,18 +110,16 @@ void RasterTileExtractor::reproject_to_webmercator(const char *base_path, const 
     GDALClose(hSrcDS);
 }
 
-GDALDataset
-*
-RasterTileExtractor::clip(const char *base_path, double top_left_x, double top_left_y, double size_meters, int img_size,
+GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, double top_left_y, double size_meters, int img_size,
                           int interpolation_type) {
     GDALDataset *source, *dest;
-    GDALDriverH pDriver;
+    GDALDriver *driver;
 
     // TODO: Add the option of saving to a GTiff for caching
     if (false) {
-        pDriver = GDALGetDriverByName("GTiff");
+        driver = (GDALDriver *)GDALGetDriverByName("GTiff");
     } else {
-        pDriver = GDALGetDriverByName("MEM");
+        driver = (GDALDriver *)GDALGetDriverByName("MEM");
     }
 
     source = (GDALDataset *) GDALOpen(base_path, GA_ReadOnly);
@@ -134,88 +132,40 @@ RasterTileExtractor::clip(const char *base_path, double top_left_x, double top_l
     source->GetGeoTransform(transform);
 
     // Adjust the top left coordinates according to the input variables
-    transform[0] = top_left_x;
-    transform[3] = top_left_y;
+    double previous_top_left_x = transform[0];
+    double previous_top_left_y = transform[3];
+    double pixel_size = transform[1];
 
-    // We want to fit an image of the given size (in meters) into our img_size (in pixels)
-    double new_pixel_size = size_meters / img_size;
-    double previous_pixel_size = transform[1];
+    // We need to transform the previous top left coordinates to webmercator
+    OGRSpatialReference *source_sr = new OGRSpatialReference();
+    source_sr->importFromWkt(source->GetProjectionRef());
 
-    // Adjust the pixel size
-    transform[1] = new_pixel_size;
-    transform[5] = -new_pixel_size;
+    OGRSpatialReference *destination_sr = new OGRSpatialReference();
+    destination_sr->importFromEPSG(3857);
 
-    // Create a new geoimage at the given path with our img_size
-    // The outfile path is empty since it's only in RAM
-    dest = (GDALDataset *) GDALCreate(pDriver, "", img_size, img_size, band_count, datatype, nullptr);
+    OGRCoordinateTransformation *coordinateTransformation = OGRCreateCoordinateTransformation(source_sr, destination_sr);
 
-    // Get Source coordinate system.
-    const char *pszDstWKT = nullptr;
+    coordinateTransformation->Transform(1, &previous_top_left_x, &previous_top_left_y);
 
-    // Get Webmercator coordinate system
-    OGRSpatialReference oSRS;
-    oSRS.importFromEPSG(3857);
-    oSRS.exportToWkt(const_cast<char **>(&pszDstWKT));
+    // Get the offset in meters from the previous to left to the new top left
+    // TODO: Only works for Austria - we need to check where to subtract from or something like that
+    double offset_meters_x = top_left_x - previous_top_left_x;
+    double offset_meters_y = previous_top_left_y - top_left_y;
 
-    // Apply Webmercator and our previously built Transform to the destination file
-    dest->SetProjection(pszDstWKT);
-    dest->SetGeoTransform(transform);
+    // FIXME: This is because we need to convert between Webmercator meters and true meters or something like that...
+    //  obviously this is a hack and needs to be done properly!
+    offset_meters_x *= 0.66;
+    offset_meters_y *= 0.66;
 
-    // Copy the color table, if required.
-    // TODO: Only supports one raster band - are more required?
-    GDALColorTable *hCT = source->GetRasterBand(1)->GetColorTable();
-    if (hCT != nullptr) {
-        dest->GetRasterBand(1)->SetColorTable(hCT);
-    }
+    // Convert meters to pixels using the pixel size in meters
+    int offset_pixels_x = static_cast<int>(offset_meters_x / pixel_size);
+    int offset_pixels_y = static_cast<int>(offset_meters_y / pixel_size);
 
-    // Get the band names to pass to the warp options
-    // We need identical arrays for the source and destination band names because GDAL does a double free otherwise
-    int *src_bands = new int[band_count];
-    int *dst_bands = new int[band_count];
-    int i = 0;
-    for (auto *band : source->GetBands()) {
-        src_bands[i] = band->GetBand();
-        dst_bands[i] = band->GetBand();
-        i++;
-    }
+    // Calculate the desired size in pixels
+    int size_pixels  = static_cast<int>(size_meters / pixel_size);
 
-    // Warp the data from the input file into our new destination with the new Transform and size
-    // Setup warp options
-    GDALWarpOptions *psWarpOptions = GDALCreateWarpOptions();
-    psWarpOptions->hSrcDS = source;
-    psWarpOptions->hDstDS = dest;
-    psWarpOptions->nBandCount = band_count;
-    psWarpOptions->panSrcBands = src_bands;
-    psWarpOptions->panDstBands = dst_bands;
-    psWarpOptions->pfnProgress = GDALTermProgress;
-
-    // If we are going beyond the available resolution, use bilinear scaling
-    if (new_pixel_size < previous_pixel_size) {
-        psWarpOptions->eResampleAlg = static_cast<GDALResampleAlg>(interpolation_type);
-    } else {
-        psWarpOptions->eResampleAlg = GRA_NearestNeighbour;
-    }
-
-    // Establish reprojection transformer.
-    psWarpOptions->pTransformerArg =
-            GDALCreateGenImgProjTransformer(source,
-                                            GDALGetProjectionRef(source),
-                                            dest,
-                                            GDALGetProjectionRef(dest),
-                                            FALSE, 0.0, 1);
-    psWarpOptions->pfnTransformer = GDALGenImgProjTransform;
-
-    // Initialize and execute the warp operation.
-    GDALWarpOperation oOperation;
-    oOperation.Initialize(psWarpOptions);
-    oOperation.ChunkAndWarpImage(0, 0, img_size, img_size);
-    GDALDestroyGenImgProjTransformer(psWarpOptions->pTransformerArg);
-
-    GDALDestroyWarpOptions(psWarpOptions);
-
-    GDALClose(source);
-
-    return dest;
+    // With these parameters, we can construct a GeoRaster!
+    return new GeoRaster(source, offset_pixels_x, offset_pixels_y, size_pixels, img_size);
 }
 
 #define PYRAMID_DIRECTORY_ENDING "pyramid"
@@ -240,8 +190,8 @@ RasterTileExtractor::get_raster_at_position(const char *base_path, const char *f
         std::string raster_path_string = std::string(base_path) + "." + std::string(file_ending);
 
         if (std::filesystem::exists(raster_path_string)) {
-            return new GeoRaster(clip(raster_path_string.c_str(), top_left_x, top_left_y, size_meters, img_size,
-                                      interpolation_type));
+            return clip(raster_path_string.c_str(), top_left_x, top_left_y, size_meters, img_size,
+                                      interpolation_type);
         }
     }
 

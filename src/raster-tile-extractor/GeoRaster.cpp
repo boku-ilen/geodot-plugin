@@ -12,8 +12,8 @@ void *GeoRaster::get_as_array() {
         GDALRasterBand *band = data->GetRasterBand(1);
         float *array = new float[get_size_in_bytes()];
 
-        GDALRasterIO(band, GF_Read, 0, 0, get_pixel_size_x(), get_pixel_size_y(),
-                     array, get_pixel_size_x(), get_pixel_size_y(), GDT_Float32,
+        GDALRasterIO(band, GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels, source_window_size_pixels,
+                     array, destination_window_size_pixels, destination_window_size_pixels, GDT_Float32,
                      0, 0);
 
         return array;
@@ -30,8 +30,8 @@ void *GeoRaster::get_as_array() {
             GDALRasterBand *band = data->GetRasterBand(band_number);
 
             // Read into the array with 4 bytes between the pixels
-            band->RasterIO(GF_Read, 0, 0, get_pixel_size_x(), get_pixel_size_y(),
-                           array + (band_number - 1), get_pixel_size_x(), get_pixel_size_y(), GDT_Byte,
+            band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels, source_window_size_pixels,
+                           array + (band_number - 1), destination_window_size_pixels, destination_window_size_pixels, GDT_Byte,
                            4, 0);
         }
 
@@ -48,8 +48,8 @@ void *GeoRaster::get_as_array() {
             GDALRasterBand *band = data->GetRasterBand(band_number);
 
             // Read into the array with 3 bytes between the pixels
-            band->RasterIO(GF_Read, 0, 0, get_pixel_size_x(), get_pixel_size_y(),
-                           array + (band_number - 1), get_pixel_size_x(), get_pixel_size_y(), GDT_Byte,
+            band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels, source_window_size_pixels,
+                           array + (band_number - 1), destination_window_size_pixels, destination_window_size_pixels, GDT_Byte,
                            3, 0);
         }
 
@@ -61,8 +61,8 @@ void *GeoRaster::get_as_array() {
         GDALRasterBand *band = data->GetRasterBand(1);
 
         // Read into the array with 4 bytes between the pixels
-        band->RasterIO(GF_Read, 0, 0, get_pixel_size_x(), get_pixel_size_y(),
-                       array, get_pixel_size_x(), get_pixel_size_y(), GDT_Byte,
+        band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels, source_window_size_pixels,
+                       array, destination_window_size_pixels, destination_window_size_pixels, GDT_Byte,
                        0, 0);
 
         return array;
@@ -93,11 +93,11 @@ GeoRaster::FORMAT GeoRaster::get_format() {
 }
 
 int GeoRaster::get_pixel_size_x() {
-    return data->GetRasterXSize();
+    return destination_window_size_pixels;
 }
 
 int GeoRaster::get_pixel_size_y() {
-    return data->GetRasterYSize();
+    return destination_window_size_pixels;
 }
 
 uint64_t *GeoRaster::get_histogram() {
@@ -112,7 +112,16 @@ uint64_t *GeoRaster::get_histogram() {
     return reinterpret_cast<uint64_t *>(histogram);
 }
 
-GeoRaster::GeoRaster(GDALDataset *data) : data(data) {
+GeoRaster::GeoRaster(GDALDataset *data) {
+    GeoRaster(data, 0, 0, data->GetRasterXSize(), data->GetRasterXSize());
+}
+
+GeoRaster::GeoRaster(GDALDataset *data, int pixel_offset_x, int pixel_offset_y,  int source_window_size_pixels, int destination_window_size_pixels)
+                                                                                                 : data(data),
+                                                                                                   pixel_offset_x(pixel_offset_x),
+                                                                                                   pixel_offset_y(pixel_offset_y),
+                                                                                                   source_window_size_pixels(source_window_size_pixels),
+                                                                                                   destination_window_size_pixels(destination_window_size_pixels) {
     int raster_count = data->GetRasterCount();
     GDALDataType raster_type = data->GetRasterBand(1)->GetRasterDataType();
 
