@@ -53,17 +53,17 @@ __You will need some sort of geodata to use this plugin.__ A good starting point
 3. Generate the GDNative C++ bindings: `scons platform=<platform> generate_bindings=yes` (in `godot-cpp`)
 
 
-### RasterTileExtractor
+#### RasterTileExtractor
 
-The RasterTileExtractor is a separate CMake project. CLion is recommended for development; for building, CMake is enough.
+The RasterTileExtractor is a separate C++ project. It is a library which is used by Geodot, so it must be built before compiling the plugin iteself. It is built using CMake with the provided `CMakeLists.txt`.
 
-### VectorExtractor
+#### VectorExtractor
 
 Same as RasterTileExtractor.
 
 ### Geodot-Plugin
 
-Run `scons platform=<platform>` in the root directory. The compiled plugin and the RasterTileExtractor library dependency will be placed in the demo project. (`<platform>` must be replaced with your platform, e.g. `linux`.)
+Run `scons platform=<platform>` in the root directory. The compiled plugin and the dependencies which were compiled beforehand will be placed in the demo project. (`<platform>` must be replaced with your platform, e.g. `linux`.)
 
 ### Packaging
 
@@ -91,8 +91,11 @@ Processing library called by Geodot. Mainly wraps GDAL functionality so that Geo
 
 The reason why Geodot doesn't directly call GDAL functions without this additional layer of abstraction is ease of compilation and extendibility: The libraries can remain the same, only the core Geodot must be kept consistent with Godot.
 
-## Contributing
+### VectorExtractor
 
+Another processing library like the RasterTileExtractor. Also uses GDAL internally, but for vector data functionality.
+
+## Contributing
 Help is greatly appreciated! You can test and report bugs, fix known [issues](https://github.com/boku-ilen/geodot-plugin/issues) or submit new functionality.
 
 ### Adding a new feature
