@@ -5,6 +5,7 @@
 
 [node name="VectorDemo" type="Spatial"]
 script = ExtResource( 1 )
+streets_shapefile_path = "/home/karl/BOKU/geodata/streets/2_linknetz_ogd_WM.shp"
 
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( 1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 1000, 1000 )

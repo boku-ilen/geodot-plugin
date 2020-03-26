@@ -1,16 +1,22 @@
 extends Spatial
 
+export(int) var center_webmercator_x = 1747139
+export(int) var center_webmercator_y = 6154178
+export(float) var radius =  1000.0
+export(int) var max_streets = 300
+
+export(String) var streets_shapefile_path
 
 var street_scene = preload("res://Street.tscn")
 
 
 func _ready() -> void:
-	var lines = Geodot.get_lines_near_position("/home/karl/BOKU/geodata/streets/2_linknetz_ogd_WM.shp", 1747139.5, 6154178.7, 1000.0, 300)
+	var lines = Geodot.get_lines_near_position(streets_shapefile_path, center_webmercator_x, center_webmercator_y, radius, max_streets)
 	print(lines.size())
 
 	for line in lines:
 		var street = street_scene.instance()
-		street.curve = line.get_as_curve3d_offset(- 1747139, 0, -6154178)
+		street.curve = line.get_as_curve3d_offset(-center_webmercator_x, 0, -center_webmercator_y)
 
 		var width = float(line.get_attribute("WIDTH"))
 		width = max(width, 2) # It's sometimes -1 in the data
