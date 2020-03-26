@@ -12,7 +12,7 @@ class OGRLineString;
 
 class LineFeature {
 public:
-    LineFeature(OGRFeature *feature);
+    explicit LineFeature(OGRFeature *feature);
 
     std::map<std::string, std::string> get_attributes();
 

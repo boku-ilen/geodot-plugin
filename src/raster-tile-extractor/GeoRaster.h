@@ -17,7 +17,7 @@ public:
         BYTE   // 1 8-bit int channel
     };
 
-    GeoRaster(GDALDataset *data);
+    explicit GeoRaster(GDALDataset *data);
 
     ~GeoRaster();
 
