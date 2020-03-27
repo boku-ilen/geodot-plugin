@@ -23,7 +23,9 @@ void Geodot::_init() {
 Ref<GeoImage> Geodot::get_image(String path, String file_ending,
                                 double top_left_x, double top_left_y, double size_meters,
                                 int img_size, int interpolation_type) {
-    Ref<GeoImage> image = GeoImage::_new();
+    // This strange __internal_constructor call is required to prevent a memory leak
+    // See https://github.com/GodotNativeTools/godot-cpp/issues/215
+    Ref<GeoImage> image = Ref<GeoImage>::__internal_constructor(GeoImage::_new());
 
     load_mutex->lock();
 
