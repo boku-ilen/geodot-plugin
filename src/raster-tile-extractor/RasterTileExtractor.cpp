@@ -148,7 +148,6 @@ GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, d
     coordinateTransformation->Transform(1, &previous_top_left_x, &previous_top_left_y);
 
     // Get the offset in meters from the previous to left to the new top left
-    // TODO: Only works for Austria - we need to check where to subtract from or something like that
     double offset_meters_x = top_left_x - previous_top_left_x;
     double offset_meters_y = previous_top_left_y - top_left_y;
 
