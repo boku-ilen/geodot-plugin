@@ -152,33 +152,8 @@ GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, d
     double previous_top_left_y = transform[3];
     double pixel_size = transform[1];
 
-    // We need to transform the previous top left coordinates to webmercator
-    OGRSpatialReference *source_sr = new OGRSpatialReference();
-    source_sr->importFromWkt(source->GetProjectionRef());
-
-    OGRSpatialReference *destination_sr = new OGRSpatialReference();
-    destination_sr->importFromEPSG(3857);
-
-    OGRCoordinateTransformation *coordinateTransformation = OGRCreateCoordinateTransformation(source_sr, destination_sr);
-
-    coordinateTransformation->Transform(1, &previous_top_left_x, &previous_top_left_y);
-
-    // Get the offset in meters from the previous to left to the new top left
-    // We need to convert these projected meters into true meters because the pixel_size we use for calculations later is in true meters
-    // See https://en.wikipedia.org/wiki/Mercator_projection#Scale_factor for details on the calculation
-    double latitude_previous = webmercator_to_latitude(previous_top_left_y);
-    double latitude_new = webmercator_to_latitude(top_left_y);
-
-    double mean_latitude = (latitude_previous + latitude_new) / 2.0;
-    double scale_factor = 1.0 / cos(mean_latitude);
-
     double offset_meters_x = top_left_x - previous_top_left_x;
     double offset_meters_y = previous_top_left_y - top_left_y;
-
-    // Because Webmercator is strange, this calculation is pretty complex; see https://gis.stackexchange.com/questions/14528/better-distance-measurements-in-web-mercator-projection for details
-    double e = 0.081819191;
-    offset_meters_x = offset_meters_x * cos(mean_latitude) / sqrt(1 - pow(e, 2.0) * pow(sin(mean_latitude), 2.0));
-    offset_meters_y = offset_meters_y * cos(mean_latitude) * (1 - pow(e, 2.0)) / pow(1 - pow(e, 2.0) * pow(sin(mean_latitude), 2.0), 3.0/2.0);
 
     // Convert meters to pixels using the pixel size in meters
     int offset_pixels_x = static_cast<int>(offset_meters_x / pixel_size);
