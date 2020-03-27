@@ -123,9 +123,6 @@ GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, d
     }
 
     source = (GDALDataset *) GDALOpen(base_path, GA_ReadOnly);
-    GDALDataType datatype = source->GetRasterBand(1)->GetRasterDataType();
-
-    int band_count = source->GetRasterCount();
 
     // Get the current Transform of the source image
     double transform[6];
@@ -151,10 +148,13 @@ GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, d
     double offset_meters_x = top_left_x - previous_top_left_x;
     double offset_meters_y = previous_top_left_y - top_left_y;
 
-    // FIXME: This is because we need to convert between Webmercator meters and true meters or something like that...
-    //  obviously this is a hack and needs to be done properly!
-    offset_meters_x *= 0.66;
-    offset_meters_y *= 0.66;
+    // We need to convert these projected meters into true meters because the pixel_size we use for calculations later is in true meters
+    // See https://en.wikipedia.org/wiki/Mercator_projection#Scale_factor for details on the calculation
+    double latitude = 0.8413968779; // TODO: Finding the actual latitude requires a more complex calculation due to projection
+    double scale_factor = 1.0 / cos(latitude);
+
+    offset_meters_x /= scale_factor;
+    offset_meters_y /= scale_factor;
 
     // Convert meters to pixels using the pixel size in meters
     int offset_pixels_x = static_cast<int>(offset_meters_x / pixel_size);
@@ -214,7 +214,7 @@ RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_en
     double norm_y = 1.0 - (0.5 + ((top_left_y - size_meters / 2.0) / WEBMERCATOR_MAX) * 0.5);
 
     // Get latitude and use it to calculate the zoom level here
-    double latitude = 0.81777; // TODO: Finding the actual latitude requires a more complex calculation due to projection
+    double latitude = 0.8413968779; // TODO: Finding the actual latitude requires a more complex calculation due to projection
     // Original formula: size = C * cos(latitude) / pow(2, zoom_level) (from https://wiki.openstreetmap.org/wiki/Zoom_levels)
     int zoom_level = (int) round(log2(CIRCUMEFERENCE * cos(latitude) / size_meters)) + 1;
 
