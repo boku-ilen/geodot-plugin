@@ -6,15 +6,28 @@ GeoRaster::~GeoRaster() {
 }
 
 void *GeoRaster::get_as_array() {
+    GDALRasterIOExtraArg rasterio_args;
+    INIT_RASTERIO_EXTRA_ARG(rasterio_args);
+
+    int interpolation = interpolation_type;
+
+    // If we're requesting downscaled data, always use nearest neighbour scaling.
+    // TODO: Would be good if this could be overridden with an optional parameter, but any other scaling usually causes
+    //  very long loading times so this is the default for now
+    if (destination_window_size_pixels < source_window_size_pixels) {
+        interpolation = 0;
+    }
+    rasterio_args.eResampleAlg = static_cast<GDALRIOResampleAlg>(interpolation);
+
     // Depending on the image format, we need to structure the resulting array differently and/or read multiple bands.
     if (format == RF) {
         // Write the data directly into a float array.
         GDALRasterBand *band = data->GetRasterBand(1);
         float *array = new float[get_size_in_bytes()];
 
-        GDALRasterIO(band, GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels, source_window_size_pixels,
+        band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels, source_window_size_pixels,
                      array, destination_window_size_pixels, destination_window_size_pixels, GDT_Float32,
-                     0, 0);
+                     0, 0, &rasterio_args);
 
         return array;
     } else if (format == RGBA) {
@@ -32,7 +45,7 @@ void *GeoRaster::get_as_array() {
             // Read into the array with 4 bytes between the pixels
             band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels, source_window_size_pixels,
                            array + (band_number - 1), destination_window_size_pixels, destination_window_size_pixels, GDT_Byte,
-                           4, 0);
+                           4, 0, &rasterio_args);
         }
 
         return array;
@@ -50,7 +63,7 @@ void *GeoRaster::get_as_array() {
             // Read into the array with 3 bytes between the pixels
             band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels, source_window_size_pixels,
                            array + (band_number - 1), destination_window_size_pixels, destination_window_size_pixels, GDT_Byte,
-                           3, 0);
+                           3, 0, &rasterio_args);
         }
 
         return array;
@@ -63,7 +76,7 @@ void *GeoRaster::get_as_array() {
         // Read into the array with 4 bytes between the pixels
         band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels, source_window_size_pixels,
                        array, destination_window_size_pixels, destination_window_size_pixels, GDT_Byte,
-                       0, 0);
+                       0, 0, &rasterio_args);
 
         return array;
     }
@@ -112,16 +125,17 @@ uint64_t *GeoRaster::get_histogram() {
     return reinterpret_cast<uint64_t *>(histogram);
 }
 
-GeoRaster::GeoRaster(GDALDataset *data) {
-    GeoRaster(data, 0, 0, data->GetRasterXSize(), data->GetRasterXSize());
-}
+GeoRaster::GeoRaster(GDALDataset *data, int interpolation_type)
+    : GeoRaster(data, 0, 0, data->GetRasterXSize(), data->GetRasterXSize(), interpolation_type) {}
 
-GeoRaster::GeoRaster(GDALDataset *data, int pixel_offset_x, int pixel_offset_y,  int source_window_size_pixels, int destination_window_size_pixels)
+
+GeoRaster::GeoRaster(GDALDataset *data, int pixel_offset_x, int pixel_offset_y,  int source_window_size_pixels, int destination_window_size_pixels, int interpolation_type)
                                                                                                  : data(data),
                                                                                                    pixel_offset_x(pixel_offset_x),
                                                                                                    pixel_offset_y(pixel_offset_y),
                                                                                                    source_window_size_pixels(source_window_size_pixels),
-                                                                                                   destination_window_size_pixels(destination_window_size_pixels) {
+                                                                                                   destination_window_size_pixels(destination_window_size_pixels),
+                                                                                                   interpolation_type(interpolation_type) {
     int raster_count = data->GetRasterCount();
     GDALDataType raster_type = data->GetRasterBand(1)->GetRasterDataType();
 

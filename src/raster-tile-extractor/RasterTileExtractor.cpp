@@ -165,7 +165,7 @@ GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, d
     int size_pixels  = static_cast<int>(size_meters / pixel_size);
 
     // With these parameters, we can construct a GeoRaster!
-    return new GeoRaster(source, offset_pixels_x, offset_pixels_y, size_pixels, img_size);
+    return new GeoRaster(source, offset_pixels_x, offset_pixels_y, size_pixels, img_size, interpolation_type);
 }
 
 #define PYRAMID_DIRECTORY_ENDING "pyramid"
@@ -183,7 +183,7 @@ RasterTileExtractor::get_raster_at_position(const char *base_path, const char *f
                                                              top_left_y, size_meters, img_size, interpolation_type);
 
         if (dataset_from_pyramid != nullptr) {
-            return new GeoRaster(dataset_from_pyramid);
+            return new GeoRaster(dataset_from_pyramid, interpolation_type);
         }
     } else {
         // Check if there is a single image with the given path

@@ -17,9 +17,9 @@ public:
         BYTE   // 1 8-bit int channel
     };
 
-    GeoRaster(GDALDataset *data);
+    GeoRaster(GDALDataset *data, int interpolation_type);
 
-    GeoRaster(GDALDataset *data, int pixel_offset_x, int pixel_offset_y, int source_window_size_pixels, int destination_window_size_pixels);
+    GeoRaster(GDALDataset *data, int pixel_offset_x, int pixel_offset_y, int source_window_size_pixels, int destination_window_size_pixels, int interpolation_type);
 
     ~GeoRaster();
 
@@ -61,6 +61,8 @@ private:
     int source_window_size_pixels;
 
     int destination_window_size_pixels;
+
+    int interpolation_type;
 };
 
 
