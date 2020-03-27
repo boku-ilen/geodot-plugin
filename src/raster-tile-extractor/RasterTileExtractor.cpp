@@ -131,7 +131,7 @@ double webmercator_to_latitude(double webm_meters) {
 
 GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, double top_left_y, double size_meters, int img_size,
                           int interpolation_type) {
-    GDALDataset *source, *dest;
+    GDALDataset *source;
     GDALDriver *driver;
 
     // TODO: Add the option of saving to a GTiff for caching
