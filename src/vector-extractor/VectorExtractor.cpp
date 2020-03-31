@@ -53,7 +53,22 @@ VectorExtractor::get_lines_near_position(const char *path, double pos_x, double 
     int iterations = std::min(num_features, max_amount);
 
     for (int i = 0; i < iterations; i++) {
-        list.emplace_back(new LineFeature(lines_within->GetNextFeature()));
+        auto feature = lines_within->GetNextFeature();
+        std::string geometry_type_name = feature->GetGeometryRef()->getGeometryName();
+
+        if (geometry_type_name == "LINESTRING") {
+            // If this is a LineString, we can add it directly as a LineFeature.
+            list.emplace_back(new LineFeature(feature));
+        } else if (geometry_type_name == "MULTILINESTRING") {
+            // If this is a MultiLineString, we iterate over all the lines in the LineString and add those.
+            // All the individual LineStrings (and thus LineFeatures) then share the same Feature (with attributes etc).
+            const OGRMultiLineString *linestrings = feature->GetGeometryRef()->toMultiLineString();
+
+            for (const OGRLineString *linestring : linestrings) {
+                list.emplace_back(new LineFeature(feature, linestring));
+            }
+        }
+
     }
 
     return list;

@@ -13,7 +13,12 @@ class OGRLineString;
 /// Wrapper for an OGRFeature representing a Line.
 class LineFeature {
 public:
-    explicit LineFeature(OGRFeature *feature);
+    /// Construct a LineFeature with a feature which contains a LineString.
+    explicit LineFeature(const OGRFeature *feature);
+
+    /// Construct a LineFeature with a feature that can contain any geometry (usually used for MultiLineStrings) - it is
+    /// not accessed, the geometry is given as a separate LineString parameter instead.
+    explicit LineFeature(const OGRFeature *feature, const OGRLineString *linestring);
 
     /// Return a map with all attribute names -> values.
     std::map<std::string, std::string> get_attributes();
@@ -36,9 +41,9 @@ public:
     int get_point_count();
 
 private:
-    OGRFeature *feature;
+    const OGRFeature *feature;
 
-    OGRLineString *line;
+    const OGRLineString *line;
 
     int point_count;
 };
