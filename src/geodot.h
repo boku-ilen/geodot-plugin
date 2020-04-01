@@ -43,6 +43,13 @@ public:
     /// Get a Godot ImageTexture with the GeoImage's data
     Ref<ImageTexture> get_image_texture();
 
+    /// Assuming the image is a heightmap, return the normal map corresponding to that heightmap.
+    /// Somewhat costly because the generated heightmap has a higher precision than Godot's Image::bumpmap_to_normalmap.
+    Ref<Image> get_normalmap_for_heightmap(float scale);
+
+    /// Wrapper for get_normalmap_for_heightmap which directly provides an ImageTexture with the image.
+    Ref<ImageTexture> get_normalmap_texture_for_heightmap(float scale);
+
     /// Get the number_of_entries most common values in the raster.
     /// Only functional for single-band BYTE data!
     Array get_most_common(int number_of_entries);
