@@ -216,8 +216,13 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
 
     image->lock();
 
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
+    for (int full_y = 0; full_y < height; full_y++) {
+        for (int full_x = 0; full_x < width; full_x++) {
+            // Prevent the edges from having flat normals by using the closest
+            // valid normal
+            int x = std::clamp(full_x, 1, width - 2);
+            int y = std::clamp(full_y, 1, height - 2);
+
             // Sobel filter for getting the normal at this position
         	float bottom_left = image->get_pixel(x + 1, y + 1).r;
         	float bottom_center = image->get_pixel(x, y + 1).r;
@@ -241,10 +246,10 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
 
             Godot::print(normal);
 
-            normalmap_data.set(xy_to_index(x, y, width, height) * 4 + 0, 127.5 + normal.x * 127.5);
-            normalmap_data.set(xy_to_index(x, y, width, height) * 4 + 1, 127.5 + normal.y * 127.5);
-            normalmap_data.set(xy_to_index(x, y, width, height) * 4 + 2, 127.5 + normal.z * 127.5);
-            normalmap_data.set(xy_to_index(x, y, width, height) * 4 + 3, 255);
+            normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 0, 127.5 + normal.x * 127.5);
+            normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 1, 127.5 + normal.y * 127.5);
+            normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 2, 127.5 + normal.z * 127.5);
+            normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 3, 255);
         }
     }
 
