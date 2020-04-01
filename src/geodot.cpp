@@ -212,7 +212,7 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
 
     int width = image->get_width();
     int height = image->get_height();
-	normalmap_data.resize(width * height * 4); // RGBA
+    normalmap_data.resize(width * height * 4); // RGBA
 
     image->lock();
 
@@ -243,8 +243,6 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
         	normal.z = 1.0 / scale;
 
             normal.normalize();
-
-            Godot::print(normal);
 
             normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 0, 127.5 + normal.x * 127.5);
             normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 1, 127.5 + normal.y * 127.5);
