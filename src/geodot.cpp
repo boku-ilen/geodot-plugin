@@ -94,6 +94,8 @@ GeoImage::~GeoImage() {
 void GeoImage::_init() {
     // This is required - returning a Reference to a locally created GeoImage throws a segfault otherwise!
     init_ref();
+
+    normalmap_load_mutex = Ref<Mutex>(Mutex::_new());
 }
 
 void GeoImage::_register_methods() {
@@ -216,58 +218,66 @@ int xy_to_index(int x, int y, int width, int height) {
 }
 
 Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
-    Image *img = Image::_new();
+    normalmap_load_mutex->lock();
 
-    PoolByteArray heightmap_data = image->get_data();
+    if (normalmap == nullptr) {
+        Image *img = Image::_new();
 
-    PoolByteArray normalmap_data;
+        PoolByteArray heightmap_data = image->get_data();
 
-    int width = image->get_width();
-    int height = image->get_height();
-    normalmap_data.resize(width * height * 4); // RGBA
+        PoolByteArray normalmap_data;
 
-    image->lock();
+        int width = image->get_width();
+        int height = image->get_height();
+        normalmap_data.resize(width * height * 4); // RGBA
 
-    for (int full_y = 0; full_y < height; full_y++) {
-        for (int full_x = 0; full_x < width; full_x++) {
-            // Prevent the edges from having flat normals by using the closest
-            // valid normal
-            int x = std::clamp(full_x, 1, width - 2);
-            int y = std::clamp(full_y, 1, height - 2);
+        image->lock();
 
-            // Sobel filter for getting the normal at this position
-        	float bottom_left = image->get_pixel(x + 1, y + 1).r;
-        	float bottom_center = image->get_pixel(x, y + 1).r;
-        	float bottom_right = image->get_pixel(x - 1, y + 1).r;
+        for (int full_y = 0; full_y < height; full_y++) {
+            for (int full_x = 0; full_x < width; full_x++) {
+                // Prevent the edges from having flat normals by using the closest
+                // valid normal
+                int x = std::clamp(full_x, 1, width - 2);
+                int y = std::clamp(full_y, 1, height - 2);
 
-        	float center_left = image->get_pixel(x + 1, y).r;
-        	float center_center = image->get_pixel(x, y).r;
-        	float center_right = image->get_pixel(x - 1, y).r;
+                // Sobel filter for getting the normal at this position
+            	float bottom_left = image->get_pixel(x + 1, y + 1).r;
+            	float bottom_center = image->get_pixel(x, y + 1).r;
+            	float bottom_right = image->get_pixel(x - 1, y + 1).r;
 
-        	float top_left = image->get_pixel(x + 1, y - 1).r;
-        	float top_center = image->get_pixel(x, y - 1).r;
-        	float top_right = image->get_pixel(x - 1, y - 1).r;
+            	float center_left = image->get_pixel(x + 1, y).r;
+            	float center_center = image->get_pixel(x, y).r;
+            	float center_right = image->get_pixel(x - 1, y).r;
 
-        	Vector3 normal;
+            	float top_left = image->get_pixel(x + 1, y - 1).r;
+            	float top_center = image->get_pixel(x, y - 1).r;
+            	float top_right = image->get_pixel(x - 1, y - 1).r;
 
-        	normal.x = (top_right + 2.0 * center_right + bottom_right) - (top_left + 2.0 * center_left + bottom_left);
-        	normal.y = (bottom_left + 2.0 * bottom_center + bottom_right) - (top_left + 2.0 * top_center + top_right);
-        	normal.z = 1.0 / scale;
+            	Vector3 normal;
 
-            normal.normalize();
+            	normal.x = (top_right + 2.0 * center_right + bottom_right) - (top_left + 2.0 * center_left + bottom_left);
+            	normal.y = (bottom_left + 2.0 * bottom_center + bottom_right) - (top_left + 2.0 * top_center + top_right);
+            	normal.z = 1.0 / scale;
 
-            normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 0, 127.5 + normal.x * 127.5);
-            normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 1, 127.5 + normal.y * 127.5);
-            normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 2, 127.5 + normal.z * 127.5);
-            normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 3, 255);
+                normal.normalize();
+
+                normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 0, 127.5 + normal.x * 127.5);
+                normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 1, 127.5 + normal.y * 127.5);
+                normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 2, 127.5 + normal.z * 127.5);
+                normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 3, 255);
+            }
         }
+
+        image->unlock();
+
+        img->create_from_data(width, height, false, Image::Format::FORMAT_RGBA8, normalmap_data);
+
+        normalmap = Ref<Image>(img);
     }
 
-    image->unlock();
+    normalmap_load_mutex->unlock();
 
-    img->create_from_data(width, height, false, Image::Format::FORMAT_RGBA8, normalmap_data);
-
-    return Ref<Image>(img);
+    return normalmap;
 }
 
 Ref<ImageTexture> GeoImage::get_normalmap_texture_for_heightmap(float scale) {

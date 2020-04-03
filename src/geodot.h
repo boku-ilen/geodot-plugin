@@ -60,6 +60,10 @@ private:
 
     Ref<Image> image;
 
+    Ref<Image> normalmap;
+
+    Ref<Mutex> normalmap_load_mutex;
+
     int interpolation;
 };
 
