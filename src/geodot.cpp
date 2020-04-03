@@ -1,6 +1,7 @@
 #include "geodot.h"
 #include "RasterTileExtractor.h"
 #include <algorithm> // For std::clamp
+#include <functional> // For std::hash
 
 using namespace godot;
 
@@ -19,33 +20,44 @@ void Geodot::_init() {
     RasterTileExtractor::initialize();
     VectorExtractor::initialize();
     load_mutex = Ref<Mutex>(Mutex::_new());
+    image_cache = Dictionary();
 }
 
 Ref<GeoImage> Geodot::get_image(String path, String file_ending,
                                 double top_left_x, double top_left_y, double size_meters,
                                 int img_size, int interpolation_type) {
-    // This strange __internal_constructor call is required to prevent a memory leak
-    // See https://github.com/GodotNativeTools/godot-cpp/issues/215
-    Ref<GeoImage> image = Ref<GeoImage>::__internal_constructor(GeoImage::_new());
-
     load_mutex->lock();
 
-    GeoRaster *raster = RasterTileExtractor::get_raster_at_position(
-        path.utf8().get_data(),
-        file_ending.utf8().get_data(),
-        top_left_x, top_left_y, size_meters,
-        img_size, interpolation_type);
+    int image_hash = std::hash<std::string>()(std::string(path.utf8().get_data()) + std::string(file_ending.utf8().get_data()) + std::to_string(top_left_x) + std::to_string(top_left_y) + std::to_string(size_meters) + std::to_string(img_size) + std::to_string(interpolation_type));
 
-    load_mutex->unlock();
+    if (image_cache.has(image_hash)) {
+        load_mutex->unlock();
+        return image_cache[image_hash];
+    } else {
+        // This strange __internal_constructor call is required to prevent a memory leak
+        // See https://github.com/GodotNativeTools/godot-cpp/issues/215
+        Ref<GeoImage> image = Ref<GeoImage>::__internal_constructor(GeoImage::_new());
 
-    if (raster == nullptr) {
-        Godot::print_error("No valid data was available for the requested path and position!", "Geodot::get_image", "geodot.cpp", 26);
+        GeoRaster *raster = RasterTileExtractor::get_raster_at_position(
+            path.utf8().get_data(),
+            file_ending.utf8().get_data(),
+            top_left_x, top_left_y, size_meters,
+            img_size, interpolation_type);
+
+        load_mutex->unlock();
+
+        if (raster == nullptr) {
+            Godot::print_error("No valid data was available for the requested path and position!", "Geodot::get_image", "geodot.cpp", 26);
+            return image;
+        }
+
+        image->set_raster(raster, interpolation_type);
+
+        image_cache[image_hash] = image;
+        load_mutex->unlock();
+
         return image;
     }
-
-    image->set_raster(raster, interpolation_type);
-
-    return image;
 }
 
 Array Geodot::get_lines(String path, double pos_x, double pos_y, double radius, int max_lines) {

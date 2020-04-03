@@ -11,6 +11,7 @@
 #include <Path.hpp>
 #include <Vector3.hpp>
 #include <Curve3D.hpp>
+#include <Dictionary.hpp>
 #include "GeoRaster.h"
 #include "RasterTileExtractor.h"
 #include "LineFeature.h"
@@ -93,6 +94,8 @@ class Geodot : public Node {
 
 private:
     Ref<Mutex> load_mutex;
+
+    Dictionary image_cache;
 
 public:
     // TODO: Not exportable? https://github.com/godotengine/godot/issues/15922
