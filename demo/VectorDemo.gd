@@ -26,6 +26,5 @@ func _ready() -> void:
 		street.get_node("PathFollow/CSGPolygon").polygon[2] = Vector2(0, 3)
 		street.get_node("PathFollow/CSGPolygon").polygon[3] = Vector2(width, 3)
 		street.get_node("PathFollow/CSGPolygon").polygon[4] = Vector2(width, 0)
-
-		print(street.curve.get_baked_points()[0])
+		
 		add_child(street)

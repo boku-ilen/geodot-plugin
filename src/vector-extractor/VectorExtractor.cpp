@@ -85,8 +85,8 @@ VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, doubl
     OGRLinearRing *square_outline = new OGRLinearRing();
     square_outline->addPoint(top_left_x, top_left_y);
     square_outline->addPoint(top_left_x + size_meters, top_left_y);
-    square_outline->addPoint(top_left_x + size_meters, top_left_y + size_meters);
-    square_outline->addPoint(top_left_x, top_left_y + size_meters);
+    square_outline->addPoint(top_left_x + size_meters, top_left_y - size_meters);
+    square_outline->addPoint(top_left_x, top_left_y - size_meters);
     square_outline->addPoint(top_left_x, top_left_y);
 
     OGRPolygon *square = new OGRPolygon();
