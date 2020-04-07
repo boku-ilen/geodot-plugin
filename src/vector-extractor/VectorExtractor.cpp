@@ -31,29 +31,15 @@ VectorExtractor::get_lines_near_position(const char *path, double pos_x, double 
     OGRGeometry *circle = new OGRPoint(pos_x, pos_y);
     OGRGeometry *circle_buffer = circle->Buffer(radius);
 
-    // Create the dataset in RAM
-    GDALDriver *out_driver = (GDALDriver *) GDALGetDriverByName("Memory");
-    GDALDataset *intersection_dataset = out_driver->Create("", 0, 0, 0, GDT_Unknown, nullptr);
-
-    // Create the layer for that dataset
-    OGRLayer *circle_layer = intersection_dataset->CreateLayer("IntersectionCircle");
-
-    // Create the feature for that layer
-    OGRFeature *circle_feature = OGRFeature::CreateFeature(circle_layer->GetLayerDefn());
-    circle_feature->SetGeometry(circle_buffer);
-    circle_layer->CreateFeature(circle_feature);
-
-    // Finally do the actual intersection, save the result to a new layer in the previously created dataset
-    OGRLayer *lines_within = intersection_dataset->CreateLayer("LinesWithinCircle");
-    poLayer->Intersection(circle_layer, lines_within);
+    poLayer->SetSpatialFilter(circle_buffer);
 
     // Put the resulting features into the returned list. We add as many features as were returned unless they're more
     //  than the given max_amount.
-    int num_features = lines_within->GetFeatureCount();
+    int num_features = poLayer->GetFeatureCount();
     int iterations = std::min(num_features, max_amount);
 
     for (int i = 0; i < iterations; i++) {
-        auto feature = lines_within->GetNextFeature();
+        auto feature = poLayer->GetNextFeature();
         std::string geometry_type_name = feature->GetGeometryRef()->getGeometryName();
 
         if (geometry_type_name == "LINESTRING") {
