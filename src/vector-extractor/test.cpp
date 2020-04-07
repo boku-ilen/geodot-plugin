@@ -4,10 +4,12 @@
 int main() {
     VectorExtractor::initialize();
 
-    std::list<LineFeature *> lines = VectorExtractor::get_lines_near_position(
-            "/home/karl/BOKU/geodata/streets/2_linknetz_ogd_WM.shp", 1546670.5, 5918250.8, 500.0, 100);
+    std::list<LineFeature *> lines = VectorExtractor::get_lines_in_square(
+            "/home/karl/BOKU/geodata/streets/2_linknetz_ogd_WM.shp", 1546670.5, 5918250.8, 1000.0, 100);
 
     int count_iterated = 0;
+
+    std::cout << "Total: " << lines.size() << " lines" << std::endl;
 
     for (auto line : lines) {
         int point_count = line->get_point_count();
