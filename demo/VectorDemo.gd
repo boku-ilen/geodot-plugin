@@ -11,7 +11,7 @@ var street_scene = preload("res://Street.tscn")
 
 
 func _ready() -> void:
-	var lines = Geodot.get_lines(streets_shapefile_path, center_webmercator_x, center_webmercator_y, radius, max_streets)
+	var lines = Geodot.get_lines_near_position(streets_shapefile_path, center_webmercator_x, center_webmercator_y, radius, max_streets)
 	print(lines.size())
 
 	for line in lines:

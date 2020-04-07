@@ -7,7 +7,8 @@ using namespace godot;
 
 void Geodot::_register_methods() {
     register_method("get_image", &Geodot::get_image);
-    register_method("get_lines", &Geodot::get_lines);
+    register_method("get_lines_near_position", &Geodot::get_lines_near_position);
+    register_method("crop_lines_to_square", &Geodot::crop_lines_to_square);
 }
 
 Geodot::Geodot() {
@@ -60,10 +61,25 @@ Ref<GeoImage> Geodot::get_image(String path, String file_ending,
     }
 }
 
-Array Geodot::get_lines(String path, double pos_x, double pos_y, double radius, int max_lines) {
+Array Geodot::get_lines_near_position(String path, double pos_x, double pos_y, double radius, int max_lines) {
     Array lines = Array();
 
     std::list<LineFeature *> linefeatures = VectorExtractor::get_lines_near_position(path.utf8().get_data(), pos_x, pos_y, radius, max_lines);
+
+    for (LineFeature *linefeature : linefeatures) {
+        Ref<GeoLine> line = GeoLine::_new();
+        line->set_line(linefeature);
+
+        lines.push_back(line);
+    }
+
+    return lines;
+}
+
+Array Geodot::crop_lines_to_square(String path, double top_left_x, double top_left_y, double size_meters, int max_lines) {
+    Array lines = Array();
+
+    std::list<LineFeature *> linefeatures = VectorExtractor::crop_lines_to_square(path.utf8().get_data(), top_left_x, top_left_y, size_meters, max_lines);
 
     for (LineFeature *linefeature : linefeatures) {
         Ref<GeoLine> line = GeoLine::_new();

@@ -132,7 +132,9 @@ public:
                             double top_left_x, double top_left_y, double size_meters,
                             int img_size, int interpolation_type);
 
-    Array get_lines(String path, double pos_x, double pos_y, double radius, int max_lines);
+    Array get_lines_near_position(String path, double pos_x, double pos_y, double radius, int max_lines);
+
+    Array crop_lines_to_square(String path, double top_left_x, double top_left_y, double size_meters, int max_lines);
 
     Geodot();
     ~Geodot();
