@@ -75,8 +75,8 @@ VectorExtractor::get_lines_near_position(const char *path, double pos_x, double 
 }
 
 std::list<LineFeature *>
-VectorExtractor::get_lines_in_square(const char *path, double top_left_x, double top_left_y, double size_meters,
-                                     int max_amount) {
+VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, double top_left_y, double size_meters,
+                                      int max_amount) {
     auto list = std::list<LineFeature *>();
 
     GDALDataset *poDS;

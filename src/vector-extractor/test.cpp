@@ -4,7 +4,7 @@
 int main() {
     VectorExtractor::initialize();
 
-    std::list<LineFeature *> lines = VectorExtractor::get_lines_in_square(
+    std::list<LineFeature *> lines = VectorExtractor::crop_lines_to_square(
             "/home/karl/BOKU/geodata/streets/2_linknetz_ogd_WM.shp", 1546670.5, 5918250.8, 1000.0, 100);
 
     int count_iterated = 0;
