@@ -50,6 +50,10 @@ if env['platform'] == '':
     print("No valid target platform selected.")
     quit();
 
+
+# Build the extractor libraries
+subprocess.call("cd " + rte_cpp_path + " && scons platform=" + env['platform'], shell=True)
+
 # For the reference:
 # - CCFLAGS are compilation flags shared between C and C++
 # - CFLAGS are for C-specific compilation flags
