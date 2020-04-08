@@ -3,6 +3,7 @@
 
 
 #include "LineFeature.h"
+#include "PointFeature.h"
 
 class VectorExtractor {
 public:
@@ -25,6 +26,8 @@ public:
     ///  skipped. This is a safeguard for not loading more lines than can be handled.
     static std::list<LineFeature *>
     crop_lines_to_square(const char *path, double top_left_x, double top_left_y, double size_meters, int max_amount);
+
+    static std::list<PointFeature *> get_points_near_position(const char *path, double pos_x, double pos_y, double radius, int max_amount);
 };
 
 

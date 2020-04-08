@@ -5,11 +5,17 @@
 #include <map>
 
 class OGRFeature;
+class OGRGeometry;
 
 class Feature {
 public:
     /// Construct a Feature from an OGRFeature from GDAL.
     explicit Feature(OGRFeature *feature);
+
+    /// Construct a Feature with a feature that can contain any geometry - it is
+    /// not accessed, the geometry is given as a separate OGRGeometry parameter instead.
+    /// Used for GeometryCollections (MultiPoint, MultiLineString, ...)
+    Feature(OGRFeature *feature, const OGRGeometry *geometry);
 
     /// Return a map with all attribute names -> values.
     std::map<std::string, std::string> get_attributes();

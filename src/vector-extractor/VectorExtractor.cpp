@@ -147,3 +147,8 @@ VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, doubl
 
     return list;
 }
+
+std::list<PointFeature *> VectorExtractor::get_points_near_position(
+		const char *path, double pos_x, double pos_y, double radius, int max_amount) {
+	return get_features_near_position<PointFeature>(path, pos_x, pos_y, radius, max_amount, "POINT", "MULTIPOINT");
+}
