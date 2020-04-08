@@ -13,7 +13,7 @@ cpp_bindings_path = "godot-cpp/"
 cpp_library = "libgodot-cpp"
 
 rte_cpp_path = "src/raster-tile-extractor"
-rte_libpath = "src/raster-tile-extractor/cmake-build-debug/"
+rte_libpath = "src/raster-tile-extractor/build/"
 rte_library = "libRasterTileExtractor"
 
 vector_cpp_path = "src/vector-extractor"
