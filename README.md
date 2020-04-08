@@ -52,18 +52,11 @@ __You will need some sort of geodata to use this plugin.__ A good starting point
 2. Initialize all git submodules: `git submodule update --init --recursive`
 3. Generate the GDNative C++ bindings: `scons platform=<platform> generate_bindings=yes` (in `godot-cpp`)
 
-
-#### RasterTileExtractor
-
-The RasterTileExtractor is a separate C++ project. It is a library which is used by Geodot, so it must be built before compiling the plugin iteself. It is built using CMake with the provided `CMakeLists.txt`.
-
-#### VectorExtractor
-
-Same as RasterTileExtractor.
-
 ### Geodot-Plugin
 
-Run `scons platform=<platform>` in the root directory. The compiled plugin and the dependencies which were compiled beforehand will be placed in the demo project. (`<platform>` must be replaced with your platform, e.g. `linux`.)
+Everything is built via SConstruct. Running `scons platform=<platform>` in the root directory will compile everything: First the processing libraries, then the finished GDNative plugin. (`<platform>` must be replaced with your platform, e.g. `linux`.)
+
+When only compiling a single processing library, the same `scons platform=<platform>` command can be run in that library's directory (e.g. in `src/raster-tile-extractor`).
 
 ### Packaging
 
