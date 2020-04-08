@@ -1,8 +1,14 @@
 #include <iostream>
-#include "RasterTileExtractor.h"
-#include <gdal/gdal_priv.h>
-#include <gdal/gdalwarper.h>
 #include <filesystem>
+#include "RasterTileExtractor.h"
+
+#ifdef _WIN32
+    #include <gdal_priv.h>
+    #include <gdalwarper.h>
+#elif __unix__
+    #include <gdal/gdal_priv.h>
+    #include <gdal/gdalwarper.h>
+#endif
 
 void RasterTileExtractor::initialize() {
     // Register all drivers - without this, GDALGetDriverByName doesn't work

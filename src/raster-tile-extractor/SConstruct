@@ -6,11 +6,6 @@ opts = Variables([], ARGUMENTS)
 # Gets the standard flags CC, CCX, etc.
 env = DefaultEnvironment()
 
-# GDAL Path
-gdal_include_path = ""
-gdal_lib_path = ""
-gdal_lib_name = "libgdal"
-
 # Define our options
 opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r', 'release']))
 opts.Add(EnumVariable('platform', "Compilation platform", '', ['', 'windows', 'x11', 'linux', 'osx']))
@@ -34,9 +29,22 @@ if env['platform'] == '':
 env['target_path'] = 'build/'
 env['target_name'] = 'libRasterTileExtractor'
 
-env.Append(CXXFLAGS=['-std=c++17'])
+# Check our platform specifics
+if env['platform'] in ('x11', 'linux'):
+    env.Append(CXXFLAGS=['-std=c++17'])
+    
+    gdal_include_path = ""
+    gdal_lib_path = ""
+    gdal_lib_name = "libgdal"
 
-# make sure our binding library is properly includes
+elif env['platform'] == "windows":
+    env.Append(CXXFLAGS=['-std=c++17', '-std:c++17'])
+    
+    # Include GDAL
+    gdal_include_path = "C:/OSGeo4W64/include"
+    gdal_lib_path = "C:/OSGeo4W64/lib"
+    gdal_lib_name = "gdal_i"
+
 env.Append(CPPPATH=[gdal_include_path])
 env.Append(LIBPATH=[gdal_lib_path])
 env.Append(LIBS=[gdal_lib_name])
@@ -46,4 +54,5 @@ env.Append(CPPPATH=['./'])
 sources = Glob('./*.cpp')
 
 library = env.SharedLibrary(target=env['target_path'] + env['target_name'] , source=sources)
+test = env.Program(target=env['target_path'] + "test" , source=sources)
 
