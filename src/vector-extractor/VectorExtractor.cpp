@@ -1,6 +1,13 @@
 #include "VectorExtractor.h"
-#include <gdal/ogrsf_frmts.h>
-#include <gdal/gdal.h>
+
+#ifdef _WIN32
+    #include <ogrsf_frmts.h>
+    #include <gdal.h>
+#elif __unix__
+    #include <gdal/ogrsf_frmts.h>
+    #include <gdal/gdal.h>
+#endif
+
 #include <iostream>
 
 void VectorExtractor::initialize() {

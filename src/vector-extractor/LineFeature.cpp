@@ -1,6 +1,12 @@
 #include "LineFeature.h"
-#include <gdal/gdal_priv.h>
-#include <gdal/ogr_geometry.h>
+
+#ifdef _WIN32
+    #include <gdal_priv.h>
+    #include <ogr_geometry.h>
+#elif __unix__
+    #include <gdal/gdal_priv.h>
+    #include <gdal/ogr_geometry.h>
+#endif
 
 LineFeature::LineFeature(OGRFeature *feature) : Feature(feature) {
     line = feature->GetGeometryRef()->toLineString();

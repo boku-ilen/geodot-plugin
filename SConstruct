@@ -17,7 +17,7 @@ rte_libpath = "src/raster-tile-extractor/build/"
 rte_library = "libRasterTileExtractor"
 
 vector_cpp_path = "src/vector-extractor"
-vector_libpath = "src/vector-extractor/cmake-build-debug/"
+vector_libpath = "src/vector-extractor/build/"
 vector_library = "libVectorExtractor"
 
 demo_path = "demo/addons/geodot/"
@@ -53,6 +53,7 @@ if env['platform'] == '':
 
 # Build the extractor libraries
 subprocess.call("cd " + rte_cpp_path + " && scons platform=" + env['platform'], shell=True)
+subprocess.call("cd " + vector_cpp_path + " && scons platform=" + env['platform'], shell=True)
 
 # For the reference:
 # - CCFLAGS are compilation flags shared between C and C++
