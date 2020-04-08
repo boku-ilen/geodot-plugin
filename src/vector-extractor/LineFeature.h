@@ -8,6 +8,7 @@
 #include "Feature.h"
 
 class OGRLineString;
+class OGRGeometry;
 
 /// Wrapper for an OGRFeature representing a Line.
 class LineFeature : public Feature {
@@ -17,7 +18,7 @@ public:
 
     /// Construct a LineFeature with a feature that can contain any geometry (usually used for MultiLineStrings) - it is
     /// not accessed, the geometry is given as a separate LineString parameter instead.
-    explicit LineFeature(OGRFeature *feature, const OGRLineString *linestring);
+    explicit LineFeature(OGRFeature *feature, const OGRGeometry *linestring);
 
     /// Return the point in the line at the given index as a std::vector with 3 double entries (3D vector).
     /// The index must be between 0 and get_point_count()-1.

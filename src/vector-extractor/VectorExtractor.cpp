@@ -7,9 +7,11 @@ void VectorExtractor::initialize() {
     GDALAllRegister();
 }
 
-std::list<LineFeature *>
-VectorExtractor::get_lines_near_position(const char *path, double pos_x, double pos_y, double radius, int max_amount) {
-    auto list = std::list<LineFeature *>();
+template<class T>
+std::list<T *>
+get_features_near_position(const char *path, double pos_x, double pos_y, double radius, int max_amount,
+                           const char *feature_name, const char *multi_feature_name) {
+    auto list = std::list<T *>();
 
     GDALDataset *poDS;
 
@@ -42,22 +44,26 @@ VectorExtractor::get_lines_near_position(const char *path, double pos_x, double 
         auto feature = poLayer->GetNextFeature();
         std::string geometry_type_name = feature->GetGeometryRef()->getGeometryName();
 
-        if (geometry_type_name == "LINESTRING") {
+        if (geometry_type_name == feature_name) {
             // If this is a LineString, we can add it directly as a LineFeature.
-            list.emplace_back(new LineFeature(feature));
-        } else if (geometry_type_name == "MULTILINESTRING") {
+            list.emplace_back(new T(feature));
+        } else if (geometry_type_name == multi_feature_name) {
             // If this is a MultiLineString, we iterate over all the lines in the LineString and add those.
             // All the individual LineStrings (and thus LineFeatures) then share the same Feature (with attributes etc).
-            const OGRMultiLineString *linestrings = feature->GetGeometryRef()->toMultiLineString();
+            const OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
 
-            for (const OGRLineString *linestring : linestrings) {
-                list.emplace_back(new LineFeature(feature, linestring));
+            for (const OGRGeometry *geometry : collection) {
+                list.emplace_back(new T(feature, geometry));
             }
         }
-
     }
 
     return list;
+}
+
+std::list<LineFeature *>
+VectorExtractor::get_lines_near_position(const char *path, double pos_x, double pos_y, double radius, int max_amount) {
+    return get_features_near_position<LineFeature>(path, pos_x, pos_y, radius, max_amount, "LINESTRING", "MULTILINESTRING");
 }
 
 std::list<LineFeature *>

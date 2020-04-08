@@ -1,13 +1,14 @@
 #include "LineFeature.h"
 #include <gdal/gdal_priv.h>
+#include <gdal/ogr_geometry.h>
 
 LineFeature::LineFeature(OGRFeature *feature) : Feature(feature) {
     line = feature->GetGeometryRef()->toLineString();
     point_count = line->getNumPoints();
 }
 
-LineFeature::LineFeature(OGRFeature *feature, const OGRLineString *linestring) : Feature(feature) {
-    line = linestring;
+LineFeature::LineFeature(OGRFeature *feature, const OGRGeometry *linestring) : Feature(feature) {
+    line = linestring->toLineString();
     point_count = line->getNumPoints();
 }
 
