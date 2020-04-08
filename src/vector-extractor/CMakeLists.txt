@@ -12,7 +12,7 @@ add_library(VectorExtractor SHARED
         VectorExtractor.cpp
         VectorExtractor.h
         LineFeature.cpp
-        LineFeature.h)
+        LineFeature.h Feature.cpp Feature.h)
 
 add_executable(test
         test.cpp)

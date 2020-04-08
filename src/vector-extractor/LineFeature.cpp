@@ -1,28 +1,14 @@
 #include "LineFeature.h"
 #include <gdal/gdal_priv.h>
 
-LineFeature::LineFeature(const OGRFeature *feature) : feature(feature) {
+LineFeature::LineFeature(OGRFeature *feature) : Feature(feature) {
     line = feature->GetGeometryRef()->toLineString();
     point_count = line->getNumPoints();
 }
 
-LineFeature::LineFeature(const OGRFeature *feature, const OGRLineString *linestring) : feature(feature) {
+LineFeature::LineFeature(OGRFeature *feature, const OGRLineString *linestring) : Feature(feature) {
     line = linestring;
     point_count = line->getNumPoints();
-}
-
-std::map<std::string, std::string> LineFeature::get_attributes() {
-    std::map<std::string, std::string> ret;
-
-    for (auto &&oField: *feature) {
-        ret[oField.GetName()] = oField.GetAsString();
-    }
-
-    return ret;
-}
-
-const char *LineFeature::get_attribute(const char *name) {
-    return feature->GetFieldAsString(name);
 }
 
 std::vector<double> LineFeature::get_line_point(int index) {
