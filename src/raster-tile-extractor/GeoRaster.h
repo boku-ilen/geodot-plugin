@@ -8,7 +8,7 @@ class GDALDataset;
 
 /// Wrapper for GDALDataset and its relevant functions.
 /// Provides easy access without GDAL dependencies to library users.
-class GeoRaster {
+class  __declspec(dllexport) GeoRaster {
 public:
     enum FORMAT {
         RGB,   // 3 8-bit int channels

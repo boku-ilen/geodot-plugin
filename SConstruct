@@ -83,7 +83,7 @@ elif env['platform'] in ('x11', 'linux'):
     env.Append(LINKFLAGS=[
         '-Wl,-rpath,\'$$ORIGIN\''
     ])
-    
+
     env.Append(CXXFLAGS=['-std=c++17'])
 
     if env['target'] in ('debug', 'd'):
@@ -98,18 +98,14 @@ elif env['platform'] == "windows":
     # This makes sure to keep the session environment variables on windows,
     # that way you can run scons in a vs 2017 prompt and it will find all the required tools
     env.Append(ENV=os.environ)
-    
+
     env.Append(CXXFLAGS=['-std:c++17'])
 
-    env.Append(CPPDEFINES=['WIN32', '_WIN32', '_WINDOWS', '_CRT_SECURE_NO_WARNINGS'])
-    env.Append(CCFLAGS=['-W3', '-GR'])
+    env.Append(CCFLAGS = ['-DWIN32', '-D_WIN32', '-D_WINDOWS', '-W3', '-GR', '-D_CRT_SECURE_NO_WARNINGS'])
     if env['target'] in ('debug', 'd'):
-        env.Append(CPPDEFINES=['_DEBUG'])
-        env.Append(CCFLAGS=['-EHsc', '-MDd', '-ZI'])
-        env.Append(LINKFLAGS=['-DEBUG'])
+        env.Append(CCFLAGS = ['-EHsc', '-D_DEBUG', '-MDd'])
     else:
-        env.Append(CPPDEFINES=['NDEBUG'])
-        env.Append(CCFLAGS=['-O2', '-EHsc', '-MD'])
+        env.Append(CCFLAGS = ['-O2', '-EHsc', '-DNDEBUG', '-MD'])
 
 if env['target'] in ('debug', 'd'):
     cpp_library += '.debug'

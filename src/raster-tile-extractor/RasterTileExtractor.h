@@ -4,7 +4,7 @@
 #include "GeoRaster.h"
 
 
-class RasterTileExtractor {
+class __declspec(dllexport) RasterTileExtractor {
 public:
     /// Must be called before any other function to initialize GDAL.
     static void initialize();

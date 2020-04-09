@@ -23,7 +23,7 @@ namespace godot {
 // Provides data in a format directly compatible with Godot (using Godot types).
 // Think of it as an extension of a normal Godot Image / ImageTexture (which can be acquired with get_image / get_image_texture)
 // Note that a GeoImage should not be created manually from Godot. It is only used as the return type of Geodot functions such as Geodot::get_image.
-class GeoImage : public Resource {
+class __declspec(dllexport) GeoImage : public Resource {
     GODOT_CLASS(GeoImage, Resource)
 
 public:
@@ -68,7 +68,7 @@ private:
 };
 
 // Wrapper for a LineFeature from the VectorExtractor.
-class GeoLine : public Resource {
+class __declspec(dllexport) GeoLine : public Resource {
     GODOT_CLASS(GeoLine, Resource)
 
 public:
@@ -93,7 +93,7 @@ private:
     LineFeature *line;
 };
 
-class Geodot : public Node {
+class __declspec(dllexport) Geodot : public Node {
     GODOT_CLASS(Geodot, Node)
 
 private:

@@ -7,7 +7,7 @@
 class OGRFeature;
 class OGRGeometry;
 
-class Feature {
+class  __declspec(dllexport) Feature {
 public:
     /// Construct a Feature from an OGRFeature from GDAL.
     explicit Feature(OGRFeature *feature);

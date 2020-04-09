@@ -11,7 +11,7 @@ class OGRLineString;
 class OGRGeometry;
 
 /// Wrapper for an OGRFeature representing a Line.
-class LineFeature : public Feature {
+class  __declspec(dllexport) LineFeature : public Feature {
 public:
     /// Construct a LineFeature with a feature which contains a LineString.
     explicit LineFeature(OGRFeature *feature);

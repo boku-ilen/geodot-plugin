@@ -10,7 +10,7 @@
 class OGRPoint;
 
 
-class PointFeature  : public Feature {
+class __declspec(dllexport)  PointFeature  : public Feature {
 public:
     /// Construct a LineFeature with a feature which contains a LineString.
     explicit PointFeature(OGRFeature *feature);

@@ -32,14 +32,15 @@ env['target_name'] = 'libRasterTileExtractor'
 # Check our platform specifics
 if env['platform'] in ('x11', 'linux'):
     env.Append(CXXFLAGS=['-std=c++17'])
-    
+
     gdal_include_path = ""
     gdal_lib_path = ""
     gdal_lib_name = "libgdal"
 
 elif env['platform'] == "windows":
+    env.Append(LINKFLAGS=['/WHOLEARCHIVE'])
     env.Append(CXXFLAGS=['-std=c++17', '-std:c++17'])
-    
+
     # Include GDAL
     gdal_include_path = "C:/OSGeo4W64/include"
     gdal_lib_path = "C:/OSGeo4W64/lib"
@@ -55,4 +56,3 @@ sources = Glob('./*.cpp')
 
 library = env.SharedLibrary(target=env['target_path'] + env['target_name'] , source=sources)
 test = env.Program(target=env['target_path'] + "test" , source=sources)
-
