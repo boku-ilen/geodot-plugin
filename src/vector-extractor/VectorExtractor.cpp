@@ -9,6 +9,7 @@
 #endif
 
 #include <iostream>
+#include <algorithm>
 
 void VectorExtractor::initialize() {
     GDALAllRegister();

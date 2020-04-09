@@ -12,11 +12,11 @@ godot_headers_path = "godot-cpp/godot_headers/"
 cpp_bindings_path = "godot-cpp/"
 cpp_library = "libgodot-cpp"
 
-rte_cpp_path = "src/raster-tile-extractor"
+rte_cpp_path = "src/raster-tile-extractor/"
 rte_libpath = "src/raster-tile-extractor/build/"
 rte_library = "libRasterTileExtractor"
 
-vector_cpp_path = "src/vector-extractor"
+vector_cpp_path = "src/vector-extractor/"
 vector_libpath = "src/vector-extractor/build/"
 vector_library = "libVectorExtractor"
 
@@ -98,6 +98,8 @@ elif env['platform'] == "windows":
     # This makes sure to keep the session environment variables on windows,
     # that way you can run scons in a vs 2017 prompt and it will find all the required tools
     env.Append(ENV=os.environ)
+    
+    env.Append(CXXFLAGS=['-std:c++17'])
 
     env.Append(CPPDEFINES=['WIN32', '_WIN32', '_WINDOWS', '_CRT_SECURE_NO_WARNINGS'])
     env.Append(CCFLAGS=['-W3', '-GR'])
