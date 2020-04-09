@@ -239,5 +239,5 @@ RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_en
     path += file_ending;
 
     // Load the result as a GDALDataset and return it
-    return (GDALDataset *) GDALOpen(path.c_str(), GA_ReadOnly);
+    return (GDALDataset *) GDALOpen(path.u8string().c_str(), GA_ReadOnly);
 }
