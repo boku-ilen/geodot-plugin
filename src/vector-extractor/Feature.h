@@ -3,11 +3,12 @@
 
 #include <string>
 #include <map>
+#include "defines.h"
 
 class OGRFeature;
 class OGRGeometry;
 
-class  __declspec(dllexport) Feature {
+class EXPORT Feature {
 public:
     /// Construct a Feature from an OGRFeature from GDAL.
     explicit Feature(OGRFeature *feature);

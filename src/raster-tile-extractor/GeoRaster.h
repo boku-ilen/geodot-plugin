@@ -2,13 +2,14 @@
 #define RASTERTILEEXTRACTOR_GEORASTER_H
 
 #include <cstdint>
+#include "defines.h"
 
 // Forward declaration of GDALDataset from <gdal/gdal_priv.h>
 class GDALDataset;
 
 /// Wrapper for GDALDataset and its relevant functions.
 /// Provides easy access without GDAL dependencies to library users.
-class  __declspec(dllexport) GeoRaster {
+class  EXPORT GeoRaster {
 public:
     enum FORMAT {
         RGB,   // 3 8-bit int channels

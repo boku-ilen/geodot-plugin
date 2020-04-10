@@ -2,9 +2,10 @@
 #define RASTEREXTRACTOR_RASTERTILEEXTRACTOR_H
 
 #include "GeoRaster.h"
+#include "defines.h"
 
 
-class __declspec(dllexport) RasterTileExtractor {
+class EXPORT RasterTileExtractor {
 public:
     /// Must be called before any other function to initialize GDAL.
     static void initialize();

@@ -4,8 +4,9 @@
 
 #include "LineFeature.h"
 #include "PointFeature.h"
+#include "defines.h"
 
-class  __declspec(dllexport) VectorExtractor {
+class  EXPORT VectorExtractor {
 public:
     /// Must be called before any other function to initialize GDAL.
     static void initialize();

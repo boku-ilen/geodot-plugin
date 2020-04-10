@@ -32,14 +32,14 @@ env['target_name'] = 'libVectorExtractor'
 # Check our platform specifics
 if env['platform'] in ('x11', 'linux'):
     env.Append(CXXFLAGS=['-std=c++17'])
-    
+
     gdal_include_path = ""
     gdal_lib_path = ""
     gdal_lib_name = "libgdal"
 
 elif env['platform'] == "windows":
     env.Append(CXXFLAGS=['-std=c++17', '-std:c++17'])
-    
+
     # Include GDAL
     gdal_include_path = "C:/OSGeo4W64/include"
     gdal_lib_path = "C:/OSGeo4W64/lib"
@@ -51,8 +51,8 @@ env.Append(LIBS=[gdal_lib_name])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['./'])
+env.Append(CPPPATH=['../global/'])
 sources = Glob('./*.cpp')
 
 library = env.SharedLibrary(target=env['target_path'] + env['target_name'] , source=sources)
 test = env.Program(target=env['target_path'] + "test" , source=sources)
-
