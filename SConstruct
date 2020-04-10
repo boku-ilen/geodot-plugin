@@ -31,6 +31,7 @@ opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
 opts.Add(PathVariable('target_path', 'The path where the lib is installed.', demo_path))
 opts.Add(PathVariable('target_name', 'The library name.', 'libgeodot', PathVariable.PathAccept))
+opts.Add(PathVariable('osgeo_path', "(Windows only) path to OSGeo installation", "", PathVariable.PathAccept))
 
 # only support 64 at this time..
 bits = 64
@@ -52,8 +53,8 @@ if env['platform'] == '':
 
 
 # Build the extractor libraries
-subprocess.call("cd " + rte_cpp_path + " && scons platform=" + env['platform'], shell=True)
-subprocess.call("cd " + vector_cpp_path + " && scons platform=" + env['platform'], shell=True)
+subprocess.call("cd " + rte_cpp_path + " && scons platform=" + env['platform'] + " osgeo_path=" + env['osgeo_path'], shell=True)
+subprocess.call("cd " + vector_cpp_path + " && scons platform=" + env['platform'] + " osgeo_path=" + env['osgeo_path'], shell=True)
 
 # For the reference:
 # - CCFLAGS are compilation flags shared between C and C++
