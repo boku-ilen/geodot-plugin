@@ -44,25 +44,57 @@ var lines = Geodot.get_lines(
 
 __You will need some sort of geodata to use this plugin.__ A good starting point is a GeoTIFF with a heightmap. If you need such a file for testing, you can get a heightmap for Austria [at data.gv.at](https://www.data.gv.at/katalog/dataset/b5de6975-417b-4320-afdb-eb2a9e2a1dbf) (licensed under CC-BY-4.0).
 
-## Building
+# Building
+
+## Building on Linux
 
 ### Preparation
 
 1. Install GDAL. (With apt: `sudo apt install libgdal-dev`)
 2. Initialize all git submodules: `git submodule update --init --recursive`
-3. Generate the GDNative C++ bindings: `scons platform=<platform> generate_bindings=yes` (in `godot-cpp`)
+3. Generate the GDNative C++ bindings: `scons platform=linux generate_bindings=yes` (in `godot-cpp`)
 
-### Geodot-Plugin
+### Compiling
 
-Everything is built via SConstruct. Running `scons platform=<platform>` in the root directory will compile everything: First the processing libraries, then the finished GDNative plugin. (`<platform>` must be replaced with your platform, e.g. `linux`.)
+Everything is built via SConstruct. Running `scons platform=linux` in the root directory will compile everything: First the processing libraries, then the finished GDNative plugin.
 
-When only compiling a single processing library, the same `scons platform=<platform>` command can be run in that library's directory (e.g. in `src/raster-tile-extractor`).
+If you're working on a processing library, you can also only compile this library with the same `scons platform=linux` command in that library's directory (e.g. in `src/raster-tile-extractor`).
 
 ### Packaging
 
-For building a self-contained plugin for use in other projects, it is recommended to move `libgdal` into the same directory as `libgeodot` and the other libraries (`demo/addons/geodot/<platform>/`).
+For building a self-contained plugin for use in other projects, it is recommended to move `libgdal` into the same directory as `libgeodot` and the other libraries (`demo/addons/geodot/x11/`).
 
-Note: This is currently only possible on Linux because rpath is used. [Help is needed for building and packaging on Windows!](https://github.com/boku-ilen/geodot-plugin/issues/1)
+
+## Building on Windows
+
+### Preparation
+
+1. Install the newest Visual Studio
+2. Install [Scons](https://scons.org/pages/download.html) for building
+3. Install [OSGeo](http://download.osgeo.org/osgeo4w/osgeo4w-setup-x86_64.exe) for the GDAL library
+4. In the Visual Studio Installer, tab "Individual Components", make sure the following are installed:
+    - SQL Server ODBC Driver
+    - C++ core features
+    - MSVC v142 - VS 2019 C++ x64/x86 build tools
+    - MSVC v142 - VS 2019 C++ x64/x86 Spectre-mitigated libs
+    - MSBuild
+    - C++/CLI support for v142 build tools
+5. In `geodot-plugin`, initialize all git submodules: `git submodule update --init --recursive`
+6. In `geodot-plugin/godot-cpp`, generate the GDNative C++ bindings: `scons platform=windows generate_bindings=yes bits=64 target=release`
+
+### Compiling
+
+We got the best results with the "x64 Native Tools Command Prompt for VS 2019" command line.
+
+Everything is built via SConstruct. Running `scons platform=windows osgeo_path=C:/path/to/osgeo target=release` in the root directory will compile everything: First the processing libraries, then the finished GDNative plugin. (Building for debug caused crashes for us, which is why `target=release` is recommended on Windows.)
+
+If you're working on a processing library, you can also only compile this library with the same `scons platform=windows osgeo_path=C:/path/to/osgeo` command in that library's directory (e.g. in `src/raster-tile-extractor`).
+
+### Packaging
+
+When using GDAL on Windows, problems with DLLs not being found are pretty frequent. We got the best results by simply copying all DLLs from the OSGeo `bin` directory to `demo/addons/geodot/win64`. Depending on your luck, you may or may not have to do this.
+
+If you still get `Error 126: The specified module could not be found.` when starting the demo project, we recommend checking the Geodot DLL and the GDAL DLL with [Dependencies](https://github.com/lucasg/Dependencies).
 
 ## Project structure
 
