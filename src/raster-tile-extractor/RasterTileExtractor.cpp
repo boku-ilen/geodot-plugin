@@ -117,22 +117,8 @@ void RasterTileExtractor::reproject_to_webmercator(const char *base_path, const 
 }
 
 double webmercator_to_latitude(double webm_meters) {
-    // Source is webmercator
-    OGRSpatialReference *source_sr = new OGRSpatialReference();
-    source_sr->importFromEPSG(3857);
-
-    // Destination is WGS84
-    OGRSpatialReference *destination_sr = new OGRSpatialReference();
-    destination_sr->importFromEPSG(4326);
-
-    OGRCoordinateTransformation *coordinateTransformation = OGRCreateCoordinateTransformation(source_sr, destination_sr);
-
-    double x = 0;
-    double new_y = webm_meters;
-    coordinateTransformation->Transform(1, &x, &new_y);
-
-    // Return as radians
-    return new_y * (M_PI / 180);
+    // Adapted from https://gist.github.com/springmeyer/871897#gistcomment-1185502
+    return (atan(pow(M_E, ((webm_meters) / 111319.490778) * M_PI / 180.0)) * 2.0 - M_PI / 2.0);
 }
 
 GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, double top_left_y, double size_meters, int img_size,
