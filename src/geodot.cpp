@@ -8,6 +8,7 @@ using namespace godot;
 void Geodot::_register_methods() {
     register_method("get_image", &Geodot::get_image);
     register_method("get_lines_near_position", &Geodot::get_lines_near_position);
+    register_method("get_points_near_position", &Geodot::get_points_near_position);
     register_method("crop_lines_to_square", &Geodot::crop_lines_to_square);
 }
 
@@ -74,6 +75,21 @@ Array Geodot::get_lines_near_position(String path, double pos_x, double pos_y, d
     }
 
     return lines;
+}
+
+Array Geodot::get_points_near_position(String path, double pos_x, double pos_y, double radius, int max_points) {
+    Array points = Array();
+
+    std::list<PointFeature *> pointfeatures = VectorExtractor::get_points_near_position(path.utf8().get_data(), pos_x, pos_y, radius, max_points);
+
+    for (PointFeature *pointfeature : pointfeatures) {
+        Ref<GeoPoint> point = GeoPoint::_new();
+        point->set_point(pointfeature);
+
+        points.push_back(point);
+    }
+
+    return points;
 }
 
 Array Geodot::crop_lines_to_square(String path, double top_left_x, double top_left_y, double size_meters, int max_lines) {
@@ -385,4 +401,41 @@ Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_
 
 Ref<Curve3D> GeoLine::get_curve3d() {
     return get_offset_curve3d(0, 0, 0);
+}
+
+
+// Geodot::GeoPoint
+
+GeoPoint::GeoPoint() {
+
+}
+
+GeoPoint::~GeoPoint() {
+    delete point;
+}
+
+void GeoPoint::_init() {
+    init_ref();
+}
+
+void GeoPoint::_register_methods() {
+    register_method("get_attribute", &GeoPoint::get_attribute);
+    register_method("get_vector3", &GeoPoint::get_vector3);
+    register_method("get_offset_vector3", &GeoPoint::get_offset_vector3);
+}
+
+void GeoPoint::set_point(PointFeature *point) {
+    this->point = point;
+}
+
+String GeoPoint::get_attribute(String name) {
+    return point->get_attribute(name.utf8().get_data());
+}
+
+Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
+    return Vector3(point->get_x() + offset_x, point->get_z() + offset_y, -(point->get_y() + offset_z));
+}
+
+Vector3 GeoPoint::get_vector3() {
+    return get_offset_vector3(0, 0, 0);
 }
