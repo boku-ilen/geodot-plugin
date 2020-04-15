@@ -2,6 +2,10 @@
 #include "RasterTileExtractor.h"
 #include <algorithm> // For std::clamp
 #include <functional> // For std::hash
+#include <mutex> // For std::mutex
+
+std::mutex resource_creation_mutex;
+
 
 using namespace godot;
 
@@ -36,6 +40,8 @@ Ref<GeoImage> Geodot::get_image(String path, String file_ending,
         load_mutex->unlock();
         return image_cache[image_hash];
     } else {
+        resource_creation_mutex.lock();
+
         // This strange __internal_constructor call is required to prevent a memory leak
         // See https://github.com/GodotNativeTools/godot-cpp/issues/215
         Ref<GeoImage> image = Ref<GeoImage>::__internal_constructor(GeoImage::_new());
@@ -46,9 +52,9 @@ Ref<GeoImage> Geodot::get_image(String path, String file_ending,
             top_left_x, top_left_y, size_meters,
             img_size, interpolation_type);
 
-        load_mutex->unlock();
-
         if (raster == nullptr) {
+            resource_creation_mutex.unlock();
+            load_mutex->unlock();
             Godot::print_error("No valid data was available for the requested path and position!", "Geodot::get_image", "geodot.cpp", 26);
             return image;
         }
@@ -56,6 +62,8 @@ Ref<GeoImage> Geodot::get_image(String path, String file_ending,
         image->set_raster(raster, interpolation_type);
 
         image_cache[image_hash] = image;
+
+        resource_creation_mutex.unlock();
         load_mutex->unlock();
 
         return image;
@@ -67,12 +75,16 @@ Array Geodot::get_lines_near_position(String path, double pos_x, double pos_y, d
 
     std::list<LineFeature *> linefeatures = VectorExtractor::get_lines_near_position(path.utf8().get_data(), pos_x, pos_y, radius, max_lines);
 
+    resource_creation_mutex.lock();
+
     for (LineFeature *linefeature : linefeatures) {
         Ref<GeoLine> line = GeoLine::_new();
         line->set_line(linefeature);
 
         lines.push_back(line);
     }
+
+    resource_creation_mutex.unlock();
 
     return lines;
 }
@@ -82,12 +94,16 @@ Array Geodot::get_points_near_position(String path, double pos_x, double pos_y, 
 
     std::list<PointFeature *> pointfeatures = VectorExtractor::get_points_near_position(path.utf8().get_data(), pos_x, pos_y, radius, max_points);
 
+    resource_creation_mutex.lock();
+
     for (PointFeature *pointfeature : pointfeatures) {
         Ref<GeoPoint> point = GeoPoint::_new();
         point->set_point(pointfeature);
 
         points.push_back(point);
     }
+
+    resource_creation_mutex.unlock();
 
     return points;
 }
@@ -97,12 +113,16 @@ Array Geodot::crop_lines_to_square(String path, double top_left_x, double top_le
 
     std::list<LineFeature *> linefeatures = VectorExtractor::crop_lines_to_square(path.utf8().get_data(), top_left_x, top_left_y, size_meters, max_lines);
 
+    resource_creation_mutex.lock();
+
     for (LineFeature *linefeature : linefeatures) {
         Ref<GeoLine> line = GeoLine::_new();
         line->set_line(linefeature);
 
         lines.push_back(line);
     }
+
+    resource_creation_mutex.unlock();
 
     return lines;
 }
@@ -319,15 +339,19 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
 
 Ref<ImageTexture> GeoImage::get_normalmap_texture_for_heightmap(float scale) {
     // Create an ImageTexture wrapping the Image
+    resource_creation_mutex.lock();
     ImageTexture *imgTex = ImageTexture::_new();
     imgTex->set_storage(ImageTexture::STORAGE_RAW);
     imgTex->create_from_image(get_normalmap_for_heightmap(scale), ImageTexture::FLAG_FILTER);
+    resource_creation_mutex.unlock();
 
     return Ref<ImageTexture>(imgTex);
 }
 
 Ref<ImageTexture> GeoImage::get_image_texture() {
     // Create an ImageTexture wrapping the Image
+    resource_creation_mutex.lock();
+
     ImageTexture *imgTex = ImageTexture::_new();
     imgTex->set_storage(ImageTexture::STORAGE_RAW);
 
@@ -341,6 +365,8 @@ Ref<ImageTexture> GeoImage::get_image_texture() {
     }
 
     imgTex->create_from_image(Ref<Image>(image), flag);
+
+    resource_creation_mutex.unlock();
 
     return Ref<ImageTexture>(imgTex);
 }
@@ -388,6 +414,7 @@ String GeoLine::get_attribute(String name) {
 }
 
 Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
+    resource_creation_mutex.lock();
     Ref<Curve3D> curve = Curve3D::_new();
 
     int point_count = line->get_point_count();
@@ -400,6 +427,8 @@ Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_
 
         curve->add_point(Vector3(x, y, z));
     }
+
+    resource_creation_mutex.unlock();
 
     return curve;
 }
