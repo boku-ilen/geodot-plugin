@@ -253,6 +253,11 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
     normalmap_load_mutex->lock();
 
     if (normalmap == nullptr) {
+        // As described in https://github.com/godotengine/godot/issues/35539,
+        // locking the image is not thread-safe in the way one would expect.
+        // Thus, to be safe, we work on a duplicate of the `image` here.
+        Ref<Image> image = this->image->duplicate();
+
         Image *img = Image::_new();
 
         PoolByteArray heightmap_data = image->get_data();
