@@ -270,6 +270,7 @@ int xy_to_index(int x, int y, int width, int height) {
 }
 
 Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
+    resource_creation_mutex.lock();
     normalmap_load_mutex->lock();
 
     if (normalmap == nullptr) {
@@ -333,16 +334,19 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
     }
 
     normalmap_load_mutex->unlock();
+    resource_creation_mutex.unlock();
 
     return normalmap;
 }
 
 Ref<ImageTexture> GeoImage::get_normalmap_texture_for_heightmap(float scale) {
-    // Create an ImageTexture wrapping the Image
+    Ref<Image> heightmap_image = get_normalmap_for_heightmap(scale);
+
     resource_creation_mutex.lock();
+    // Create an ImageTexture wrapping the Image
     ImageTexture *imgTex = ImageTexture::_new();
     imgTex->set_storage(ImageTexture::STORAGE_RAW);
-    imgTex->create_from_image(get_normalmap_for_heightmap(scale), ImageTexture::FLAG_FILTER);
+    imgTex->create_from_image(heightmap_image, ImageTexture::FLAG_FILTER);
     resource_creation_mutex.unlock();
 
     return Ref<ImageTexture>(imgTex);
