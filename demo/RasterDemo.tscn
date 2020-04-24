@@ -27,9 +27,9 @@ subdivide_depth = 256
 
 [node name="RasterDemo" type="Spatial"]
 script = ExtResource( 1 )
-heightmap_data_path = "/media/karl/loda/geodata/wien-dhm-1m"
+heightmap_data_path = "../geodata/wien/wien-dom-50cm"
 heightmap_data_ending = "tif"
-ortho_data_path = "/media/karl/loda/geodata/wien-orthos-15cm"
+ortho_data_path = "../geodata/wien/wien-orthos-15cm"
 ortho_data_ending = "tif"
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
