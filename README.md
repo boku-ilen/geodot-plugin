@@ -130,3 +130,7 @@ Help is greatly appreciated! You can test and report bugs, fix known [issues](ht
 
 Summed up, dependencies should only go in this direction:
 Godot + Geodot -> Processing Library -> External Libraries
+
+## Credits
+
+The provided Linux build ships with libgdal.so, a build of the GDAL library. All credits for this library go to [OSGeo/gdal](https://github.com/OSGeo/gdal/) ([license](https://raw.githubusercontent.com/OSGeo/gdal/master/gdal/LICENSE.TXT)).
