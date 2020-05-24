@@ -121,13 +121,23 @@ int GeoRaster::get_pixel_size_y() {
 uint64_t *GeoRaster::get_histogram() {
     // TODO: Make sure this is only called on a GeoRaster with format BYTE
     //  It doesn't make sense for Float32 and we would need a different method for RGBA
-    GDALRasterBand *band = data->GetRasterBand(1);
-    GUIntBig *histogram = new GUIntBig[256];
-
-    band->GetHistogram(-0.5, 255.5, 256, histogram, false, true, GDALDummyProgress, nullptr);
-
-    // TODO: This breaks the array
-    return reinterpret_cast<uint64_t *>(histogram);
+    uint64_t *histogram = new uint64_t[256];
+    
+    // Initialize array
+    for (int i = 0; i < 256; i++) {
+        histogram[i] = 0;
+    }
+    
+    uint8_t *array = reinterpret_cast<uint8_t *>(get_as_array());
+    
+    for (int y = 0; y < get_pixel_size_y(); y++) {
+        for (int x = 0; x < get_pixel_size_x(); x++) {
+            int index = array[y * get_pixel_size_x() + x];
+            histogram[index]++;
+        }
+    }
+    
+    return histogram;
 }
 
 GeoRaster::GeoRaster(GDALDataset *data, int interpolation_type)
@@ -164,7 +174,7 @@ GeoRaster::GeoRaster(GDALDataset *data, int pixel_offset_x, int pixel_offset_y, 
 
 int get_index_of_highest_value(const uint64_t *array, int array_size) {
     int max_index = 0;
-    int max_value = 0;
+    uint64_t max_value = 0;
 
     for (int index = 0; index < array_size; index++) {
         if (array[index] > max_value) {
