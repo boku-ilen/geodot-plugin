@@ -26,6 +26,9 @@ get_features_near_position(const char *path, double pos_x, double pos_y, double 
     poDS = (GDALDataset *) GDALOpenEx(path, GDAL_OF_VECTOR, nullptr,
                                       nullptr, nullptr);
     if (poDS == nullptr) {
+        // FIXME: we have to handle this differently - this kills godot! We should implement a proper error
+        // FIXME: handling here and give the calling godot code the possibility to react to the error and
+        // FIXME: deside itself what to do (including output to the console)    
         printf("Open failed.\n");
         exit(1);
     }
@@ -84,6 +87,9 @@ VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, doubl
     poDS = (GDALDataset *) GDALOpenEx(path, GDAL_OF_VECTOR, nullptr,
                                       nullptr, nullptr);
     if (poDS == nullptr) {
+        // FIXME: we have to handle this differently - this kills godot! We should implement a proper error
+        // FIXME: handling here and give the calling godot code the possibility to react to the error and
+        // FIXME: deside itself what to do (including output to the console)
         printf("Open failed.\n");
         exit(1);
     }
