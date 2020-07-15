@@ -44,6 +44,7 @@ Ref<GeoImage> Geodot::get_image(String path, String file_ending,
 
         // This strange __internal_constructor call is required to prevent a memory leak
         // See https://github.com/GodotNativeTools/godot-cpp/issues/215
+        // TODO: Should be fixed according to that issue!
         Ref<GeoImage> image = Ref<GeoImage>::__internal_constructor(GeoImage::_new());
 
         GeoRaster *raster = RasterTileExtractor::get_raster_at_position(

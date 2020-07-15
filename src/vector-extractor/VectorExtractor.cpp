@@ -26,11 +26,11 @@ get_features_near_position(const char *path, double pos_x, double pos_y, double 
     poDS = (GDALDataset *) GDALOpenEx(path, GDAL_OF_VECTOR, nullptr,
                                       nullptr, nullptr);
     if (poDS == nullptr) {
-        // FIXME: we have to handle this differently - this kills godot! We should implement a proper error
-        // FIXME: handling here and give the calling godot code the possibility to react to the error and
-        // FIXME: deside itself what to do (including output to the console)    
-        printf("Open failed.\n");
-        exit(1);
+        // The dataset couldn't be opened for some reason - likely it doesn't exist.
+        // Return an empty list.
+        // FIXME: We'd want to output this error to Godot, so we need to hand this information over somehow! Maybe an Exception?
+        std::cerr << "No dataset was found at " << path << "!" << std::endl;
+        return list;
     }
 
     // TODO: Check poDS->GetLayerCount() to make sure there's exactly one layer? Or handle >1 layers too?
@@ -87,11 +87,11 @@ VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, doubl
     poDS = (GDALDataset *) GDALOpenEx(path, GDAL_OF_VECTOR, nullptr,
                                       nullptr, nullptr);
     if (poDS == nullptr) {
-        // FIXME: we have to handle this differently - this kills godot! We should implement a proper error
-        // FIXME: handling here and give the calling godot code the possibility to react to the error and
-        // FIXME: deside itself what to do (including output to the console)
-        printf("Open failed.\n");
-        exit(1);
+        // The dataset couldn't be opened for some reason - likely it doesn't exist.
+        // Return an empty list.
+        // FIXME: We'd want to output this error to Godot, so we need to hand this information over somehow! Maybe an Exception?
+        std::cerr << "No dataset was found at " << path << "!" << std::endl;
+        return list;
     }
 
     // TODO: Check poDS->GetLayerCount() to make sure there's exactly one layer? Or handle >1 layers too?
