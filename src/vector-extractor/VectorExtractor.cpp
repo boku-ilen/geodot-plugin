@@ -40,10 +40,12 @@ std::list<Feature *> VectorExtractor::get_features(const char *path, const char 
         return list;
     }
 
-    int feature_count = poLayer->GetFeatureCount();
+    OGRFeature *current_feature = current_feature = poLayer->GetNextFeature();
 
-    for (int feature_id = 0; feature_id < feature_count; feature_id++)  {
-        list.emplace_back(new Feature(poLayer->GetFeature(feature_id)));
+    while (current_feature != nullptr) {
+        list.emplace_back(new Feature(current_feature));
+
+        current_feature = poLayer->GetNextFeature();
     }
 
     return list;
