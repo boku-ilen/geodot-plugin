@@ -68,6 +68,29 @@ private:
     int interpolation;
 };
 
+// Wrapper for any georeferenced feature from GDAL.
+// TODO: Make other classes like GeoLine inherit from this!
+class EXPORT GeoFeature : public Resource {
+    GODOT_CLASS(GeoFeature, Resource)
+
+public:
+    GeoFeature();
+    ~GeoFeature();
+
+    /// Automatically called by Godot
+    void _init();
+    static void _register_methods();
+
+    String get_attribute(String name);
+
+    Array get_attributes();
+
+    void set_gdal_feature(Feature *gdal_feature);
+
+protected:
+    Feature *gdal_feature;
+};
+
 // Wrapper for a LineFeature from the VectorExtractor.
 class EXPORT GeoLine : public Resource {
     GODOT_CLASS(GeoLine, Resource)
@@ -164,6 +187,8 @@ public:
     Array get_points_near_position(String path, double pos_x, double pos_y, double radius, int max_points);
 
     Array crop_lines_to_square(String path, double top_left_x, double top_left_y, double size_meters, int max_lines);
+
+    Array get_all_features(String path, String layer_name);
 
     Geodot();
     ~Geodot();

@@ -14,6 +14,7 @@ void Geodot::_register_methods() {
     register_method("get_lines_near_position", &Geodot::get_lines_near_position);
     register_method("get_points_near_position", &Geodot::get_points_near_position);
     register_method("crop_lines_to_square", &Geodot::crop_lines_to_square);
+    register_method("get_all_features", &Geodot::get_all_features);
 }
 
 Geodot::Geodot() {
@@ -128,11 +129,66 @@ Array Geodot::crop_lines_to_square(String path, double top_left_x, double top_le
     return lines;
 }
 
+
+Array Geodot::get_all_features(String path, String layer_name) {
+    Array geofeatures = Array();
+
+    std::list<Feature *> gdal_features = VectorExtractor::get_features(path.utf8().get_data(), layer_name.utf8().get_data());
+
+    resource_creation_mutex.lock();
+
+    for (Feature *gdal_feature : gdal_features) {
+        Ref<GeoFeature> geofeature = GeoFeature::_new();
+        geofeature->set_gdal_feature(gdal_feature);
+
+        geofeatures.push_back(geofeature);
+    }
+
+    resource_creation_mutex.unlock();
+
+    return geofeatures;
+}
+
+
 union {
     float fval;
     int8_t bval[4];
 } floatAsBytes;
 
+
+// Geodot::GeoFeature
+GeoFeature::GeoFeature() {
+
+}
+
+GeoFeature::~GeoFeature() {
+    delete gdal_feature;
+}
+
+void GeoFeature::_init() {
+    init_ref();
+}
+
+void GeoFeature::_register_methods() {
+    register_method("get_attribute", &GeoFeature::get_attribute);
+}
+
+String GeoFeature::get_attribute(String name) {
+    return gdal_feature->get_attribute(name.utf8().get_data());
+}
+
+
+Array GeoFeature::get_attributes() {
+    Array attributes = Array();
+
+    // TODO
+
+    return attributes;
+}
+
+void GeoFeature::set_gdal_feature(Feature *gdal_feature) {
+    this->gdal_feature = gdal_feature;
+}
 
 // Geodot::GeoImage
 
