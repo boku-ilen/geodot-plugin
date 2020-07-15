@@ -11,6 +11,10 @@ public:
     /// Must be called before any other function to initialize GDAL.
     static void initialize();
 
+    /// Return all features, regardless of what the geometry is (or if there even is geometry).
+    /// Note that this means that no geometry will be available in those features - this should only be used for attributes.
+    static std::list<Feature *> get_features(const char *path, const char *layer_name);
+
     /// Return a list of all LineFeatures in the dataset at the given path which somehow overlap with the circle created
     ///  by the given position and radius. Parts of lines outside the circle are not cut, so lines can extent outside
     ///  of the given radius.

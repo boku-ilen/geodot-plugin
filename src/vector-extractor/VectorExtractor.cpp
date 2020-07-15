@@ -15,6 +15,41 @@ void VectorExtractor::initialize() {
     GDALAllRegister();
 }
 
+
+std::list<Feature *> VectorExtractor::get_features(const char *path, const char *layer_name) {
+    auto list = std::list<Feature *>();
+
+    GDALDataset *poDS = (GDALDataset *) GDALOpenEx(path, GDAL_OF_VECTOR, nullptr,
+                                      nullptr, nullptr);
+    if (poDS == nullptr) {
+        // The dataset couldn't be opened for some reason - likely it doesn't exist.
+        // Return an empty list.
+        // FIXME: We'd want to output this error to Godot, so we need to hand this information over somehow! Maybe an Exception?
+        std::cerr << "No dataset was found at " << path << "!" << std::endl;
+        return list;
+    }
+
+    // TODO: Check poDS->GetLayerCount() to make sure there's exactly one layer? Or handle >1 layers too?
+    OGRLayer *poLayer = poDS->GetLayerByName(layer_name);
+
+    if (poLayer == nullptr) {
+        // The requested layer does not exist.
+        // Return an empty list.
+        // FIXME: We'd want to output this error to Godot, so we need to hand this information over somehow! Maybe an Exception?
+        std::cerr << "No layer with name " << layer_name << " in dataset at " << path << "!" << std::endl;
+        return list;
+    }
+
+    int feature_count = poLayer->GetFeatureCount();
+
+    for (int feature_id = 0; feature_id < feature_count; feature_id++)  {
+        list.emplace_back(new Feature(poLayer->GetFeature(feature_id)));
+    }
+
+    return list;
+}
+
+
 template<class T>
 std::list<T *>
 get_features_near_position(const char *path, double pos_x, double pos_y, double radius, int max_amount,
@@ -53,14 +88,17 @@ get_features_near_position(const char *path, double pos_x, double pos_y, double 
 
     for (int i = 0; i < iterations; i++) {
         auto feature = poLayer->GetNextFeature();
-        std::string geometry_type_name = feature->GetGeometryRef()->getGeometryName();
+
+        const OGRGeometry *geometry_ref = feature->GetGeometryRef();
+
+        std::string geometry_type_name = geometry_ref->getGeometryName();
 
         if (geometry_type_name == feature_name) {
-            // If this is a LineString, we can add it directly as a LineFeature.
+            // If this is the requested Feature, we can add it directly.
             list.emplace_back(new T(feature));
         } else if (geometry_type_name == multi_feature_name) {
-            // If this is a MultiLineString, we iterate over all the lines in the LineString and add those.
-            // All the individual LineStrings (and thus LineFeatures) then share the same Feature (with attributes etc).
+            // If this is a MultiFeature, we iterate over all the features in it and add those.
+            // All the individual Ts then share the same Feature (with the same attributes etc).
             const OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
 
             for (const OGRGeometry *geometry : collection) {
