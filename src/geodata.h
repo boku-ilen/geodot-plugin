@@ -47,7 +47,7 @@ public:
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
 
-    Array get_all_features(String layer_name);
+    Array get_all_features();
 
     Array get_lines_near_position(double pos_x, double pos_y, double radius, int max_lines);
 
