@@ -12,7 +12,6 @@
 namespace godot {
 
 // Wrapper for any georeferenced feature from GDAL.
-// TODO: Make other classes like GeoLine inherit from this!
 class EXPORT GeoFeature : public Resource {
     GODOT_CLASS(GeoFeature, Resource)
 

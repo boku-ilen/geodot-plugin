@@ -10,19 +10,7 @@ std::mutex resource_creation_mutex;
 
 using namespace godot;
 
-void Geodot::_register_methods() {
-    register_method("get_image", &Geodot::get_image);
-    register_method("get_lines_near_position", &Geodot::get_lines_near_position);
-    register_method("get_points_near_position", &Geodot::get_points_near_position);
-    register_method("crop_lines_to_square", &Geodot::crop_lines_to_square);
-    register_method("get_all_features", &Geodot::get_all_features);
-}
-
-Geodot::Geodot() {
-}
-
-Geodot::~Geodot() {
-}
+void Geodot::_register_methods() {}
 
 void Geodot::_init() {
     RasterTileExtractor::initialize();
@@ -31,7 +19,7 @@ void Geodot::_init() {
     image_cache = Dictionary();
 }
 
-Ref<GeoImage> Geodot::get_image(String path, String file_ending,
+/* Ref<GeoImage> Geodot::get_image(String path, String file_ending,
                                 double top_left_x, double top_left_y, double size_meters,
                                 int img_size, int interpolation_type) {
     load_mutex->lock();
@@ -149,3 +137,4 @@ Array Geodot::get_all_features(String path, String layer_name) {
 
     return geofeatures;
 }
+ */

@@ -11,6 +11,7 @@
 #include "defines.h"
 #include "geoimage.h"
 #include "geofeatures.h"
+#include "geodata.h"
 
 namespace godot {
 

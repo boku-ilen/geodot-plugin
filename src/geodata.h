@@ -6,8 +6,10 @@
 #include "defines.h"
 #include "geoimage.h"
 
-// Forward declaration of OGRLayer
+// Forward declarations
 class OGRLayer;
+class GeoFeatureLayer;
+class GeoRasterLayer;
 
 namespace godot {
 
@@ -17,7 +19,7 @@ class EXPORT GeoDataset : public Resource {
     GODOT_CLASS(GeoDataset, Resource)
 
 public:
-    GeoDataset();
+    GeoDataset() = default;
     virtual ~GeoDataset();
 
     /// Automatically called by Godot
@@ -29,13 +31,14 @@ public:
 
     /// Returns a GeoRasterLayer object of the layer within this dataset with the given name.
     /// It is recommended to check the validity of the returned object with GeoRasterLayer::is_valid().
-    GeoRasterLayer get_raster_layer(String name);
+    GeoRasterLayer *get_raster_layer(String name);
 
     /// Returns a GeoFeatureLayer object of the layer within this dataset with the given name.
     /// It is recommended to check the validity of the returned object with GeoFeatureLayer::is_valid().
-    GeoFeatureLayer get_feature_layer(String name);
+    GeoFeatureLayer *get_feature_layer(String name);
 
     /// Load a dataset file such as a Geopackage or a Shapefile into this object.
+    /// Not exposed to Godot since Godot should create datasets and layers from the Geodot singleton (the factory).
     void load_from_file(String file_path);
 
     /// Set the GDALDataset object directly.
@@ -54,8 +57,8 @@ class EXPORT GeoFeatureLayer : public Resource {
     GODOT_CLASS(GeoFeatureLayer, Resource)
 
 public:
-    GeoFeatureLayer();
-    virtual ~GeoFeatureLayer();
+    GeoFeatureLayer() = default;
+    virtual ~GeoFeatureLayer() = default;  // No need to delete anything here - OGRLayers are part of the dataset and deleted with it.
 
     /// Automatically called by Godot
     void _init();
@@ -79,6 +82,7 @@ public:
 
     /// Load the first layer of the dataset at the given path into this object.
     /// Useful e.g. for simple shapefiles with only one layer.
+    /// Not exposed to Godot since Godot should create datasets and layers from the Geodot singleton (the factory).
     void load_from_file(String file_path);
 
     /// Set the OGRLayer object directly.
@@ -95,7 +99,7 @@ class EXPORT GeoRasterLayer : public Resource {
     GODOT_CLASS(GeoRasterLayer, Resource)
 
 public:
-    GeoRasterLayer();
+    GeoRasterLayer() = default;
     virtual ~GeoRasterLayer();
 
     /// Automatically called by Godot
@@ -109,6 +113,7 @@ public:
                             int img_size, int interpolation_type);
     
     /// Load a raster dataset file such as a GeoTIFF into this object.
+    /// Not exposed to Godot since Godot should create datasets and layers from the Geodot singleton (the factory).
     void load_from_file(String file_path);
 
     /// Set the GDALDataset object for this layer. Must be a valid raster dataset.
