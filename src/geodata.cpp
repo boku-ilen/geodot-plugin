@@ -32,6 +32,24 @@ void GeoFeatureLayer::_init() {
 void GeoFeatureLayer::_register_methods() {
     register_method("is_valid", &GeoFeatureLayer::is_valid);
     register_method("get_all_features", &GeoFeatureLayer::get_all_features);
+    register_method("get_features_near_position", &GeoFeatureLayer::get_all_features);
+}
+
+Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, double radius, int max_features) {
+    Array features = Array();
+
+    /*
+    TODO: This is the implementation for point features. Make this generic!
+    std::list<PointFeature *> pointfeatures = VectorExtractor::get_points_near_position(path.utf8().get_data(), pos_x, pos_y, radius, max_points);
+
+    for (PointFeature *pointfeature : pointfeatures) {
+        Ref<GeoPoint> point = GeoPoint::_new();
+        point->set_gdal_feature(pointfeature);
+
+        points.push_back(point);
+    } */
+
+    return features;
 }
 
 GeoRasterLayer::~GeoRasterLayer() {

@@ -67,17 +67,23 @@ public:
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
 
-    /// Returns all features, regardless of the geometry, wtihin this layer.
+    /// Returns all features, regardless of the geometry, within this layer.
     Array get_all_features();
 
+    /// Returns all features, regardless of the geometry, near the given position (within the given radius).
+    Array get_features_near_position(double pos_x, double pos_y, double radius, int max_features);
+
     /// Returns features with line geometry near the given position (within the given radius).
+    /// TODO: Can this be replaced by the generic 'get_features_near_position'?
     Array get_lines_near_position(double pos_x, double pos_y, double radius, int max_lines);
 
     /// Returns features with point geometry near the given position (within the given radius).
+    /// TODO: Can this be replaced by the generic 'get_features_near_position'?
     Array get_points_near_position(double pos_x, double pos_y, double radius, int max_points);
 
     /// Crops features with line geometry to the square created by the given coordinates and size.
     /// Useful for doing tile-based requests.
+    /// TODO: Can this be made generic like 'get_features_near_position'?
     Array crop_lines_to_square(double top_left_x, double top_left_y, double size_meters, int max_lines);
 
     /// Load the first layer of the dataset at the given path into this object.
