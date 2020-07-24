@@ -28,7 +28,8 @@ public:
     void _init();
     static void _register_methods();
 
-    // TODO: Functions for getting a GeoDataset (maybe also raster layer?)
+    /// Returns a GeoDataset wrapping the georeferenced dataset at the given path.
+    GeoDataset *get_dataset(String path);
 
     Geodot();
     ~Geodot();

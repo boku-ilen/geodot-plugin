@@ -10,13 +10,23 @@ std::mutex resource_creation_mutex;
 
 using namespace godot;
 
-void Geodot::_register_methods() {}
-
 void Geodot::_init() {
     RasterTileExtractor::initialize();
     VectorExtractor::initialize();
     load_mutex = Ref<Mutex>(Mutex::_new());
     image_cache = Dictionary();
+}
+
+void Geodot::_register_methods() {
+    register_method("get_dataset", &Geodot::get_dataset);
+}
+
+GeoDataset *Geodot::get_dataset(String path) {
+    GeoDataset *dataset = GeoDataset::_new();
+
+    dataset->load_from_file(path);
+
+    return dataset;
 }
 
 /* Ref<GeoImage> Geodot::get_image(String path, String file_ending,
