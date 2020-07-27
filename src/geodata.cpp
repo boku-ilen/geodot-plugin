@@ -1,4 +1,7 @@
 #include "geodata.h"
+#include "vector-extractor/Feature.h"
+#include "geofeatures.h"
+#include "vector-extractor/VectorExtractor.h"
 
 #ifdef _WIN32
     #include <gdal_priv.h>
@@ -33,6 +36,21 @@ void GeoFeatureLayer::_register_methods() {
     register_method("is_valid", &GeoFeatureLayer::is_valid);
     register_method("get_all_features", &GeoFeatureLayer::get_all_features);
     register_method("get_features_near_position", &GeoFeatureLayer::get_all_features);
+}
+
+Array GeoFeatureLayer::get_all_features() {
+    Array geofeatures = Array();
+
+    std::list<Feature *> gdal_features = VectorExtractor::get_features(layer);
+
+    for (Feature *gdal_feature : gdal_features) {
+        Ref<GeoFeature> geofeature = GeoFeature::_new();
+        geofeature->set_gdal_feature(gdal_feature);
+
+        geofeatures.push_back(geofeature);
+    }
+
+    return geofeatures;
 }
 
 Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, double radius, int max_features) {

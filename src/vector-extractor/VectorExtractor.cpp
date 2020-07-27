@@ -16,36 +16,15 @@ void VectorExtractor::initialize() {
 }
 
 
-std::list<Feature *> VectorExtractor::get_features(const char *path, const char *layer_name) {
+std::list<Feature *> VectorExtractor::get_features(OGRLayer *layer) {
     auto list = std::list<Feature *>();
-
-    GDALDataset *poDS = (GDALDataset *) GDALOpenEx(path, GDAL_OF_VECTOR, nullptr,
-                                      nullptr, nullptr);
-    if (poDS == nullptr) {
-        // The dataset couldn't be opened for some reason - likely it doesn't exist.
-        // Return an empty list.
-        // FIXME: We'd want to output this error to Godot, so we need to hand this information over somehow! Maybe an Exception?
-        std::cerr << "No dataset was found at " << path << "!" << std::endl;
-        return list;
-    }
-
-    // TODO: Check poDS->GetLayerCount() to make sure there's exactly one layer? Or handle >1 layers too?
-    OGRLayer *poLayer = poDS->GetLayerByName(layer_name);
-
-    if (poLayer == nullptr) {
-        // The requested layer does not exist.
-        // Return an empty list.
-        // FIXME: We'd want to output this error to Godot, so we need to hand this information over somehow! Maybe an Exception?
-        std::cerr << "No layer with name " << layer_name << " in dataset at " << path << "!" << std::endl;
-        return list;
-    }
-
-    OGRFeature *current_feature = current_feature = poLayer->GetNextFeature();
+    
+    OGRFeature *current_feature = current_feature = layer->GetNextFeature();
 
     while (current_feature != nullptr) {
         list.emplace_back(new Feature(current_feature));
 
-        current_feature = poLayer->GetNextFeature();
+        current_feature = layer->GetNextFeature();
     }
 
     return list;

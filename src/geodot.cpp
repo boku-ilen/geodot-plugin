@@ -127,24 +127,4 @@ Array Geodot::crop_lines_to_square(String path, double top_left_x, double top_le
 
     return lines;
 }
-
-
-Array Geodot::get_all_features(String path, String layer_name) {
-    Array geofeatures = Array();
-
-    std::list<Feature *> gdal_features = VectorExtractor::get_features(path.utf8().get_data(), layer_name.utf8().get_data());
-
-    resource_creation_mutex.lock();
-
-    for (Feature *gdal_feature : gdal_features) {
-        Ref<GeoFeature> geofeature = GeoFeature::_new();
-        geofeature->set_gdal_feature(gdal_feature);
-
-        geofeatures.push_back(geofeature);
-    }
-
-    resource_creation_mutex.unlock();
-
-    return geofeatures;
-}
  */
