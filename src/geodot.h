@@ -31,8 +31,8 @@ public:
     /// Returns a GeoDataset wrapping the georeferenced dataset at the given path.
     GeoDataset *get_dataset(String path);
 
-    Geodot();
-    ~Geodot();
+    Geodot() = default;
+    ~Geodot() = default;
 };
 
 }

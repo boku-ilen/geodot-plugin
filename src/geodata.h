@@ -8,46 +8,8 @@
 
 // Forward declarations
 class OGRLayer;
-class GeoFeatureLayer;
-class GeoRasterLayer;
 
 namespace godot {
-
-/// A dataset which contains layers of geodata.
-/// Corresponds to GDALDataset.
-class EXPORT GeoDataset : public Resource {
-    GODOT_CLASS(GeoDataset, Resource)
-
-public:
-    GeoDataset() = default;
-    virtual ~GeoDataset();
-
-    /// Automatically called by Godot
-    void _init();
-    static void _register_methods();
-
-    /// Returns true if the GeoDataset could successfully be loaded.
-    bool is_valid();
-
-    /// Returns a GeoRasterLayer object of the layer within this dataset with the given name.
-    /// It is recommended to check the validity of the returned object with GeoRasterLayer::is_valid().
-    GeoRasterLayer *get_raster_layer(String name);
-
-    /// Returns a GeoFeatureLayer object of the layer within this dataset with the given name.
-    /// It is recommended to check the validity of the returned object with GeoFeatureLayer::is_valid().
-    GeoFeatureLayer *get_feature_layer(String name);
-
-    /// Load a dataset file such as a Geopackage or a Shapefile into this object.
-    /// Not exposed to Godot since Godot should create datasets and layers from the Geodot singleton (the factory).
-    void load_from_file(String file_path);
-
-    /// Set the GDALDataset object directly.
-    /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this is only for internal use.
-    void set_gdaldataset(GDALDataset *new_dataset);
-
-private:
-    GDALDataset *dataset;
-};
 
 /// A layer which contains any number of features.
 /// These features consist of attributes and usually (but not necessarily) vector geometry.
@@ -72,14 +34,6 @@ public:
 
     /// Returns all features, regardless of the geometry, near the given position (within the given radius).
     Array get_features_near_position(double pos_x, double pos_y, double radius, int max_features);
-
-    /// Returns features with line geometry near the given position (within the given radius).
-    /// TODO: Can this be replaced by the generic 'get_features_near_position'?
-    Array get_lines_near_position(double pos_x, double pos_y, double radius, int max_lines);
-
-    /// Returns features with point geometry near the given position (within the given radius).
-    /// TODO: Can this be replaced by the generic 'get_features_near_position'?
-    Array get_points_near_position(double pos_x, double pos_y, double radius, int max_points);
 
     /// Crops features with line geometry to the square created by the given coordinates and size.
     /// Useful for doing tile-based requests.
@@ -123,6 +77,42 @@ public:
     void load_from_file(String file_path);
 
     /// Set the GDALDataset object for this layer. Must be a valid raster dataset.
+    /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this is only for internal use.
+    void set_gdaldataset(GDALDataset *new_dataset);
+
+private:
+    GDALDataset *dataset;
+};
+
+/// A dataset which contains layers of geodata.
+/// Corresponds to GDALDataset.
+class EXPORT GeoDataset : public Resource {
+    GODOT_CLASS(GeoDataset, Resource)
+
+public:
+    GeoDataset() = default;
+    virtual ~GeoDataset();
+
+    /// Automatically called by Godot
+    void _init();
+    static void _register_methods();
+
+    /// Returns true if the GeoDataset could successfully be loaded.
+    bool is_valid();
+
+    /// Returns a GeoRasterLayer object of the layer within this dataset with the given name.
+    /// It is recommended to check the validity of the returned object with GeoRasterLayer::is_valid().
+    GeoRasterLayer *get_raster_layer(String name);
+
+    /// Returns a GeoFeatureLayer object of the layer within this dataset with the given name.
+    /// It is recommended to check the validity of the returned object with GeoFeatureLayer::is_valid().
+    GeoFeatureLayer *get_feature_layer(String name);
+
+    /// Load a dataset file such as a Geopackage or a Shapefile into this object.
+    /// Not exposed to Godot since Godot should create datasets and layers from the Geodot singleton (the factory).
+    void load_from_file(String file_path);
+
+    /// Set the GDALDataset object directly.
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this is only for internal use.
     void set_gdaldataset(GDALDataset *new_dataset);
 
