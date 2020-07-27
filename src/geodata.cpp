@@ -56,16 +56,28 @@ Array GeoFeatureLayer::get_all_features() {
 Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, double radius, int max_features) {
     Array features = Array();
 
-    /*
-    TODO: This is the implementation for point features. Make this generic!
-    std::list<PointFeature *> pointfeatures = VectorExtractor::get_points_near_position(path.utf8().get_data(), pos_x, pos_y, radius, max_points);
+    std::list<Feature *> raw_features = VectorExtractor::get_features_near_position(layer, pos_x, pos_y, radius, max_features);
 
-    for (PointFeature *pointfeature : pointfeatures) {
-        Ref<GeoPoint> point = GeoPoint::_new();
-        point->set_gdal_feature(pointfeature);
+    for (Feature *raw_feature : raw_features) {
+        // Depending on the type of the raw_feature, we need a different specialization of GeoFeature.
+        // FIXME: This works, but the manual class name comparison feels ugly and fragile... Is there a nicer pattern for this?
+        if (typeid(raw_feature) == typeid(PointFeature)) {
+            Ref<GeoPoint> point = GeoPoint::_new();
+            point->set_gdal_feature(raw_feature);
 
-        points.push_back(point);
-    } */
+            features.push_back(point);
+        } else if (typeid(raw_feature) == typeid(LineFeature)) {
+            Ref<GeoLine> line = GeoLine::_new();
+            line->set_gdal_feature(raw_feature);
+
+            features.push_back(line);
+        } else {
+            Ref<GeoFeature> feature = GeoFeature::_new();
+            feature->set_gdal_feature(raw_feature);
+
+            features.push_back(feature);
+        }
+    }
 
     return features;
 }

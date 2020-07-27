@@ -30,6 +30,51 @@ std::list<Feature *> VectorExtractor::get_features(OGRLayer *layer) {
     return list;
 }
 
+std::list<Feature *> VectorExtractor::get_features_near_position(OGRLayer *layer, double pos_x, double pos_y, double radius, int max_amount) {
+    std::list<Feature *> list = std::list<Feature *>();
+
+    // We want to extract the features within the circle constructed with the given position and radius from the vector layer.
+    // For this circle, we have to create a new dataset + layer + feature + geometry because layers can only be
+    //  intersected with other layers, and layers need a dataset.
+
+    // Create the circle geometry
+    OGRGeometry *circle = new OGRPoint(pos_x, pos_y);
+    OGRGeometry *circle_buffer = circle->Buffer(radius);
+
+    layer->SetSpatialFilter(circle_buffer);
+
+    // Put the resulting features into the returned list. We add as many features as were returned unless they're more
+    //  than the given max_amount.
+    int num_features = layer->GetFeatureCount();
+    int iterations = std::min(num_features, max_amount);
+
+    for (int i = 0; i < iterations; i++) {
+        auto feature = layer->GetNextFeature();
+
+        const OGRGeometry *geometry_ref = feature->GetGeometryRef();
+
+        std::string geometry_type_name = geometry_ref->getGeometryName();
+
+        // Check which geometry this is and create an object of the corresponding type.
+        // TODO: Find a neat design pattern for this, we'd want something like a dictionary to class types
+        if (geometry_type_name == "POINT") {
+            list.emplace_back(new PointFeature(feature));
+        } else if (geometry_type_name == "LINESTRING") {
+            list.emplace_back(new LineFeature(feature));
+        } else if (geometry_type_name == "MULTILINESTRING") {
+            // If this is a MultiFeature, we iterate over all the features in it and add those.
+            // All the individual Features then share the same OGRFeature (with the same attributes etc).
+            const OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
+
+            for (const OGRGeometry *geometry : collection) {
+                list.emplace_back(new LineFeature(feature, geometry));
+            }
+        }
+    }
+
+    return list;
+}
+
 
 template<class T>
 std::list<T *>
