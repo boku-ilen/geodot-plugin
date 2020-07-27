@@ -15,6 +15,16 @@ void VectorExtractor::initialize() {
     GDALAllRegister();
 }
 
+GDALDataset* VectorExtractor::open_dataset(const char *path) {
+    GDALDataset *dataset = (GDALDataset *) GDALOpenEx(path, 0, nullptr, nullptr, nullptr);
+
+    return dataset;
+}
+
+OGRLayer* VectorExtractor::get_layer_from_dataset(GDALDataset *dataset, const char *name) {
+    return dataset->GetLayerByName(name);
+}
+
 
 std::list<Feature *> VectorExtractor::get_features(OGRLayer *layer) {
     auto list = std::list<Feature *>();

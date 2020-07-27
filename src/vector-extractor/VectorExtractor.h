@@ -8,11 +8,19 @@
 
 // Forward declarations
 class OGRLayer;
+class GDALDataset;
 
 class  EXPORT VectorExtractor {
 public:
     /// Must be called before any other function to initialize GDAL.
     static void initialize();
+
+    /// Returns the GDALDataset at the given path, or null.
+    /// TODO: This could also be in the RasterExtractor, it's not raster- or vector-specific...
+    static GDALDataset *open_dataset(const char *path);
+
+    /// Returns the layer from the given dataset with the given name, or null if there is no layer with that name.
+    static OGRLayer *get_layer_from_dataset(GDALDataset *dataset, const char *name);
 
     /// Return all features, regardless of what the geometry is (or if there even is geometry).
     /// Note that this means that no geometry will be available in those features - this should only be used for attributes.

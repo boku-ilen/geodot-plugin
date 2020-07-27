@@ -38,12 +38,15 @@ GeoRasterLayer* GeoDataset::get_raster_layer(String name) {
 }
 
 GeoFeatureLayer* GeoDataset::get_feature_layer(String name) {
-    // TODO
-    return GeoFeatureLayer::_new();
+    GeoFeatureLayer *feature_layer = GeoFeatureLayer::_new();
+
+    feature_layer->set_ogrlayer(VectorExtractor::get_layer_from_dataset(dataset, name.utf8().get_data()));
+
+    return feature_layer;
 }
 
 void GeoDataset::load_from_file(String file_path) {
-    // TODO
+    dataset = VectorExtractor::open_dataset(file_path.utf8().get_data());
 }
 
 void GeoFeatureLayer::_init() {
@@ -54,7 +57,7 @@ void GeoFeatureLayer::_init() {
 void GeoFeatureLayer::_register_methods() {
     register_method("is_valid", &GeoFeatureLayer::is_valid);
     register_method("get_all_features", &GeoFeatureLayer::get_all_features);
-    register_method("get_features_near_position", &GeoFeatureLayer::get_all_features);
+    register_method("get_features_near_position", &GeoFeatureLayer::get_features_near_position);
 }
 
 bool GeoFeatureLayer::is_valid() {
@@ -84,15 +87,19 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
 
     for (Feature *raw_feature : raw_features) {
         // Depending on the type of the raw_feature, we need a different specialization of GeoFeature.
-        // FIXME: This works, but the manual class name comparison feels ugly and fragile... Is there a nicer pattern for this?
-        if (typeid(raw_feature) == typeid(PointFeature)) {
+        // FIXME: This works, but feels a bit ugly and fragile... Is there a nicer pattern for this?
+        //  The need for explicit type checking in C++ is usually considered bad design...
+        PointFeature *point_feature = dynamic_cast<PointFeature *> (raw_feature);
+        LineFeature *line_feature = dynamic_cast<LineFeature *> (raw_feature);
+
+        if (point_feature) {
             Ref<GeoPoint> point = GeoPoint::_new();
-            point->set_gdal_feature(raw_feature);
+            point->set_gdal_feature(point_feature);
 
             features.push_back(point);
-        } else if (typeid(raw_feature) == typeid(LineFeature)) {
+        } else if (line_feature) {
             Ref<GeoLine> line = GeoLine::_new();
-            line->set_gdal_feature(raw_feature);
+            line->set_gdal_feature(line_feature);
 
             features.push_back(line);
         } else {
@@ -109,6 +116,10 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
 Array GeoFeatureLayer::crop_lines_to_square(double top_left_x, double top_left_y, double size_meters, int max_lines) {
     // TODO
     return Array();
+}
+
+void GeoFeatureLayer::set_ogrlayer(OGRLayer *new_layer) {
+    layer = new_layer;
 }
 
 GeoRasterLayer::~GeoRasterLayer() {
