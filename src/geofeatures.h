@@ -8,6 +8,7 @@
 #include "Feature.h"
 #include "PointFeature.h"
 #include "LineFeature.h"
+#include "PolygonFeature.h"
 
 namespace godot {
 

@@ -110,16 +110,32 @@ void GeoPolygon::_register_methods() {
 
 PoolVector2Array GeoPolygon::get_outer_vertices() {
     PoolVector2Array vertices = PoolVector2Array();
+    PolygonFeature *polygon = (PolygonFeature *) gdal_feature;
 
-    // TODO
+    std::list<std::vector<double>> raw_outer_vertices = polygon->get_outer_vertices();
+
+    for (const std::vector<double> vertex : raw_outer_vertices) {
+        vertices.push_back(Vector2(vertex[0], vertex[1]));
+    }
 
     return vertices;
 }
 
 Array GeoPolygon::get_holes() {
     Array holes = Array();
+    PolygonFeature *polygon = (PolygonFeature *) gdal_feature;
 
-    // TODO
+    std::list<std::list<std::vector<double>>> raw_holes = polygon->get_holes();
+
+    for (const std::list<std::vector<double>> raw_hole_vertices : raw_holes) {
+        PoolVector2Array hole_vertices = PoolVector2Array();
+
+        for (const std::vector<double> vertex : raw_hole_vertices) {
+            hole_vertices.push_back(Vector2(vertex[0], vertex[1]));
+        }
+
+        holes.push_back(hole_vertices);
+    }
     
     return holes;
 }
