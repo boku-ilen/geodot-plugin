@@ -106,6 +106,13 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
             line->set_gdal_feature(line_feature);
 
             features.push_back(line);
+        } else if (raw_feature->geometry_type == raw_feature->POLYGON) {
+            Ref<GeoPolygon> polygon = GeoPolygon::_new();
+            PolygonFeature *polygon_feature = dynamic_cast<PolygonFeature *> (raw_feature);
+
+            polygon->set_gdal_feature(polygon_feature);
+
+            features.push_back(polygon);
         }
     }
 

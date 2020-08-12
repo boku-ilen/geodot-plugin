@@ -15,6 +15,7 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void *handle) {
     godot::register_class<godot::GeoFeature>();
     godot::register_class<godot::GeoLine>();
     godot::register_class<godot::GeoPoint>();
+    godot::register_class<godot::GeoPolygon>();
     godot::register_class<godot::GeoDataset>();
     godot::register_class<godot::GeoFeatureLayer>();
     godot::register_class<godot::GeoRasterLayer>();

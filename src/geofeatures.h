@@ -69,6 +69,27 @@ public:
     Ref<Curve3D> get_curve3d();
 };
 
+
+// Wrapper for a PolygonFeature from the VectorExtractor.
+class EXPORT GeoPolygon : public GeoFeature {
+    GODOT_SUBCLASS(GeoPolygon, GeoFeature)
+
+public:
+    GeoPolygon() = default;
+    ~GeoPolygon() = default;
+
+    /// Automatically called by Godot
+    void _init();
+    static void _register_methods();
+
+    /// Return the vertices making up the base polygon in a PoolVector2Array.
+    PoolVector2Array get_outer_vertices();
+
+    /// Return a list with any number of PoolVector2Arrays. These represent polygons that
+    ///  should be cut out of the base polygon retreived by get_outer_vertices.
+    Array get_holes();
+};
+
 }
 
 #endif // __FEATURES_H__

@@ -4,6 +4,7 @@
 
 #include "LineFeature.h"
 #include "PointFeature.h"
+#include "PolygonFeature.h"
 #include "defines.h"
 
 // Forward declarations

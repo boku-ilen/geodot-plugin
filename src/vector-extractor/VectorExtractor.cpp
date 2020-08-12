@@ -55,6 +55,8 @@ std::list<Feature *> get_specialized_features(OGRFeature *feature) {
         for (const OGRGeometry *geometry : collection) {
             list.emplace_back(new LineFeature(feature, geometry));
         }
+    } else if (geometry_type_name == "POLYGON") {
+        list.emplace_back(new PolygonFeature(feature));
     }
 
     return list;

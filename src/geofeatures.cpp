@@ -95,3 +95,31 @@ Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_
 Ref<Curve3D> GeoLine::get_curve3d() {
     return get_offset_curve3d(0, 0, 0);
 }
+
+
+// GeoPolygon
+
+void GeoPolygon::_init() {
+    init_ref();
+}
+
+void GeoPolygon::_register_methods() {
+    register_method("get_outer_vertices", &GeoPolygon::get_outer_vertices);
+    register_method("get_holes", &GeoPolygon::get_holes);
+}
+
+PoolVector2Array GeoPolygon::get_outer_vertices() {
+    PoolVector2Array vertices = PoolVector2Array();
+
+    // TODO
+
+    return vertices;
+}
+
+Array GeoPolygon::get_holes() {
+    Array holes = Array();
+
+    // TODO
+    
+    return holes;
+}
