@@ -26,13 +26,49 @@ OGRLayer* VectorExtractor::get_layer_from_dataset(GDALDataset *dataset, const ch
 }
 
 
+// Utilify function to get the appropriate VectorExtractor Feature (e.g. LineFeature) for the given OGRFeature.
+// Return type is a list because it's possible that multiple features are retreived in the case of e.g. a MULTILINESTRING.
+std::list<Feature *> get_specialized_features(OGRFeature *feature) {
+    std::list<Feature *> list = std::list<Feature *>();
+
+    const OGRGeometry *geometry_ref = feature->GetGeometryRef();
+
+    // If this feature has no geometry, just return a list with that one Feature
+    if (geometry_ref == nullptr) {
+        list.emplace_back(new Feature(feature));
+        return list;
+    }
+
+    std::string geometry_type_name = geometry_ref->getGeometryName();
+
+    // Check which geometry this is and create an object of the corresponding type.
+    // TODO: Find a neat design pattern for this, we'd want something like a dictionary to class types
+    if (geometry_type_name == "POINT") {
+        list.emplace_back(new PointFeature(feature));
+    } else if (geometry_type_name == "LINESTRING") {
+        list.emplace_back(new LineFeature(feature));
+    } else if (geometry_type_name == "MULTILINESTRING") {
+        // If this is a MultiFeature, we iterate over all the features in it and add those.
+        // All the individual Features then share the same OGRFeature (with the same attributes etc).
+        const OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
+
+        for (const OGRGeometry *geometry : collection) {
+            list.emplace_back(new LineFeature(feature, geometry));
+        }
+    }
+
+    return list;
+}
+
+
 std::list<Feature *> VectorExtractor::get_features(OGRLayer *layer) {
     auto list = std::list<Feature *>();
     
     OGRFeature *current_feature = current_feature = layer->GetNextFeature();
 
     while (current_feature != nullptr) {
-        list.emplace_back(new Feature(current_feature));
+        // Add the Feature objects from the next OGRFeature in the layer to the list
+        list.splice(list.end(), get_specialized_features(current_feature));
 
         current_feature = layer->GetNextFeature();
     }
@@ -59,27 +95,8 @@ std::list<Feature *> VectorExtractor::get_features_near_position(OGRLayer *layer
     int iterations = std::min(num_features, max_amount);
 
     for (int i = 0; i < iterations; i++) {
-        auto feature = layer->GetNextFeature();
-
-        const OGRGeometry *geometry_ref = feature->GetGeometryRef();
-
-        std::string geometry_type_name = geometry_ref->getGeometryName();
-
-        // Check which geometry this is and create an object of the corresponding type.
-        // TODO: Find a neat design pattern for this, we'd want something like a dictionary to class types
-        if (geometry_type_name == "POINT") {
-            list.emplace_back(new PointFeature(feature));
-        } else if (geometry_type_name == "LINESTRING") {
-            list.emplace_back(new LineFeature(feature));
-        } else if (geometry_type_name == "MULTILINESTRING") {
-            // If this is a MultiFeature, we iterate over all the features in it and add those.
-            // All the individual Features then share the same OGRFeature (with the same attributes etc).
-            const OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
-
-            for (const OGRGeometry *geometry : collection) {
-                list.emplace_back(new LineFeature(feature, geometry));
-            }
-        }
+        // Add the Feature objects from the next OGRFeature in the layer to the list
+        list.splice(list.end(), get_specialized_features(layer->GetNextFeature()));
     }
 
     return list;
