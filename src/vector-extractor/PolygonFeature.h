@@ -3,6 +3,9 @@
 
 #include "Feature.h"
 
+#include <list>
+#include <vector>
+
 // Foward declarations
 class OGRPolygon;
 
@@ -16,10 +19,10 @@ public:
     PolygonFeature(OGRFeature *feature, const OGRGeometry *ogrPolygon);
 
     /// Get the vertices of the base shape
-    // TODO
+    std::list<std::vector<double>> get_outer_vertices();
 
     /// Get all cutout shapes
-    // TODO
+    std::list<std::list<std::vector<double>>> get_holes();
 
 private:
     const OGRPolygon *polygon;
