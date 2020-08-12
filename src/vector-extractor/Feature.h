@@ -10,6 +10,13 @@ class OGRGeometry;
 
 class EXPORT Feature {
 public:
+    enum GeometryType {
+        NONE,
+        POINT,
+        LINE,
+        POLYGON
+    };
+
     /// Construct a Feature from an OGRFeature from GDAL.
     explicit Feature(OGRFeature *feature);
 
@@ -27,7 +34,9 @@ public:
     /// A field with the given name must exist.
     const char *get_attribute(const char *name);
 
-private:
+    GeometryType geometry_type = NONE;
+    
+protected:
     OGRFeature *feature;
 };
 

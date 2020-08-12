@@ -9,9 +9,12 @@
 
 PointFeature::PointFeature(OGRFeature *feature) : Feature(feature) {
     point = feature->GetGeometryRef()->toPoint();
+    geometry_type = POINT;
 }
 
-PointFeature::PointFeature(OGRFeature *feature, const OGRGeometry *ogrPoint) : Feature(feature), point(ogrPoint->toPoint()) {}
+PointFeature::PointFeature(OGRFeature *feature, const OGRGeometry *ogrPoint) : Feature(feature), point(ogrPoint->toPoint()) {
+    geometry_type = POINT;
+}
 
 double PointFeature::get_x() {
     return point->getX();

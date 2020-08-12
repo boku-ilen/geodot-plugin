@@ -86,27 +86,26 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
     std::list<Feature *> raw_features = VectorExtractor::get_features_near_position(layer, pos_x, pos_y, radius, max_features);
 
     for (Feature *raw_feature : raw_features) {
-        // Depending on the type of the raw_feature, we need a different specialization of GeoFeature.
-        // FIXME: This works, but feels a bit ugly and fragile... Is there a nicer pattern for this?
-        //  The need for explicit type checking in C++ is usually considered bad design...
-        PointFeature *point_feature = dynamic_cast<PointFeature *> (raw_feature);
-        LineFeature *line_feature = dynamic_cast<LineFeature *> (raw_feature);
-
-        if (point_feature) {
-            Ref<GeoPoint> point = GeoPoint::_new();
-            point->set_gdal_feature(point_feature);
-
-            features.push_back(point);
-        } else if (line_feature) {
-            Ref<GeoLine> line = GeoLine::_new();
-            line->set_gdal_feature(line_feature);
-
-            features.push_back(line);
-        } else {
+        // Check which geometry this feature has, and cast it to the according specialized class
+        if (raw_feature->geometry_type == raw_feature->NONE) {
             Ref<GeoFeature> feature = GeoFeature::_new();
             feature->set_gdal_feature(raw_feature);
 
             features.push_back(feature);
+        } else if (raw_feature->geometry_type == raw_feature->POINT) {
+            Ref<GeoPoint> point = GeoPoint::_new();
+            PointFeature *point_feature = dynamic_cast<PointFeature *> (raw_feature);
+
+            point->set_gdal_feature(point_feature);
+
+            features.push_back(point);
+        } else if (raw_feature->geometry_type == raw_feature->LINE) {
+            Ref<GeoLine> line = GeoLine::_new();
+            LineFeature *line_feature = dynamic_cast<LineFeature *> (raw_feature);
+
+            line->set_gdal_feature(line_feature);
+
+            features.push_back(line);
         }
     }
 

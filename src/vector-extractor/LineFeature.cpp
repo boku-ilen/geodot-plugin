@@ -11,11 +11,13 @@
 LineFeature::LineFeature(OGRFeature *feature) : Feature(feature) {
     line = feature->GetGeometryRef()->toLineString();
     point_count = line->getNumPoints();
+    geometry_type = LINE;
 }
 
 LineFeature::LineFeature(OGRFeature *feature, const OGRGeometry *linestring) : Feature(feature) {
     line = linestring->toLineString();
     point_count = line->getNumPoints();
+    geometry_type = LINE;
 }
 
 std::vector<double> LineFeature::get_line_point(int index) {
