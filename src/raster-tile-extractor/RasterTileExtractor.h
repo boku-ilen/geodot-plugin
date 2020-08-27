@@ -16,14 +16,21 @@ public:
 
     /// Returns a GeoRaster with the data at raster_name and the given parameters.
     /// raster_name can be the name of a geotiff or the top folder of a pre-tiled raster pyramid.
+    /// FIXME: Likely replaced by get_tile_from_dataset and possibly other functions!
     static GeoRaster *
     get_raster_at_position(const char *raster_name, const char *file_ending, double top_left_x, double top_left_y,
                            double size_meters, int img_size, int interpolation_type);
+    
+    /// Returns a GeoRaster with the data from the given dataset, in the given area, with the given resolution and interpolation.
+    static GeoRaster *get_tile_from_dataset(GDALDataset *dataset, double top_left_x, double top_left_y, double size_meters, int img_size, int interpolation_type);
 
 private:
-    /// Clip the infile to an image starting at top_left_x, top_left_y with a given size (in meters).
-    /// The resulting image has the resolution img_size x img_size (pixels).
-    /// __The returned GDALDataset needs to be closed with GDALClose()!__
+    /// Return a GeoRaster containing the area in the given dataset starting at top_left_x, top_left_y with a given size (in meters).
+    /// The resulting image has the resolution img_size * img_size (pixels).
+    static GeoRaster *clip_dataset(GDALDataset *dataset, double top_left_x, double top_left_y, double size_meters, int img_size, int interpolation_type);
+
+    /// Wrapper for clip_dataset with a path instead of an already opened dataset.
+    /// FIXME: Likely deprecated!
     static GeoRaster *clip(const char *infile, double top_left_x, double top_left_y, double size_meters, int img_size,
                              int interpolation_type);
 

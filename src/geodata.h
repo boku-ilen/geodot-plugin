@@ -60,7 +60,7 @@ class EXPORT GeoRasterLayer : public Resource {
 
 public:
     GeoRasterLayer() = default;
-    virtual ~GeoRasterLayer();
+    virtual ~GeoRasterLayer() = default;  // The dataset is owned by the parent GeoDataset.
 
     /// Automatically called by Godot
     void _init();

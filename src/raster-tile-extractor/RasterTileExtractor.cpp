@@ -121,23 +121,13 @@ double webmercator_to_latitude(double webm_meters) {
     return (atan(pow(M_E, ((webm_meters) / 111319.490778) * M_PI / 180.0)) * 2.0 - M_PI / 2.0);
 }
 
-GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, double top_left_y, double size_meters, int img_size,
-                          int interpolation_type) {
-    GDALDataset *source;
-    GDALDriver *driver;
-
-    // TODO: Add the option of saving to a GTiff for caching
-    if (false) {
-        driver = (GDALDriver *)GDALGetDriverByName("GTiff");
-    } else {
-        driver = (GDALDriver *)GDALGetDriverByName("MEM");
-    }
-
-    source = (GDALDataset *) GDALOpen(base_path, GA_ReadOnly);
+GeoRaster* RasterTileExtractor::clip_dataset(GDALDataset *dataset, double top_left_x, double top_left_y, double size_meters, int img_size, int interpolation_type) {
+    // Save the result in RAM
+    GDALDriver *driver = (GDALDriver *)GDALGetDriverByName("MEM");
 
     // Get the current Transform of the source image
     double transform[6];
-    source->GetGeoTransform(transform);
+    dataset->GetGeoTransform(transform);
 
     // Adjust the top left coordinates according to the input variables
     double previous_top_left_x = transform[0];
@@ -155,7 +145,14 @@ GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, d
     int size_pixels  = static_cast<int>(size_meters / pixel_size);
 
     // With these parameters, we can construct a GeoRaster!
-    return new GeoRaster(source, offset_pixels_x, offset_pixels_y, size_pixels, img_size, interpolation_type);
+    return new GeoRaster(dataset, offset_pixels_x, offset_pixels_y, size_pixels, img_size, interpolation_type);
+}
+
+GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, double top_left_y, double size_meters, int img_size,
+                          int interpolation_type) {
+    GDALDataset *source = (GDALDataset *) GDALOpen(base_path, GA_ReadOnly);
+
+    return clip_dataset(source, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
 }
 
 #define PYRAMID_DIRECTORY_ENDING "pyramid"
@@ -187,6 +184,10 @@ RasterTileExtractor::get_raster_at_position(const char *base_path, const char *f
 
     // If there was neither a single file nor a pyramid, return null
     return nullptr;
+}
+
+GeoRaster* RasterTileExtractor::get_tile_from_dataset(GDALDataset *dataset, double top_left_x, double top_left_y, double size_meters, int img_size, int interpolation_type) {
+    return clip_dataset(dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
 }
 
 #define WEBMERCATOR_MAX 20037508.0

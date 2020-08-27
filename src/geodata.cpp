@@ -2,6 +2,7 @@
 #include "vector-extractor/Feature.h"
 #include "geofeatures.h"
 #include "vector-extractor/VectorExtractor.h"
+#include "raster-tile-extractor/RasterTileExtractor.h"
 
 #ifdef _WIN32
     #include <gdal_priv.h>
@@ -33,8 +34,17 @@ bool GeoDataset::is_valid() {
 }
 
 GeoRasterLayer* GeoDataset::get_raster_layer(String name) {
-    // TODO
-    return GeoRasterLayer::_new();
+    GeoRasterLayer *raster_layer = GeoRasterLayer::_new();
+
+    // In GDAL, raster data is actually stored in datasets, not in layers.
+    // FIXME: Because this is the assumption in GDAL, we currently only support datasets with exactly
+    //  one "layer" of raster data. In the future, we will want to support datasaets (geopackages) with
+    //  multiple layers of raster data.
+    //  We will need to figure out how this works in GDAL, and whether we also want to support custom
+    //  types, such as a path to a pre-tiled raster pyramid (which could be wrapped by a custom object).
+    raster_layer->set_gdaldataset(dataset);
+
+    return raster_layer;
 }
 
 GeoFeatureLayer* GeoDataset::get_feature_layer(String name) {
@@ -128,10 +138,6 @@ void GeoFeatureLayer::set_ogrlayer(OGRLayer *new_layer) {
     layer = new_layer;
 }
 
-GeoRasterLayer::~GeoRasterLayer() {
-    delete dataset;
-}
-
 void GeoRasterLayer::_init() {
     // This is required - returning a Reference to a locally created object throws a segfault otherwise!
     init_ref();
@@ -149,8 +155,24 @@ bool GeoRasterLayer::is_valid() {
 
 Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,
                             int img_size, int interpolation_type) {
-    // TODO
-    return GeoImage::_new();
+    // This strange __internal_constructor call is required to prevent a memory leak
+    // See https://github.com/GodotNativeTools/godot-cpp/issues/215
+    // TODO: Should be fixed according to that issue!
+    // FIXME: Check whether really fixed!
+    Ref<GeoImage> image = GeoImage::_new();
+
+    GeoRaster *raster = RasterTileExtractor::get_tile_from_dataset(
+        dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
+
+    if (raster == nullptr) {
+        // TODO: Set validity to false
+        Godot::print_error("No valid data was available for the requested path and position!", "Geodot::get_image", "geodot.cpp", 26);
+        return image;
+    }
+
+    image->set_raster(raster, interpolation_type);
+
+    return image;
 }
 
 }
