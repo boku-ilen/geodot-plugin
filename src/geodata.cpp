@@ -42,7 +42,7 @@ GeoRasterLayer* GeoDataset::get_raster_layer(String name) {
     //  multiple layers of raster data.
     //  We will need to figure out how this works in GDAL, and whether we also want to support custom
     //  types, such as a path to a pre-tiled raster pyramid (which could be wrapped by a custom object).
-    raster_layer->set_gdaldataset(dataset);
+    raster_layer->set_native_dataset(dataset);
 
     return raster_layer;
 }
@@ -50,13 +50,17 @@ GeoRasterLayer* GeoDataset::get_raster_layer(String name) {
 GeoFeatureLayer* GeoDataset::get_feature_layer(String name) {
     GeoFeatureLayer *feature_layer = GeoFeatureLayer::_new();
 
-    feature_layer->set_ogrlayer(VectorExtractor::get_layer_from_dataset(dataset, name.utf8().get_data()));
+    feature_layer->set_native_layer(VectorExtractor::get_layer_from_dataset(dataset->dataset, name.utf8().get_data()));
 
     return feature_layer;
 }
 
 void GeoDataset::load_from_file(String file_path) {
     dataset = VectorExtractor::open_dataset(file_path.utf8().get_data());
+}
+
+void GeoDataset::set_native_dataset(NativeDataset *new_dataset) {
+    dataset = new_dataset;
 }
 
 void GeoFeatureLayer::_init() {
@@ -78,7 +82,7 @@ bool GeoFeatureLayer::is_valid() {
 Array GeoFeatureLayer::get_all_features() {
     Array geofeatures = Array();
 
-    std::list<Feature *> gdal_features = VectorExtractor::get_features(layer);
+    std::list<Feature *> gdal_features = VectorExtractor::get_features(layer->layer);
 
     for (Feature *gdal_feature : gdal_features) {
         Ref<GeoFeature> geofeature = GeoFeature::_new();
@@ -93,7 +97,7 @@ Array GeoFeatureLayer::get_all_features() {
 Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, double radius, int max_features) {
     Array features = Array();
 
-    std::list<Feature *> raw_features = VectorExtractor::get_features_near_position(layer, pos_x, pos_y, radius, max_features);
+    std::list<Feature *> raw_features = VectorExtractor::get_features_near_position(layer->layer, pos_x, pos_y, radius, max_features);
 
     for (Feature *raw_feature : raw_features) {
         // Check which geometry this feature has, and cast it to the according specialized class
@@ -134,7 +138,7 @@ Array GeoFeatureLayer::crop_lines_to_square(double top_left_x, double top_left_y
     return Array();
 }
 
-void GeoFeatureLayer::set_ogrlayer(OGRLayer *new_layer) {
+void GeoFeatureLayer::set_native_layer(NativeLayer *new_layer) {
     layer = new_layer;
 }
 
@@ -162,7 +166,7 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
     Ref<GeoImage> image = GeoImage::_new();
 
     GeoRaster *raster = RasterTileExtractor::get_tile_from_dataset(
-        dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
+        dataset->dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
 
     if (raster == nullptr) {
         // TODO: Set validity to false
@@ -173,6 +177,41 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
     image->set_raster(raster, interpolation_type);
 
     return image;
+}
+
+bool PyramidGeoRasterLayer::is_valid() {
+    // TODO
+    return true;
+}
+
+Ref<GeoImage> PyramidGeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,
+                            int img_size, int interpolation_type) {
+    Ref<GeoImage> image = GeoImage::_new();
+
+    GeoRaster *raster = RasterTileExtractor::get_raster_from_pyramid(
+        path.utf8().get_data(), ending.utf8().get_data(), top_left_x, top_left_y, size_meters, img_size, interpolation_type);
+
+    if (raster == nullptr) {
+        // TODO: Set validity to false
+        Godot::print_error("No valid data was available for the requested path and position!", "Geodot::get_image", "geodot.cpp", 26);
+        return image;
+    }
+
+    image->set_raster(raster, interpolation_type);
+
+    return image;
+}
+
+void GeoRasterLayer::set_native_dataset(NativeDataset *new_dataset) {
+    dataset = new_dataset;
+}
+
+void PyramidGeoRasterLayer::set_pyramid_base(String path) {
+    this->path = path;
+}
+
+void PyramidGeoRasterLayer::set_file_ending(String ending) {
+    this->ending = ending;
 }
 
 }

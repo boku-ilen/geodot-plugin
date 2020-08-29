@@ -158,28 +158,14 @@ GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, d
 #define PYRAMID_DIRECTORY_ENDING "pyramid"
 
 GeoRaster *
-RasterTileExtractor::get_raster_at_position(const char *base_path, const char *file_ending, double top_left_x,
+RasterTileExtractor::get_raster_from_pyramid(const char *base_path, const char *file_ending, double top_left_x,
                                             double top_left_y,
                                             double size_meters, int img_size, int interpolation_type) {
-    // First, check if we have a pre-tiled pyramid of this data
-    std::string pyramid_name_string = std::string(base_path) + "." + std::string(PYRAMID_DIRECTORY_ENDING);
+    GDALDataset *dataset_from_pyramid = get_from_pyramid(base_path, file_ending, top_left_x,
+                                                         top_left_y, size_meters, img_size, interpolation_type);
 
-    if (std::filesystem::exists(pyramid_name_string)) {
-        // We have a pre-tiled pyramid
-        GDALDataset *dataset_from_pyramid = get_from_pyramid(pyramid_name_string.c_str(), file_ending, top_left_x,
-                                                             top_left_y, size_meters, img_size, interpolation_type);
-
-        if (dataset_from_pyramid != nullptr) {
-            return new GeoRaster(dataset_from_pyramid, interpolation_type);
-        }
-    } else {
-        // Check if there is a single image with the given path
-        std::string raster_path_string = std::string(base_path) + "." + std::string(file_ending);
-
-        if (std::filesystem::exists(raster_path_string)) {
-            return clip(raster_path_string.c_str(), top_left_x, top_left_y, size_meters, img_size,
-                                      interpolation_type);
-        }
+    if (dataset_from_pyramid != nullptr) {
+        return new GeoRaster(dataset_from_pyramid, interpolation_type);
     }
 
     // If there was neither a single file nor a pyramid, return null

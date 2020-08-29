@@ -15,14 +15,14 @@ void VectorExtractor::initialize() {
     GDALAllRegister();
 }
 
-GDALDataset* VectorExtractor::open_dataset(const char *path) {
+NativeDataset* VectorExtractor::open_dataset(const char *path) {
     GDALDataset *dataset = (GDALDataset *) GDALOpenEx(path, 0, nullptr, nullptr, nullptr);
 
-    return dataset;
+    return new NativeDataset(dataset);
 }
 
-OGRLayer* VectorExtractor::get_layer_from_dataset(GDALDataset *dataset, const char *name) {
-    return dataset->GetLayerByName(name);
+NativeLayer* VectorExtractor::get_layer_from_dataset(GDALDataset *dataset, const char *name) {
+    return new NativeLayer(dataset->GetLayerByName(name));
 }
 
 
@@ -180,4 +180,13 @@ VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, doubl
     }
 
     return list;
+}
+
+
+NativeDataset::~NativeDataset() {
+    delete dataset;
+}
+
+NativeLayer::~NativeLayer() {
+    delete layer;
 }

@@ -5,9 +5,7 @@
 
 #include "defines.h"
 #include "geoimage.h"
-
-// Forward declarations
-class OGRLayer;
+#include "VectorExtractor.h"
 
 namespace godot {
 
@@ -47,10 +45,10 @@ public:
 
     /// Set the OGRLayer object directly.
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this is only for internal use.
-    void set_ogrlayer(OGRLayer *new_layer);
+    void set_native_layer(NativeLayer *new_layer);
 
 private:
-    OGRLayer *layer;
+    NativeLayer *layer;
 };
 
 /// A layer which contains raster data.
@@ -78,10 +76,32 @@ public:
 
     /// Set the GDALDataset object for this layer. Must be a valid raster dataset.
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this is only for internal use.
-    void set_gdaldataset(GDALDataset *new_dataset);
+    void set_native_dataset(NativeDataset *new_dataset);
 
 private:
-    GDALDataset *dataset;
+    NativeDataset *dataset;
+};
+
+class EXPORT PyramidGeoRasterLayer : public GeoRasterLayer {
+    GODOT_CLASS(PyramidGeoRasterLayer, GeoRasterLayer)
+
+public:
+    PyramidGeoRasterLayer() = default;
+    virtual ~PyramidGeoRasterLayer() = default;
+
+    /// Returns true if the layer could successfully be loaded.
+    bool is_valid();
+
+    Ref<GeoImage> get_image(double top_left_x, double top_left_y, double size_meters,
+                            int img_size, int interpolation_type);
+    
+    void set_pyramid_base(String path);
+
+    void set_file_ending(String ending);
+
+private:
+    String path;
+    String ending;
 };
 
 /// A dataset which contains layers of geodata.
@@ -114,10 +134,10 @@ public:
 
     /// Set the GDALDataset object directly.
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this is only for internal use.
-    void set_gdaldataset(GDALDataset *new_dataset);
+    void set_native_dataset(NativeDataset *new_dataset);
 
 private:
-    GDALDataset *dataset;
+    NativeDataset *dataset;
 };
 
 }
