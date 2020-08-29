@@ -16,7 +16,6 @@ public:
 
     /// Returns a GeoRaster with the data at raster_name and the given parameters.
     /// raster_name can be the name of a geotiff or the top folder of a pre-tiled raster pyramid.
-    /// FIXME: Likely replaced by get_tile_from_dataset and possibly other functions!
     static GeoRaster *
     get_raster_from_pyramid(const char *raster_name, const char *file_ending, double top_left_x, double top_left_y,
                            double size_meters, int img_size, int interpolation_type);

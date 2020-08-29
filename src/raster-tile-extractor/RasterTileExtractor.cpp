@@ -28,7 +28,7 @@ void RasterTileExtractor::reproject_to_webmercator(const char *base_path, const 
     // Create output with same datatype as first input band.
     eDT = GDALGetRasterDataType(GDALGetRasterBand(hSrcDS, 1));
 
-
+    // TODO: Instead of hardcoding the driver, use the same as before or pass it as a parameter
     hDriver = GDALGetDriverByName("GTiff");
     CPLAssert(hDriver != NULL)
 
@@ -73,7 +73,7 @@ void RasterTileExtractor::reproject_to_webmercator(const char *base_path, const 
     GDALSetGeoTransform(hDstDS, adfDstGeoTransform);
 
     // Copy the color table, if required.
-    // TODO: Only supports one raster band - are more required?
+    // FIXME: Only supports one raster band!
     GDALColorTableH hCT;
     hCT = GDALGetRasterColorTable(GDALGetRasterBand(hSrcDS, 1));
     if (hCT != nullptr)

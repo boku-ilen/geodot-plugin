@@ -40,8 +40,9 @@ GeoRasterLayer* GeoDataset::get_raster_layer(String name) {
     // FIXME: Because this is the assumption in GDAL, we currently only support datasets with exactly
     //  one "layer" of raster data. In the future, we will want to support datasaets (geopackages) with
     //  multiple layers of raster data.
-    //  We will need to figure out how this works in GDAL, and whether we also want to support custom
-    //  types, such as a path to a pre-tiled raster pyramid (which could be wrapped by a custom object).
+    // I believe that we need to use GDALOpenEx with a "TABLE=X" option passed in order to access a
+    //  specific raster layer. So we will need to create a new GDALDataset object with that and use that
+    //  as the native dataset. This will also need to be properly deleted in the GeoRasterLayer.
     raster_layer->set_native_dataset(dataset);
 
     return raster_layer;
@@ -159,10 +160,6 @@ bool GeoRasterLayer::is_valid() {
 
 Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,
                             int img_size, int interpolation_type) {
-    // This strange __internal_constructor call is required to prevent a memory leak
-    // See https://github.com/GodotNativeTools/godot-cpp/issues/215
-    // TODO: Should be fixed according to that issue!
-    // FIXME: Check whether really fixed!
     Ref<GeoImage> image = GeoImage::_new();
 
     GeoRaster *raster = RasterTileExtractor::get_tile_from_dataset(

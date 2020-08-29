@@ -109,6 +109,7 @@ VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, doubl
                                       int max_amount) {
     auto list = std::list<LineFeature *>();
 
+    // TODO: Remove this and pass a OGRLayer* instead of the path
     GDALDataset *poDS;
 
     poDS = (GDALDataset *) GDALOpenEx(path, GDAL_OF_VECTOR, nullptr,
@@ -121,7 +122,6 @@ VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, doubl
         return list;
     }
 
-    // TODO: Check poDS->GetLayerCount() to make sure there's exactly one layer? Or handle >1 layers too?
     OGRLayer *poLayer = poDS->GetLayers()[0];
 
     // We want to extract the features within the circle constructed with the given position and radius from the vector layer.
