@@ -186,7 +186,3 @@ VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, doubl
 NativeDataset::~NativeDataset() {
     delete dataset;
 }
-
-NativeLayer::~NativeLayer() {
-    delete layer;
-}

@@ -24,7 +24,7 @@ class EXPORT NativeLayer {
 public:
     NativeLayer(OGRLayer *layer) : layer(layer) {};
 
-    ~NativeLayer();
+    ~NativeLayer() = default;
 
     OGRLayer *layer;
 };
