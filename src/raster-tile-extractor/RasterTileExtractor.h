@@ -28,11 +28,6 @@ private:
     /// The resulting image has the resolution img_size * img_size (pixels).
     static GeoRaster *clip_dataset(GDALDataset *dataset, double top_left_x, double top_left_y, double size_meters, int img_size, int interpolation_type);
 
-    /// Wrapper for clip_dataset with a path instead of an already opened dataset.
-    /// FIXME: Likely deprecated!
-    static GeoRaster *clip(const char *infile, double top_left_x, double top_left_y, double size_meters, int img_size,
-                             int interpolation_type);
-
     /// Get an image from a pre-tiled raster pyramid (named according to the Slippy tilenames).
     /// __The returned GDALDataset needs to be closed with GDALClose()!__
     static GDALDataset *

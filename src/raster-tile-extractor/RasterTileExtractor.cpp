@@ -148,13 +148,6 @@ GeoRaster* RasterTileExtractor::clip_dataset(GDALDataset *dataset, double top_le
     return new GeoRaster(dataset, offset_pixels_x, offset_pixels_y, size_pixels, img_size, interpolation_type);
 }
 
-GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, double top_left_y, double size_meters, int img_size,
-                          int interpolation_type) {
-    GDALDataset *source = (GDALDataset *) GDALOpen(base_path, GA_ReadOnly);
-
-    return clip_dataset(source, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
-}
-
 GeoRaster *
 RasterTileExtractor::get_raster_from_pyramid(const char *base_path, const char *file_ending, double top_left_x,
                                             double top_left_y,
