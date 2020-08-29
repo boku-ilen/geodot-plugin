@@ -83,11 +83,14 @@ private:
 };
 
 class EXPORT PyramidGeoRasterLayer : public GeoRasterLayer {
-    GODOT_CLASS(PyramidGeoRasterLayer, GeoRasterLayer)
+    GODOT_SUBCLASS(PyramidGeoRasterLayer, GeoRasterLayer)
 
 public:
     PyramidGeoRasterLayer() = default;
     virtual ~PyramidGeoRasterLayer() = default;
+
+    /// Automatically called by Godot
+    static void _register_methods();
 
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();

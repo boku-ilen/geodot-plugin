@@ -155,8 +155,6 @@ GeoRaster *RasterTileExtractor::clip(const char *base_path, double top_left_x, d
     return clip_dataset(source, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
 }
 
-#define PYRAMID_DIRECTORY_ENDING "pyramid"
-
 GeoRaster *
 RasterTileExtractor::get_raster_from_pyramid(const char *base_path, const char *file_ending, double top_left_x,
                                             double top_left_y,

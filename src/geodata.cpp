@@ -206,6 +206,12 @@ void GeoRasterLayer::set_native_dataset(NativeDataset *new_dataset) {
     dataset = new_dataset;
 }
 
+void PyramidGeoRasterLayer::_register_methods() {
+    // The function pointers need to point to the overwritten functions
+    register_method("is_valid", &PyramidGeoRasterLayer::is_valid);
+    register_method("get_image", &PyramidGeoRasterLayer::get_image);
+}
+
 void PyramidGeoRasterLayer::set_pyramid_base(String path) {
     this->path = path;
 }
