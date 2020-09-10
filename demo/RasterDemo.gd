@@ -18,18 +18,17 @@ var time_passed = 0
 func _process(delta):
 	time_passed += delta
 	
-	var img = Geodot.get_image(
-		heightmap_data_path,
-		heightmap_data_ending,
+	var heightmap_data = Geodot.get_dataset(heightmap_data_path).get_raster_layer("")
+	var ortho_data = Geodot.get_raster_layer_for_pyramid(ortho_data_path, ortho_data_ending)
+	
+	var img = heightmap_data.get_image(
 		start_position_webmercator_x + time_passed * 10.0,
 		start_position_webmercator_y,
 		tile_size_meters,
 		tile_size_pixels,
 		1
 	)
-	var ortho = Geodot.get_image(
-		ortho_data_path,
-		ortho_data_ending,
+	var ortho = ortho_data.get_image(
 		start_position_webmercator_x + time_passed * 10.0,
 		start_position_webmercator_y,
 		tile_size_meters,

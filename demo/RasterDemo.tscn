@@ -10,7 +10,7 @@ uniform sampler2D ortho: hint_albedo;
 uniform sampler2D heightmap;
 
 void vertex() {
-	VERTEX.y = texture(heightmap, UV).r / 30.0;
+	VERTEX.y = texture(heightmap, UV).r / 3000.0;
 }
 
 void fragment() {
@@ -27,10 +27,10 @@ subdivide_depth = 256
 
 [node name="RasterDemo" type="Spatial"]
 script = ExtResource( 1 )
-heightmap_data_path = "../geodata/wien/wien-dom-50cm"
+heightmap_data_path = "/media/karl/loda/geodata/austria/austria-heights.tif"
 heightmap_data_ending = "tif"
-ortho_data_path = "../geodata/wien/wien-orthos-15cm"
-ortho_data_ending = "tif"
+ortho_data_path = "/media/boku/geodata/austria/orthophoto.pyramid"
+ortho_data_ending = "jpg"
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 mesh = SubResource( 3 )
