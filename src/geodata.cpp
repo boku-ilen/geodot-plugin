@@ -4,12 +4,6 @@
 #include "vector-extractor/VectorExtractor.h"
 #include "raster-tile-extractor/RasterTileExtractor.h"
 
-#ifdef _WIN32
-    #include <gdal_priv.h>
-#elif __unix__
-    #include <gdal/gdal_priv.h>
-#endif
-
 
 namespace godot {
 
