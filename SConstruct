@@ -120,6 +120,11 @@ env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp
 env.Append(LIBPATH=[cpp_bindings_path + 'bin/', rte_libpath, vector_libpath])
 env.Append(LIBS=[cpp_library, rte_library, vector_library])
 
+# solution for error LNK2019 when compiling on win10
+if env['platform'] == "windows":
+    env.Append(LIBS=['gdal_i.lib'])
+    env.Append(LIBPATH=[env['osgeo_path'] + '\\lib\\'])
+
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])
 env.Append(CPPPATH=['src/global/'])
