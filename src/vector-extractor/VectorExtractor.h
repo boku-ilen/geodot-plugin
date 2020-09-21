@@ -13,9 +13,13 @@ class GDALDataset;
 
 class EXPORT NativeDataset {
 public:
-    NativeDataset(GDALDataset *dataset) : dataset(dataset) {};
+    NativeDataset(const char *path);
 
     ~NativeDataset();
+
+    NativeDataset *get_subdataset(const char *name);
+
+    std::string path;
 
     GDALDataset *dataset;
 };

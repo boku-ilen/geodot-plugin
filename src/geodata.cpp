@@ -30,14 +30,7 @@ bool GeoDataset::is_valid() {
 GeoRasterLayer* GeoDataset::get_raster_layer(String name) {
     GeoRasterLayer *raster_layer = GeoRasterLayer::_new();
 
-    // In GDAL, raster data is actually stored in datasets, not in layers.
-    // FIXME: Because this is the assumption in GDAL, we currently only support datasets with exactly
-    //  one "layer" of raster data. In the future, we will want to support datasaets (geopackages) with
-    //  multiple layers of raster data.
-    // I believe that we need to use GDALOpenEx with a "TABLE=X" option passed in order to access a
-    //  specific raster layer. So we will need to create a new GDALDataset object with that and use that
-    //  as the native dataset. This will also need to be properly deleted in the GeoRasterLayer.
-    raster_layer->set_native_dataset(dataset);
+    raster_layer->set_native_dataset(dataset->get_subdataset(name.utf8().get_data()));
 
     return raster_layer;
 }

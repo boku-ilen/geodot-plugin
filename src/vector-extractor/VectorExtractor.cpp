@@ -16,9 +16,7 @@ void VectorExtractor::initialize() {
 }
 
 NativeDataset* VectorExtractor::open_dataset(const char *path) {
-    GDALDataset *dataset = (GDALDataset *) GDALOpenEx(path, 0, nullptr, nullptr, nullptr);
-
-    return new NativeDataset(dataset);
+    return new NativeDataset(path);
 }
 
 NativeLayer* VectorExtractor::get_layer_from_dataset(GDALDataset *dataset, const char *name) {
@@ -185,4 +183,12 @@ VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, doubl
 
 NativeDataset::~NativeDataset() {
     delete dataset;
+}
+
+NativeDataset *NativeDataset::get_subdataset(const char *name) {
+    return new NativeDataset((path + ":" + std::string(name)).c_str());
+}
+
+NativeDataset::NativeDataset(const char *path) : path(path) {
+    dataset = (GDALDataset *) GDALOpenEx(path, 0, nullptr, nullptr, nullptr);
 }
