@@ -33,7 +33,7 @@ bool GeoDataset::is_valid() {
 }
 
 Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
-    Ref<GeoRasterLayer> raster_layer = Ref<GeoRasterLayer>(GeoRasterLayer::_new());
+    Ref<GeoRasterLayer> raster_layer = Ref<GeoRasterLayer>::__internal_constructor(GeoRasterLayer::_new());
 
     raster_layer->set_native_dataset(dataset->get_subdataset(name.utf8().get_data()));
 
@@ -41,7 +41,7 @@ Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
 }
 
 Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
-    Ref<GeoFeatureLayer> feature_layer = Ref<GeoFeatureLayer>(GeoFeatureLayer::_new());
+    Ref<GeoFeatureLayer> feature_layer = Ref<GeoFeatureLayer>::__internal_constructor(GeoFeatureLayer::_new());
 
     feature_layer->set_native_layer(VectorExtractor::get_layer_from_dataset(dataset->dataset, name.utf8().get_data()));
 
@@ -78,7 +78,7 @@ Array GeoFeatureLayer::get_all_features() {
     std::list<Feature *> gdal_features = VectorExtractor::get_features(layer->layer);
 
     for (Feature *gdal_feature : gdal_features) {
-        Ref<GeoFeature> geofeature = Ref<GeoFeature>(GeoFeature::_new());
+        Ref<GeoFeature> geofeature = Ref<GeoFeature>::__internal_constructor(GeoFeature::_new());
         geofeature->set_gdal_feature(gdal_feature);
 
         geofeatures.push_back(geofeature);
@@ -95,26 +95,26 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
     for (Feature *raw_feature : raw_features) {
         // Check which geometry this feature has, and cast it to the according specialized class
         if (raw_feature->geometry_type == raw_feature->NONE) {
-            Ref<GeoFeature> feature = Ref<GeoFeature>(GeoFeature::_new());
+            Ref<GeoFeature> feature = Ref<GeoFeature>::__internal_constructor(GeoFeature::_new());
             feature->set_gdal_feature(raw_feature);
 
             features.push_back(feature);
         } else if (raw_feature->geometry_type == raw_feature->POINT) {
-            Ref<GeoPoint> point = Ref<GeoPoint>(GeoPoint::_new());
+            Ref<GeoPoint> point = Ref<GeoPoint>::__internal_constructor(GeoPoint::_new());
             PointFeature *point_feature = dynamic_cast<PointFeature *> (raw_feature);
 
             point->set_gdal_feature(point_feature);
 
             features.push_back(point);
         } else if (raw_feature->geometry_type == raw_feature->LINE) {
-            Ref<GeoLine> line = Ref<GeoLine>(GeoLine::_new());
+            Ref<GeoLine> line = Ref<GeoLine>::__internal_constructor(GeoLine::_new());
             LineFeature *line_feature = dynamic_cast<LineFeature *> (raw_feature);
 
             line->set_gdal_feature(line_feature);
 
             features.push_back(line);
         } else if (raw_feature->geometry_type == raw_feature->POLYGON) {
-            Ref<GeoPolygon> polygon = Ref<GeoPolygon>(GeoPolygon::_new());
+            Ref<GeoPolygon> polygon = Ref<GeoPolygon>::__internal_constructor(GeoPolygon::_new());
             PolygonFeature *polygon_feature = dynamic_cast<PolygonFeature *> (raw_feature);
 
             polygon->set_gdal_feature(polygon_feature);
