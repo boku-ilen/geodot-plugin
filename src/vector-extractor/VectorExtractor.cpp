@@ -55,6 +55,14 @@ std::list<Feature *> get_specialized_features(OGRFeature *feature) {
         }
     } else if (geometry_type_name == "POLYGON") {
         list.emplace_back(new PolygonFeature(feature));
+    } else if (geometry_type_name == "MULTIPOLYGON") {
+        // If this is a MultiFeature, we iterate over all the features in it and add those.
+        // All the individual Features then share the same OGRFeature (with the same attributes etc).
+        const OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
+
+        for (const OGRGeometry *geometry : collection) {
+            list.emplace_back(new PolygonFeature(feature, geometry));
+        }
     }
 
     return list;
