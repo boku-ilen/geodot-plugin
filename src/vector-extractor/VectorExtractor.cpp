@@ -194,7 +194,8 @@ NativeDataset::~NativeDataset() {
 }
 
 NativeDataset *NativeDataset::get_subdataset(const char *name) {
-    return new NativeDataset((path + ":" + std::string(name)).c_str());
+    // TODO: Hardcoded for the way GeoPackages work - do we want to support others too?
+    return new NativeDataset(("GPKG:" + path + ":" + std::string(name)).c_str());
 }
 
 NativeDataset::NativeDataset(const char *path) : path(path) {
