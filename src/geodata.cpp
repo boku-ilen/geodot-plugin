@@ -23,20 +23,25 @@ void GeoDataset::_register_methods() {
 }
 
 bool GeoDataset::is_valid() {
-    // TODO
+    if (dataset->dataset == nullptr) {
+        return false;
+    }
+
+    // TODO: More sophisticated check, e.g. get raster size
+
     return true;
 }
 
-GeoRasterLayer* GeoDataset::get_raster_layer(String name) {
-    GeoRasterLayer *raster_layer = GeoRasterLayer::_new();
+Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
+    Ref<GeoRasterLayer> raster_layer = Ref<GeoRasterLayer>(GeoRasterLayer::_new());
 
     raster_layer->set_native_dataset(dataset->get_subdataset(name.utf8().get_data()));
 
     return raster_layer;
 }
 
-GeoFeatureLayer* GeoDataset::get_feature_layer(String name) {
-    GeoFeatureLayer *feature_layer = GeoFeatureLayer::_new();
+Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
+    Ref<GeoFeatureLayer> feature_layer = Ref<GeoFeatureLayer>(GeoFeatureLayer::_new());
 
     feature_layer->set_native_layer(VectorExtractor::get_layer_from_dataset(dataset->dataset, name.utf8().get_data()));
 
@@ -73,7 +78,7 @@ Array GeoFeatureLayer::get_all_features() {
     std::list<Feature *> gdal_features = VectorExtractor::get_features(layer->layer);
 
     for (Feature *gdal_feature : gdal_features) {
-        Ref<GeoFeature> geofeature = GeoFeature::_new();
+        Ref<GeoFeature> geofeature = Ref<GeoFeature>(GeoFeature::_new());
         geofeature->set_gdal_feature(gdal_feature);
 
         geofeatures.push_back(geofeature);
@@ -90,26 +95,26 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
     for (Feature *raw_feature : raw_features) {
         // Check which geometry this feature has, and cast it to the according specialized class
         if (raw_feature->geometry_type == raw_feature->NONE) {
-            Ref<GeoFeature> feature = GeoFeature::_new();
+            Ref<GeoFeature> feature = Ref<GeoFeature>(GeoFeature::_new());
             feature->set_gdal_feature(raw_feature);
 
             features.push_back(feature);
         } else if (raw_feature->geometry_type == raw_feature->POINT) {
-            Ref<GeoPoint> point = GeoPoint::_new();
+            Ref<GeoPoint> point = Ref<GeoPoint>(GeoPoint::_new());
             PointFeature *point_feature = dynamic_cast<PointFeature *> (raw_feature);
 
             point->set_gdal_feature(point_feature);
 
             features.push_back(point);
         } else if (raw_feature->geometry_type == raw_feature->LINE) {
-            Ref<GeoLine> line = GeoLine::_new();
+            Ref<GeoLine> line = Ref<GeoLine>(GeoLine::_new());
             LineFeature *line_feature = dynamic_cast<LineFeature *> (raw_feature);
 
             line->set_gdal_feature(line_feature);
 
             features.push_back(line);
         } else if (raw_feature->geometry_type == raw_feature->POLYGON) {
-            Ref<GeoPolygon> polygon = GeoPolygon::_new();
+            Ref<GeoPolygon> polygon = Ref<GeoPolygon>(GeoPolygon::_new());
             PolygonFeature *polygon_feature = dynamic_cast<PolygonFeature *> (raw_feature);
 
             polygon->set_gdal_feature(polygon_feature);
@@ -130,6 +135,10 @@ void GeoFeatureLayer::set_native_layer(NativeLayer *new_layer) {
     layer = new_layer;
 }
 
+GeoRasterLayer::~GeoRasterLayer() {
+    delete dataset;
+}
+
 void GeoRasterLayer::_init() {
     // This is required - returning a Reference to a locally created object throws a segfault otherwise!
     init_ref();
@@ -147,7 +156,7 @@ bool GeoRasterLayer::is_valid() {
 
 Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,
                             int img_size, int interpolation_type) {
-    Ref<GeoImage> image = GeoImage::_new();
+    Ref<GeoImage> image = Ref<GeoImage>(GeoImage::_new());
 
     GeoRaster *raster = RasterTileExtractor::get_tile_from_dataset(
         dataset->dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
@@ -170,7 +179,7 @@ bool PyramidGeoRasterLayer::is_valid() {
 
 Ref<GeoImage> PyramidGeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,
                             int img_size, int interpolation_type) {
-    Ref<GeoImage> image = GeoImage::_new();
+    Ref<GeoImage> image = Ref<GeoImage>(GeoImage::_new());
 
     GeoRaster *raster = RasterTileExtractor::get_raster_from_pyramid(
         path.utf8().get_data(), ending.utf8().get_data(), top_left_x, top_left_y, size_meters, img_size, interpolation_type);

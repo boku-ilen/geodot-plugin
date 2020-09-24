@@ -76,7 +76,7 @@ void GeoLine::_register_methods() {
 Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
     LineFeature *line = (LineFeature *) gdal_feature;
 
-    Ref<Curve3D> curve = Curve3D::_new();
+    Ref<Curve3D> curve = Ref<Curve3D>(Curve3D::_new());
 
     int point_count = line->get_point_count();
 

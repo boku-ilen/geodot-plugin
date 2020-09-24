@@ -58,7 +58,7 @@ class EXPORT GeoRasterLayer : public Resource {
 
 public:
     GeoRasterLayer() = default;
-    virtual ~GeoRasterLayer() = default;  // The dataset is owned by the parent GeoDataset.
+    virtual ~GeoRasterLayer();
 
     /// Automatically called by Godot
     void _init();
@@ -125,11 +125,11 @@ public:
 
     /// Returns a GeoRasterLayer object of the layer within this dataset with the given name.
     /// It is recommended to check the validity of the returned object with GeoRasterLayer::is_valid().
-    GeoRasterLayer *get_raster_layer(String name);
+    Ref<GeoRasterLayer> get_raster_layer(String name);
 
     /// Returns a GeoFeatureLayer object of the layer within this dataset with the given name.
     /// It is recommended to check the validity of the returned object with GeoFeatureLayer::is_valid().
-    GeoFeatureLayer *get_feature_layer(String name);
+    Ref<GeoFeatureLayer> get_feature_layer(String name);
 
     /// Load a dataset file such as a Geopackage or a Shapefile into this object.
     /// Not exposed to Godot since Godot should create datasets and layers from the Geodot singleton (the factory).

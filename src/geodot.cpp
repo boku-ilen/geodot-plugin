@@ -21,7 +21,7 @@ void Geodot::_register_methods() {
 }
 
 Ref<GeoDataset> Geodot::get_dataset(String path) {
-    GeoDataset *dataset = GeoDataset::_new();
+    Ref<GeoDataset> dataset = Ref<GeoDataset>(GeoDataset::_new());
 
     dataset->load_from_file(path);
 
@@ -29,7 +29,7 @@ Ref<GeoDataset> Geodot::get_dataset(String path) {
 }
 
 Ref<GeoRasterLayer> Geodot::get_raster_layer_for_pyramid(String root_folder, String image_ending) {
-    PyramidGeoRasterLayer *layer = PyramidGeoRasterLayer::_new();
+    Ref<PyramidGeoRasterLayer> layer = Ref<PyramidGeoRasterLayer>(PyramidGeoRasterLayer::_new());
 
     layer->set_pyramid_base(root_folder);
     layer->set_file_ending(image_ending);

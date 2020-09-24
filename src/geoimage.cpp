@@ -219,7 +219,7 @@ Ref<ImageTexture> GeoImage::get_normalmap_texture_for_heightmap(float scale) {
     Ref<Image> heightmap_image = get_normalmap_for_heightmap(scale);
 
     // Create an ImageTexture wrapping the Image
-    ImageTexture *imgTex = ImageTexture::_new();
+    Ref<ImageTexture> imgTex = Ref<ImageTexture>(ImageTexture::_new());
     imgTex->set_storage(ImageTexture::STORAGE_RAW);
     imgTex->create_from_image(heightmap_image, ImageTexture::FLAG_FILTER);
 
@@ -228,7 +228,7 @@ Ref<ImageTexture> GeoImage::get_normalmap_texture_for_heightmap(float scale) {
 
 Ref<ImageTexture> GeoImage::get_image_texture() {
     // Create an ImageTexture wrapping the Image
-    ImageTexture *imgTex = ImageTexture::_new();
+    Ref<ImageTexture> imgTex = Ref<ImageTexture>(ImageTexture::_new());
     imgTex->set_storage(ImageTexture::STORAGE_RAW);
 
     // By default, the returned texture has the FILTER flag. Only if the interpolation method
