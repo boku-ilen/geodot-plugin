@@ -11,11 +11,6 @@ GeoDataset::~GeoDataset() {
     delete dataset;
 }
 
-void GeoDataset::_init() {
-    // This is required - returning a Reference to a locally created object throws a segfault otherwise!
-    init_ref();
-}
-
 void GeoDataset::_register_methods() {
     register_method("is_valid", &GeoDataset::is_valid);
     register_method("get_raster_layer", &GeoDataset::get_raster_layer);
@@ -33,7 +28,8 @@ bool GeoDataset::is_valid() {
 }
 
 Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
-    Ref<GeoRasterLayer> raster_layer = Ref<GeoRasterLayer>::__internal_constructor(GeoRasterLayer::_new());
+    Ref<GeoRasterLayer> raster_layer;
+    raster_layer.instance();
 
     raster_layer->set_native_dataset(dataset->get_subdataset(name.utf8().get_data()));
 
@@ -41,7 +37,8 @@ Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
 }
 
 Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
-    Ref<GeoFeatureLayer> feature_layer = Ref<GeoFeatureLayer>::__internal_constructor(GeoFeatureLayer::_new());
+    Ref<GeoFeatureLayer> feature_layer;
+    feature_layer.instance();
 
     feature_layer->set_native_layer(VectorExtractor::get_layer_from_dataset(dataset->dataset, name.utf8().get_data()));
 
@@ -54,11 +51,6 @@ void GeoDataset::load_from_file(String file_path) {
 
 void GeoDataset::set_native_dataset(NativeDataset *new_dataset) {
     dataset = new_dataset;
-}
-
-void GeoFeatureLayer::_init() {
-    // This is required - returning a Reference to a locally created object throws a segfault otherwise!
-    init_ref();
 }
 
 void GeoFeatureLayer::_register_methods() {
@@ -78,7 +70,9 @@ Array GeoFeatureLayer::get_all_features() {
     std::list<Feature *> gdal_features = VectorExtractor::get_features(layer->layer);
 
     for (Feature *gdal_feature : gdal_features) {
-        Ref<GeoFeature> geofeature = Ref<GeoFeature>::__internal_constructor(GeoFeature::_new());
+        Ref<GeoFeature> geofeature;
+        geofeature.instance();
+
         geofeature->set_gdal_feature(gdal_feature);
 
         geofeatures.push_back(geofeature);
@@ -95,26 +89,34 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
     for (Feature *raw_feature : raw_features) {
         // Check which geometry this feature has, and cast it to the according specialized class
         if (raw_feature->geometry_type == raw_feature->NONE) {
-            Ref<GeoFeature> feature = Ref<GeoFeature>::__internal_constructor(GeoFeature::_new());
+            Ref<GeoFeature> feature;
+            feature.instance();
+
             feature->set_gdal_feature(raw_feature);
 
             features.push_back(feature);
         } else if (raw_feature->geometry_type == raw_feature->POINT) {
-            Ref<GeoPoint> point = Ref<GeoPoint>::__internal_constructor(GeoPoint::_new());
+            Ref<GeoPoint> point;
+            point.instance();
+
             PointFeature *point_feature = dynamic_cast<PointFeature *> (raw_feature);
 
             point->set_gdal_feature(point_feature);
 
             features.push_back(point);
         } else if (raw_feature->geometry_type == raw_feature->LINE) {
-            Ref<GeoLine> line = Ref<GeoLine>::__internal_constructor(GeoLine::_new());
+            Ref<GeoLine> line;
+            line.instance();
+
             LineFeature *line_feature = dynamic_cast<LineFeature *> (raw_feature);
 
             line->set_gdal_feature(line_feature);
 
             features.push_back(line);
         } else if (raw_feature->geometry_type == raw_feature->POLYGON) {
-            Ref<GeoPolygon> polygon = Ref<GeoPolygon>::__internal_constructor(GeoPolygon::_new());
+            Ref<GeoPolygon> polygon;
+            polygon.instance();
+
             PolygonFeature *polygon_feature = dynamic_cast<PolygonFeature *> (raw_feature);
 
             polygon->set_gdal_feature(polygon_feature);
@@ -139,11 +141,6 @@ GeoRasterLayer::~GeoRasterLayer() {
     delete dataset;
 }
 
-void GeoRasterLayer::_init() {
-    // This is required - returning a Reference to a locally created object throws a segfault otherwise!
-    init_ref();
-}
-
 void GeoRasterLayer::_register_methods() {
     register_method("is_valid", &GeoRasterLayer::is_valid);
     register_method("get_image", &GeoRasterLayer::get_image);
@@ -156,7 +153,8 @@ bool GeoRasterLayer::is_valid() {
 
 Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,
                             int img_size, int interpolation_type) {
-    Ref<GeoImage> image = Ref<GeoImage>(GeoImage::_new());
+    Ref<GeoImage> image;
+    image.instance();
 
     GeoRaster *raster = RasterTileExtractor::get_tile_from_dataset(
         dataset->dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);

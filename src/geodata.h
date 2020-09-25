@@ -21,7 +21,7 @@ public:
     virtual ~GeoFeatureLayer() = default;  // No need to delete anything here - OGRLayers are part of the dataset and deleted with it.
 
     /// Automatically called by Godot
-    void _init();
+    void _init() {}  // Must be here as Godot always calls this for Objects
     static void _register_methods();
 
     /// Returns true if the layer could successfully be loaded.
@@ -61,7 +61,7 @@ public:
     virtual ~GeoRasterLayer();
 
     /// Automatically called by Godot
-    void _init();
+    void _init() {}  // Must be here as Godot always calls this for Objects
     static void _register_methods();
 
     /// Returns true if the layer could successfully be loaded.
@@ -90,6 +90,7 @@ public:
     virtual ~PyramidGeoRasterLayer() = default;
 
     /// Automatically called by Godot
+    void _init() {}  // Must be here as Godot always calls this for Objects
     static void _register_methods();
 
     /// Returns true if the layer could successfully be loaded.
@@ -114,10 +115,10 @@ class EXPORT GeoDataset : public Resource {
 
 public:
     GeoDataset() = default;
-    virtual ~GeoDataset();
+    ~GeoDataset();
 
     /// Automatically called by Godot
-    void _init();
+    void _init() {}  // Must be here as Godot always calls this for Objects
     static void _register_methods();
 
     /// Returns true if the GeoDataset could successfully be loaded.

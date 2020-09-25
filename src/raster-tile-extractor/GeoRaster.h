@@ -22,7 +22,7 @@ public:
 
     GeoRaster(GDALDataset *data, int pixel_offset_x, int pixel_offset_y, int source_window_size_pixels, int destination_window_size_pixels, int interpolation_type);
 
-    ~GeoRaster();
+    ~GeoRaster() = default;
 
     /// Return the data of the GeoRaster as an array. The array contains type of the raster format (get_format).
     /// BYTE -> (B)(B)(B) with B of type uint8_t

@@ -8,19 +8,8 @@ using namespace godot;
 
 // Geodot::GeoImage
 
-GeoImage::GeoImage() {
-
-}
-
 GeoImage::~GeoImage() {
     delete raster;
-}
-
-void GeoImage::_init() {
-    // This is required - returning a Reference to a locally created GeoImage throws a segfault otherwise!
-    init_ref();
-
-    normalmap_load_mutex = Ref<Mutex>(Mutex::_new());
 }
 
 void GeoImage::_register_methods() {
@@ -51,7 +40,7 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
     int img_size_x = raster->get_pixel_size_x();
     int img_size_y = raster->get_pixel_size_y();
 
-    Image *img = Image::_new();
+    image.instance();
 
     // Depending on the data type, the insertion of the raw image into the PoolByteArray is different.
     // The format is dependent on how Godot handles Image->create_from_data.
@@ -70,7 +59,7 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        img->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGB8, pba);
+        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGB8, pba);
     } else if (format == GeoRaster::RGBA) {
         uint8_t *data = (uint8_t *)raster->get_as_array();
 
@@ -90,7 +79,7 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        img->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGBA8, pba);
+        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGBA8, pba);
     } else if (format == GeoRaster::BYTE) {
         uint8_t *data = (uint8_t *)raster->get_as_array();
 
@@ -107,7 +96,7 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        img->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_R8, pba);
+        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_R8, pba);
     } else if (format == GeoRaster::RF) {
         float *data = (float *)raster->get_as_array();
 
@@ -130,10 +119,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        img->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RF, pba);
+        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RF, pba);
     }
-
-    image = Ref<Image>(img);
 }
 
 Ref<Image> GeoImage::get_image() {
@@ -219,7 +206,9 @@ Ref<ImageTexture> GeoImage::get_normalmap_texture_for_heightmap(float scale) {
     Ref<Image> heightmap_image = get_normalmap_for_heightmap(scale);
 
     // Create an ImageTexture wrapping the Image
-    Ref<ImageTexture> imgTex = Ref<ImageTexture>(ImageTexture::_new());
+    Ref<ImageTexture> imgTex;
+    imgTex.instance();
+
     imgTex->set_storage(ImageTexture::STORAGE_RAW);
     imgTex->create_from_image(heightmap_image, ImageTexture::FLAG_FILTER);
 
@@ -228,7 +217,9 @@ Ref<ImageTexture> GeoImage::get_normalmap_texture_for_heightmap(float scale) {
 
 Ref<ImageTexture> GeoImage::get_image_texture() {
     // Create an ImageTexture wrapping the Image
-    Ref<ImageTexture> imgTex = Ref<ImageTexture>(ImageTexture::_new());
+    Ref<ImageTexture> imgTex;
+    imgTex.instance();
+
     imgTex->set_storage(ImageTexture::STORAGE_RAW);
 
     // By default, the returned texture has the FILTER flag. Only if the interpolation method

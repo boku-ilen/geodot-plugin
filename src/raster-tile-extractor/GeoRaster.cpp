@@ -6,10 +6,6 @@
     #include <gdal/gdal_priv.h>
 #endif
 
-GeoRaster::~GeoRaster() {
-    GDALClose(data);
-}
-
 void *GeoRaster::get_as_array() {
     GDALRasterIOExtraArg rasterio_args;
     INIT_RASTERIO_EXTRA_ARG(rasterio_args);

@@ -21,7 +21,7 @@ public:
     virtual ~GeoFeature();
 
     /// Automatically called by Godot
-    void _init();
+    void _init() {}  // Must be here as Godot always calls this for Objects
     static void _register_methods();
 
     String get_attribute(String name);
@@ -44,7 +44,7 @@ public:
     ~GeoPoint() = default;
 
     /// Automatically called by Godot
-    void _init();
+    void _init() {}  // Must be here as Godot always calls this for Objects
     static void _register_methods();
 
     Vector3 get_vector3();
@@ -62,7 +62,7 @@ public:
     ~GeoLine() = default;
 
     /// Automatically called by Godot
-    void _init();
+    void _init() {}  // Must be here as Godot always calls this for Objects
     static void _register_methods();
 
     Ref<Curve3D> get_offset_curve3d(int offset_x, int offset_y, int offset_z);
@@ -80,7 +80,7 @@ public:
     ~GeoPolygon() = default;
 
     /// Automatically called by Godot
-    void _init();
+    void _init() {}  // Must be here as Godot always calls this for Objects
     static void _register_methods();
 
     /// Return the vertices making up the base polygon in a PoolVector2Array.
