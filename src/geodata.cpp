@@ -144,6 +144,7 @@ GeoRasterLayer::~GeoRasterLayer() {
 void GeoRasterLayer::_register_methods() {
     register_method("is_valid", &GeoRasterLayer::is_valid);
     register_method("get_image", &GeoRasterLayer::get_image);
+    register_method("clone", &GeoRasterLayer::clone);
 }
 
 bool GeoRasterLayer::is_valid() {
@@ -173,6 +174,15 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
 bool PyramidGeoRasterLayer::is_valid() {
     // TODO
     return true;
+}
+
+Ref<GeoRasterLayer> GeoRasterLayer::clone() {
+    Ref<GeoRasterLayer> layer_clone;
+    layer_clone.instance();
+
+    layer_clone->set_native_dataset(dataset->clone());
+
+    return layer_clone;
 }
 
 Ref<GeoImage> PyramidGeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,

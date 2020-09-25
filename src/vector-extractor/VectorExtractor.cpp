@@ -198,6 +198,10 @@ NativeDataset *NativeDataset::get_subdataset(const char *name) {
     return new NativeDataset(("GPKG:" + path + ":" + std::string(name)).c_str());
 }
 
+NativeDataset* NativeDataset::clone() {
+    return new NativeDataset(path.c_str());
+}
+
 NativeDataset::NativeDataset(const char *path) : path(path) {
     dataset = (GDALDataset *) GDALOpenEx(path, 0, nullptr, nullptr, nullptr);
 }

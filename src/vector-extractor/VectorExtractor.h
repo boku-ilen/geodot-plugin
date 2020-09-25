@@ -19,6 +19,8 @@ public:
 
     NativeDataset *get_subdataset(const char *name);
 
+    NativeDataset *clone();
+
     std::string path;
 
     GDALDataset *dataset;

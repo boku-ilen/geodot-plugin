@@ -67,6 +67,10 @@ public:
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
 
+    /// Returns a clone of this layer which points to the same file, but uses a different object to access it.
+    /// This is required when using the same layer in multiple threads.
+    Ref<GeoRasterLayer> clone();
+
     Ref<GeoImage> get_image(double top_left_x, double top_left_y, double size_meters,
                             int img_size, int interpolation_type);
     
