@@ -113,11 +113,25 @@ std::list<Feature *> VectorExtractor::get_features_near_position(OGRLayer *layer
 std::vector<std::string> VectorExtractor::get_feature_layer_names(NativeDataset *dataset) {
     std::vector<std::string> names;
 
+    int layer_count = dataset->dataset->GetLayerCount();
+
+    for (int i = 0; i < layer_count; i++) {
+        names.emplace_back(dataset->dataset->GetLayer(i)->GetName());
+    }
+
     return names;
 }
 
 std::vector<std::string> VectorExtractor::get_raster_layer_names(NativeDataset *dataset) {
     std::vector<std::string> names;
+
+    char **subdataset_metadata = dataset->dataset->GetMetadata("SUBDATASETS");
+
+    if (subdataset_metadata != nullptr) {
+        for (int i = 0; subdataset_metadata[i] != nullptr; i++) {
+            names.emplace_back(subdataset_metadata[i]);
+        }
+    }
 
     return names;
 }
