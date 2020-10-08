@@ -58,6 +58,7 @@ Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
     raster_layer.instance();
 
     raster_layer->set_native_dataset(dataset->get_subdataset(name.utf8().get_data()));
+    raster_layer->set_name(name);
 
     return raster_layer;
 }
@@ -67,6 +68,7 @@ Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
     feature_layer.instance();
 
     feature_layer->set_native_layer(VectorExtractor::get_layer_from_dataset(dataset->dataset, name.utf8().get_data()));
+    feature_layer->set_name(name);
 
     return feature_layer;
 }

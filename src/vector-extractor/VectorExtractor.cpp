@@ -115,6 +115,7 @@ std::vector<std::string> VectorExtractor::get_feature_layer_names(NativeDataset 
 
     int layer_count = dataset->dataset->GetLayerCount();
 
+    // Get each layer and emplace its name in the array
     for (int i = 0; i < layer_count; i++) {
         names.emplace_back(dataset->dataset->GetLayer(i)->GetName());
     }
@@ -127,9 +128,20 @@ std::vector<std::string> VectorExtractor::get_raster_layer_names(NativeDataset *
 
     char **subdataset_metadata = dataset->dataset->GetMetadata("SUBDATASETS");
 
+    // This metadata is formated like this:
+    // SUBDATASET_1_NAME=GPKG:/path/to/geopackage.gpkg:dhm
+    // SUBDATASET_1_DESC=dhm - dhm
+    // SUBDATASET_2_NAME=GPKG:/path/to/geopackage.gpkg:ndom
+    // SUBDATASET_2_DESC=ndom - ndom
+    // We want every second line (since that has the name), and only the portion after the last ':'.
+
     if (subdataset_metadata != nullptr) {
-        for (int i = 0; subdataset_metadata[i] != nullptr; i++) {
-            names.emplace_back(subdataset_metadata[i]);
+        for (int i = 0; subdataset_metadata[i] != nullptr; i += 2) {
+            std::string subdataset_name(subdataset_metadata[i]);  // char* to std::string
+            size_t last_colon = subdataset_name.find_last_of(':');  // Find the last colon, which separates the path from the subdataset name
+            subdataset_name = subdataset_name.substr(last_colon + 1);  // Add 1 so the ':' isn't included
+
+            names.emplace_back(subdataset_name);
         }
     }
 
