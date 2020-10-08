@@ -14,7 +14,6 @@ class GDALDataset;
 class EXPORT NativeDataset {
 public:
     NativeDataset(const char *path);
-
     ~NativeDataset();
 
     NativeDataset *get_subdataset(const char *name);
@@ -55,6 +54,12 @@ public:
     /// Parts of the geometry outside the circle are not cut, so features may extend outside of the circle.
     /// To prevent hangups from unexpectedly many features, a maximum amount can be given so that the remaining features are skipped.
     static std::list<Feature *> get_features_near_position(OGRLayer *layer, double pos_x, double pos_y, double radius, int max_amount);
+
+    /// Return the names of all feature layers as std::strings.
+    static std::vector<std::string> get_feature_layer_names(NativeDataset *dataset);
+
+    /// Return the names of all raster layers as std::strings.
+    static std::vector<std::string> get_raster_layer_names(NativeDataset *dataset);
 
     /// Return all line data in the dataset at the given path which is within the square formed by the given parameters.
     /// Lines which are only partially within the square are cut to the part that is within (intersection operation).

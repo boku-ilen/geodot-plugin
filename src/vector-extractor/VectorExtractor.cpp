@@ -110,6 +110,18 @@ std::list<Feature *> VectorExtractor::get_features_near_position(OGRLayer *layer
     return list;
 }
 
+std::vector<std::string> VectorExtractor::get_feature_layer_names(NativeDataset *dataset) {
+    std::vector<std::string> names;
+
+    return names;
+}
+
+std::vector<std::string> VectorExtractor::get_raster_layer_names(NativeDataset *dataset) {
+    std::vector<std::string> names;
+
+    return names;
+}
+
 std::list<LineFeature *>
 VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, double top_left_y, double size_meters,
                                       int max_amount) {

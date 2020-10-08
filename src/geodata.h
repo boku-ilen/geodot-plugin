@@ -128,6 +128,12 @@ public:
     /// Returns true if the GeoDataset could successfully be loaded.
     bool is_valid();
 
+    /// Return all GeoRasterLayers objects for this dataset.
+    Array get_raster_layers();
+
+    /// Return all GeoFeatureLayer objects for this dataset.
+    Array get_feature_layers();
+
     /// Returns a GeoRasterLayer object of the layer within this dataset with the given name.
     /// It is recommended to check the validity of the returned object with GeoRasterLayer::is_valid().
     Ref<GeoRasterLayer> get_raster_layer(String name);

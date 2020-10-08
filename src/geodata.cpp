@@ -13,6 +13,8 @@ GeoDataset::~GeoDataset() {
 
 void GeoDataset::_register_methods() {
     register_method("is_valid", &GeoDataset::is_valid);
+    register_method("get_raster_layers", &GeoDataset::get_raster_layers);
+    register_method("get_feature_layers", &GeoDataset::get_feature_layers);
     register_method("get_raster_layer", &GeoDataset::get_raster_layer);
     register_method("get_feature_layer", &GeoDataset::get_feature_layer);
 }
@@ -25,6 +27,30 @@ bool GeoDataset::is_valid() {
     // TODO: More sophisticated check, e.g. get raster size
 
     return true;
+}
+
+Array GeoDataset::get_raster_layers() {
+    Array layers = Array();
+
+    std::vector<std::string> names = VectorExtractor::get_raster_layer_names(dataset);
+
+    for (std::string name : names) {
+        layers.append(get_raster_layer(name.c_str()));
+    }
+
+    return layers;
+}
+
+Array GeoDataset::get_feature_layers() {
+    Array layers = Array();
+
+    std::vector<std::string> names = VectorExtractor::get_feature_layer_names(dataset);
+
+    for (std::string name : names) {
+        layers.append(get_feature_layer(name.c_str()));
+    }
+
+    return layers;
 }
 
 Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
