@@ -2,3 +2,5 @@
 **/*.os
 build/
 **/.sconsign.dblite
+**/.vscode/
+demo/.import/
