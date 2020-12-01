@@ -6,3 +6,4 @@
 script = ExtResource( 1 )
 path = "/home/karl/Downloads/sample1_2.gpkg"
 layer_name = "countiestbl"
+attribute_name = "NAME"
