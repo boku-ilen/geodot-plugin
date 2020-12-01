@@ -2,9 +2,7 @@
 
 #include <algorithm>
 
-
 using namespace godot;
-
 
 // Geodot::GeoImage
 
@@ -16,8 +14,10 @@ void GeoImage::_register_methods() {
     register_method("get_image", &GeoImage::get_image);
     register_method("get_image_texture", &GeoImage::get_image_texture);
     register_method("get_most_common", &GeoImage::get_most_common);
-    register_method("get_normalmap_for_heightmap", &GeoImage::get_normalmap_for_heightmap);
-    register_method("get_normalmap_texture_for_heightmap", &GeoImage::get_normalmap_texture_for_heightmap);
+    register_method("get_normalmap_for_heightmap",
+                    &GeoImage::get_normalmap_for_heightmap);
+    register_method("get_normalmap_texture_for_heightmap",
+                    &GeoImage::get_normalmap_texture_for_heightmap);
 }
 
 union {
@@ -42,15 +42,17 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
 
     image.instance();
 
-    // Depending on the data type, the insertion of the raw image into the PoolByteArray is different.
-    // The format is dependent on how Godot handles Image->create_from_data.
+    // Depending on the data type, the insertion of the raw image into the
+    // PoolByteArray is different. The format is dependent on how Godot handles
+    // Image->create_from_data.
     GeoRaster::FORMAT format = raster->get_format();
 
     if (format == GeoRaster::RGB) {
         uint8_t *data = (uint8_t *)raster->get_as_array();
 
-        // This copy is straightforward since the result if ImageRaster::get_data is already in the correct format.
-        // Format of the PoolByteArray: (RGB)(RGB)(RGB)...
+        // This copy is straightforward since the result if
+        // ImageRaster::get_data is already in the correct format. Format of the
+        // PoolByteArray: (RGB)(RGB)(RGB)...
         for (int i = 0; i < img_size_x * img_size_y * 3; i++) {
             pba.set(i, data[i]);
         }
@@ -59,7 +61,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGB8, pba);
+        image->create_from_data(img_size_x, img_size_y, false,
+                                Image::Format::FORMAT_RGB8, pba);
     } else if (format == GeoRaster::RGBA) {
         uint8_t *data = (uint8_t *)raster->get_as_array();
 
@@ -79,7 +82,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGBA8, pba);
+        image->create_from_data(img_size_x, img_size_y, false,
+                                Image::Format::FORMAT_RGBA8, pba);
     } else if (format == GeoRaster::BYTE) {
         uint8_t *data = (uint8_t *)raster->get_as_array();
 
@@ -87,7 +91,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         // Format of the PoolByteArray: (B)(B)(B)...
         for (int y = 0; y < img_size_y; y++) {
             for (int x = 0; x < img_size_x; x++) {
-                // We need to convert the float into 4 bytes because that's the format Godot expects
+                // We need to convert the float into 4 bytes because that's the
+                // format Godot expects
                 pba.set(index++, data[y * img_size_x + x]);
             }
         }
@@ -96,7 +101,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_R8, pba);
+        image->create_from_data(img_size_x, img_size_y, false,
+                                Image::Format::FORMAT_R8, pba);
     } else if (format == GeoRaster::RF) {
         float *data = (float *)raster->get_as_array();
 
@@ -119,7 +125,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RF, pba);
+        image->create_from_data(img_size_x, img_size_y, false,
+                                Image::Format::FORMAT_RF, pba);
     }
 }
 
@@ -157,42 +164,52 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
 
         for (int full_y = 0; full_y < height; full_y++) {
             for (int full_x = 0; full_x < width; full_x++) {
-                // Prevent the edges from having flat normals by using the closest
-                // valid normal
+                // Prevent the edges from having flat normals by using the
+                // closest valid normal
                 int x = std::clamp(full_x, 1, width - 2);
                 int y = std::clamp(full_y, 1, height - 2);
 
                 // Sobel filter for getting the normal at this position
-            	float bottom_left = image->get_pixel(x + 1, y + 1).r;
-            	float bottom_center = image->get_pixel(x, y + 1).r;
-            	float bottom_right = image->get_pixel(x - 1, y + 1).r;
+                float bottom_left = image->get_pixel(x + 1, y + 1).r;
+                float bottom_center = image->get_pixel(x, y + 1).r;
+                float bottom_right = image->get_pixel(x - 1, y + 1).r;
 
-            	float center_left = image->get_pixel(x + 1, y).r;
-            	float center_center = image->get_pixel(x, y).r;
-            	float center_right = image->get_pixel(x - 1, y).r;
+                float center_left = image->get_pixel(x + 1, y).r;
+                float center_center = image->get_pixel(x, y).r;
+                float center_right = image->get_pixel(x - 1, y).r;
 
-            	float top_left = image->get_pixel(x + 1, y - 1).r;
-            	float top_center = image->get_pixel(x, y - 1).r;
-            	float top_right = image->get_pixel(x - 1, y - 1).r;
+                float top_left = image->get_pixel(x + 1, y - 1).r;
+                float top_center = image->get_pixel(x, y - 1).r;
+                float top_right = image->get_pixel(x - 1, y - 1).r;
 
-            	Vector3 normal;
+                Vector3 normal;
 
-            	normal.x = (top_right + 2.0 * center_right + bottom_right) - (top_left + 2.0 * center_left + bottom_left);
-            	normal.y = (bottom_left + 2.0 * bottom_center + bottom_right) - (top_left + 2.0 * top_center + top_right);
-            	normal.z = 1.0 / scale;
+                normal.x = (top_right + 2.0 * center_right + bottom_right) -
+                           (top_left + 2.0 * center_left + bottom_left);
+                normal.y = (bottom_left + 2.0 * bottom_center + bottom_right) -
+                           (top_left + 2.0 * top_center + top_right);
+                normal.z = 1.0 / scale;
 
                 normal.normalize();
 
-                normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 0, 127.5 + normal.x * 127.5);
-                normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 1, 127.5 + normal.y * 127.5);
-                normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 2, 127.5 + normal.z * 127.5);
-                normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 3, 255);
+                normalmap_data.set(
+                    xy_to_index(full_x, full_y, width, height) * 4 + 0,
+                    127.5 + normal.x * 127.5);
+                normalmap_data.set(
+                    xy_to_index(full_x, full_y, width, height) * 4 + 1,
+                    127.5 + normal.y * 127.5);
+                normalmap_data.set(
+                    xy_to_index(full_x, full_y, width, height) * 4 + 2,
+                    127.5 + normal.z * 127.5);
+                normalmap_data.set(
+                    xy_to_index(full_x, full_y, width, height) * 4 + 3, 255);
             }
         }
 
         image->unlock();
 
-        img->create_from_data(width, height, false, Image::Format::FORMAT_RGBA8, normalmap_data);
+        img->create_from_data(width, height, false, Image::Format::FORMAT_RGBA8,
+                              normalmap_data);
 
         normalmap = Ref<Image>(img);
     }
@@ -222,12 +239,12 @@ Ref<ImageTexture> GeoImage::get_image_texture() {
 
     imgTex->set_storage(ImageTexture::STORAGE_RAW);
 
-    // By default, the returned texture has the FILTER flag. Only if the interpolation method
-    //  is nearest neighbor or one of the modal types, it is disabled, since we most likely
-    //  want crisp textures then.
+    // By default, the returned texture has the FILTER flag. Only if the
+    // interpolation method
+    //  is nearest neighbor or one of the modal types, it is disabled, since we
+    //  most likely want crisp textures then.
     int flag = ImageTexture::FLAG_FILTER;
-    if (interpolation == INTERPOLATION::NEAREST
-        || interpolation > 5) {
+    if (interpolation == INTERPOLATION::NEAREST || interpolation > 5) {
         flag = 0;
     }
 
