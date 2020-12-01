@@ -240,6 +240,28 @@ NativeDataset* NativeDataset::clone() {
     return new NativeDataset(path.c_str());
 }
 
+bool NativeDataset::is_valid() const {
+    // No dataset at all?
+    if (dataset == nullptr) {
+        return false;
+    }
+
+    // No vector or raster layers?
+    if (dataset->GetRasterCount() == 0 && dataset->GetLayerCount() == 0) {
+        return false;
+    }
+
+    return true;
+}
+
+bool NativeLayer::is_valid() const {
+    if (layer == nullptr) {
+        return false;
+    }
+
+    return true;
+}
+
 NativeDataset::NativeDataset(const char *path) : path(path) {
     dataset = (GDALDataset *) GDALOpenEx(path, 0, nullptr, nullptr, nullptr);
 }

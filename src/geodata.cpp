@@ -20,13 +20,7 @@ void GeoDataset::_register_methods() {
 }
 
 bool GeoDataset::is_valid() {
-    if (dataset->dataset == nullptr) {
-        return false;
-    }
-
-    // TODO: More sophisticated check, e.g. get raster size
-
-    return true;
+    return dataset && dataset->is_valid();
 }
 
 Array GeoDataset::get_raster_layers() {
@@ -88,8 +82,7 @@ void GeoFeatureLayer::_register_methods() {
 }
 
 bool GeoFeatureLayer::is_valid() {
-    // TODO
-    return true;
+    return layer && layer->is_valid();
 }
 
 Array GeoFeatureLayer::get_all_features() {
@@ -176,8 +169,7 @@ void GeoRasterLayer::_register_methods() {
 }
 
 bool GeoRasterLayer::is_valid() {
-    // TODO
-    return true;
+    return dataset && dataset->is_valid();
 }
 
 Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,

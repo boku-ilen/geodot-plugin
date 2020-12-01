@@ -20,6 +20,8 @@ public:
 
     NativeDataset *clone();
 
+    bool is_valid() const;
+
     std::string path;
 
     GDALDataset *dataset;
@@ -30,6 +32,8 @@ public:
     NativeLayer(OGRLayer *layer) : layer(layer) {};
 
     ~NativeLayer() = default;
+
+    bool is_valid() const;
 
     OGRLayer *layer;
 };
