@@ -26,6 +26,11 @@ public:
     /// Return a GeoDataset wrapping the georeferenced dataset at the given path.
     Ref<GeoDataset> get_dataset(String path);
 
+    /// Return a GeoRasterLayer wrapping the georeferenced image at the given path.
+    /// To be used only for individual images -- for datasets such as GeoPackages which
+    ///  contain raster data, use `get_dataset(path).get_raster_layer(name)` instead.
+    Ref<GeoRasterLayer> get_raster_layer(String path);
+
     /// Return a GeoRasterLayer (with no parent GeoDataset) wrapping the slippy tilename
     ///  pyramid at the given path.
     /// This is a special case / workaround for this type of data, as it is not encapsulated

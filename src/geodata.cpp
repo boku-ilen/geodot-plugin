@@ -223,6 +223,10 @@ Ref<GeoImage> PyramidGeoRasterLayer::get_image(double top_left_x, double top_lef
     return image;
 }
 
+void GeoRasterLayer::load_from_file(String file_path) {
+    dataset = VectorExtractor::open_dataset(file_path.utf8().get_data());
+}
+
 void GeoRasterLayer::set_native_dataset(NativeDataset *new_dataset) {
     dataset = new_dataset;
 }
