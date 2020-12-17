@@ -14,8 +14,7 @@ void GeoImage::_register_methods() {
     register_method("get_image", &GeoImage::get_image);
     register_method("get_image_texture", &GeoImage::get_image_texture);
     register_method("get_most_common", &GeoImage::get_most_common);
-    register_method("get_normalmap_for_heightmap",
-                    &GeoImage::get_normalmap_for_heightmap);
+    register_method("get_normalmap_for_heightmap", &GeoImage::get_normalmap_for_heightmap);
     register_method("get_normalmap_texture_for_heightmap",
                     &GeoImage::get_normalmap_texture_for_heightmap);
 }
@@ -61,8 +60,7 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        image->create_from_data(img_size_x, img_size_y, false,
-                                Image::Format::FORMAT_RGB8, pba);
+        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGB8, pba);
     } else if (format == GeoRaster::RGBA) {
         uint8_t *data = (uint8_t *)raster->get_as_array();
 
@@ -82,8 +80,7 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        image->create_from_data(img_size_x, img_size_y, false,
-                                Image::Format::FORMAT_RGBA8, pba);
+        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGBA8, pba);
     } else if (format == GeoRaster::BYTE) {
         uint8_t *data = (uint8_t *)raster->get_as_array();
 
@@ -101,8 +98,7 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        image->create_from_data(img_size_x, img_size_y, false,
-                                Image::Format::FORMAT_R8, pba);
+        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_R8, pba);
     } else if (format == GeoRaster::RF) {
         float *data = (float *)raster->get_as_array();
 
@@ -125,8 +121,7 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        image->create_from_data(img_size_x, img_size_y, false,
-                                Image::Format::FORMAT_RF, pba);
+        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RF, pba);
     }
 }
 
@@ -192,24 +187,19 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
 
                 normal.normalize();
 
-                normalmap_data.set(
-                    xy_to_index(full_x, full_y, width, height) * 4 + 0,
-                    127.5 + normal.x * 127.5);
-                normalmap_data.set(
-                    xy_to_index(full_x, full_y, width, height) * 4 + 1,
-                    127.5 + normal.y * 127.5);
-                normalmap_data.set(
-                    xy_to_index(full_x, full_y, width, height) * 4 + 2,
-                    127.5 + normal.z * 127.5);
-                normalmap_data.set(
-                    xy_to_index(full_x, full_y, width, height) * 4 + 3, 255);
+                normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 0,
+                                   127.5 + normal.x * 127.5);
+                normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 1,
+                                   127.5 + normal.y * 127.5);
+                normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 2,
+                                   127.5 + normal.z * 127.5);
+                normalmap_data.set(xy_to_index(full_x, full_y, width, height) * 4 + 3, 255);
             }
         }
 
         image->unlock();
 
-        img->create_from_data(width, height, false, Image::Format::FORMAT_RGBA8,
-                              normalmap_data);
+        img->create_from_data(width, height, false, Image::Format::FORMAT_RGBA8, normalmap_data);
 
         normalmap = Ref<Image>(img);
     }
@@ -244,9 +234,7 @@ Ref<ImageTexture> GeoImage::get_image_texture() {
     //  is nearest neighbor or one of the modal types, it is disabled, since we
     //  most likely want crisp textures then.
     int flag = ImageTexture::FLAG_FILTER;
-    if (interpolation == INTERPOLATION::NEAREST || interpolation > 5) {
-        flag = 0;
-    }
+    if (interpolation == INTERPOLATION::NEAREST || interpolation > 5) { flag = 0; }
 
     imgTex->create_from_image(Ref<Image>(image), flag);
 

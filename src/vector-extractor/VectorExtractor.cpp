@@ -1,31 +1,31 @@
 #include "VectorExtractor.h"
 
 #ifdef _WIN32
-    #include <ogrsf_frmts.h>
-    #include <gdal.h>
+#include <gdal.h>
+#include <ogrsf_frmts.h>
 #elif __unix__
-    #include <gdal/ogrsf_frmts.h>
-    #include <gdal/gdal.h>
+#include <gdal/gdal.h>
+#include <gdal/ogrsf_frmts.h>
 #endif
 
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 
 void VectorExtractor::initialize() {
     GDALAllRegister();
 }
 
-NativeDataset* VectorExtractor::open_dataset(const char *path) {
+NativeDataset *VectorExtractor::open_dataset(const char *path) {
     return new NativeDataset(path);
 }
 
-NativeLayer* VectorExtractor::get_layer_from_dataset(GDALDataset *dataset, const char *name) {
+NativeLayer *VectorExtractor::get_layer_from_dataset(GDALDataset *dataset, const char *name) {
     return new NativeLayer(dataset->GetLayerByName(name));
 }
 
-
-// Utilify function to get the appropriate VectorExtractor Feature (e.g. LineFeature) for the given OGRFeature.
-// Return type is a list because it's possible that multiple features are retreived in the case of e.g. a MULTILINESTRING.
+// Utilify function to get the appropriate VectorExtractor Feature (e.g. LineFeature) for the given
+// OGRFeature. Return type is a list because it's possible that multiple features are retreived in
+// the case of e.g. a MULTILINESTRING.
 std::list<Feature *> get_specialized_features(OGRFeature *feature) {
     std::list<Feature *> list = std::list<Feature *>();
 
@@ -40,14 +40,16 @@ std::list<Feature *> get_specialized_features(OGRFeature *feature) {
     std::string geometry_type_name = geometry_ref->getGeometryName();
 
     // Check which geometry this is and create an object of the corresponding type.
-    // TODO: Find a neat design pattern for this, we'd want something like a dictionary to class types
+    // TODO: Find a neat design pattern for this, we'd want something like a dictionary to class
+    // types
     if (geometry_type_name == "POINT") {
         list.emplace_back(new PointFeature(feature));
     } else if (geometry_type_name == "LINESTRING") {
         list.emplace_back(new LineFeature(feature));
     } else if (geometry_type_name == "MULTILINESTRING") {
         // If this is a MultiFeature, we iterate over all the features in it and add those.
-        // All the individual Features then share the same OGRFeature (with the same attributes etc).
+        // All the individual Features then share the same OGRFeature (with the same attributes
+        // etc).
         const OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
 
         for (const OGRGeometry *geometry : collection) {
@@ -57,7 +59,8 @@ std::list<Feature *> get_specialized_features(OGRFeature *feature) {
         list.emplace_back(new PolygonFeature(feature));
     } else if (geometry_type_name == "MULTIPOLYGON") {
         // If this is a MultiFeature, we iterate over all the features in it and add those.
-        // All the individual Features then share the same OGRFeature (with the same attributes etc).
+        // All the individual Features then share the same OGRFeature (with the same attributes
+        // etc).
         const OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
 
         for (const OGRGeometry *geometry : collection) {
@@ -68,10 +71,9 @@ std::list<Feature *> get_specialized_features(OGRFeature *feature) {
     return list;
 }
 
-
 std::list<Feature *> VectorExtractor::get_features(OGRLayer *layer) {
     auto list = std::list<Feature *>();
-    
+
     OGRFeature *current_feature = current_feature = layer->GetNextFeature();
 
     while (current_feature != nullptr) {
@@ -84,11 +86,14 @@ std::list<Feature *> VectorExtractor::get_features(OGRLayer *layer) {
     return list;
 }
 
-std::list<Feature *> VectorExtractor::get_features_near_position(OGRLayer *layer, double pos_x, double pos_y, double radius, int max_amount) {
+std::list<Feature *> VectorExtractor::get_features_near_position(OGRLayer *layer, double pos_x,
+                                                                 double pos_y, double radius,
+                                                                 int max_amount) {
     std::list<Feature *> list = std::list<Feature *>();
 
-    // We want to extract the features within the circle constructed with the given position and radius from the vector layer.
-    // For this circle, we have to create a new dataset + layer + feature + geometry because layers can only be
+    // We want to extract the features within the circle constructed with the given position and
+    // radius from the vector layer. For this circle, we have to create a new dataset + layer +
+    // feature + geometry because layers can only be
     //  intersected with other layers, and layers need a dataset.
 
     // Create the circle geometry
@@ -97,7 +102,8 @@ std::list<Feature *> VectorExtractor::get_features_near_position(OGRLayer *layer
 
     layer->SetSpatialFilter(circle_buffer);
 
-    // Put the resulting features into the returned list. We add as many features as were returned unless they're more
+    // Put the resulting features into the returned list. We add as many features as were returned
+    // unless they're more
     //  than the given max_amount.
     int num_features = layer->GetFeatureCount();
     int iterations = std::min(num_features, max_amount);
@@ -137,9 +143,11 @@ std::vector<std::string> VectorExtractor::get_raster_layer_names(NativeDataset *
 
     if (subdataset_metadata != nullptr) {
         for (int i = 0; subdataset_metadata[i] != nullptr; i += 2) {
-            std::string subdataset_name(subdataset_metadata[i]);  // char* to std::string
-            size_t last_colon = subdataset_name.find_last_of(':');  // Find the last colon, which separates the path from the subdataset name
-            subdataset_name = subdataset_name.substr(last_colon + 1);  // Add 1 so the ':' isn't included
+            std::string subdataset_name(subdataset_metadata[i]); // char* to std::string
+            size_t last_colon = subdataset_name.find_last_of(
+                ':'); // Find the last colon, which separates the path from the subdataset name
+            subdataset_name =
+                subdataset_name.substr(last_colon + 1); // Add 1 so the ':' isn't included
 
             names.emplace_back(subdataset_name);
         }
@@ -148,28 +156,29 @@ std::vector<std::string> VectorExtractor::get_raster_layer_names(NativeDataset *
     return names;
 }
 
-std::list<LineFeature *>
-VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, double top_left_y, double size_meters,
-                                      int max_amount) {
+std::list<LineFeature *> VectorExtractor::crop_lines_to_square(const char *path, double top_left_x,
+                                                               double top_left_y,
+                                                               double size_meters, int max_amount) {
     auto list = std::list<LineFeature *>();
 
     // TODO: Remove this and pass a OGRLayer* instead of the path
     GDALDataset *poDS;
 
-    poDS = (GDALDataset *) GDALOpenEx(path, GDAL_OF_VECTOR, nullptr,
-                                      nullptr, nullptr);
+    poDS = (GDALDataset *)GDALOpenEx(path, GDAL_OF_VECTOR, nullptr, nullptr, nullptr);
     if (poDS == nullptr) {
         // The dataset couldn't be opened for some reason - likely it doesn't exist.
         // Return an empty list.
-        // FIXME: We'd want to output this error to Godot, so we need to hand this information over somehow! Maybe an Exception?
+        // FIXME: We'd want to output this error to Godot, so we need to hand this information over
+        // somehow! Maybe an Exception?
         std::cerr << "No dataset was found at " << path << "!" << std::endl;
         return list;
     }
 
     OGRLayer *poLayer = poDS->GetLayers()[0];
 
-    // We want to extract the features within the circle constructed with the given position and radius from the vector layer.
-    // For this circle, we have to create a new dataset + layer + feature + geometry because layers can only be
+    // We want to extract the features within the circle constructed with the given position and
+    // radius from the vector layer. For this circle, we have to create a new dataset + layer +
+    // feature + geometry because layers can only be
     //  intersected with other layers, and layers need a dataset.
 
     // Create the circle geometry
@@ -184,7 +193,7 @@ VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, doubl
     square->addRing(square_outline);
 
     // Create the dataset in RAM
-    GDALDriver *out_driver = (GDALDriver *) GDALGetDriverByName("Memory");
+    GDALDriver *out_driver = (GDALDriver *)GDALGetDriverByName("Memory");
     GDALDataset *intersection_dataset = out_driver->Create("", 0, 0, 0, GDT_Unknown, nullptr);
 
     // Create the layer for that dataset
@@ -195,11 +204,13 @@ VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, doubl
     square_feature->SetGeometry(square);
     square_layer->CreateFeature(square_feature);
 
-    // Finally do the actual intersection, save the result to a new layer in the previously created dataset
+    // Finally do the actual intersection, save the result to a new layer in the previously created
+    // dataset
     OGRLayer *lines_within = intersection_dataset->CreateLayer("LinesWithinCircle");
     poLayer->Intersection(square_layer, lines_within);
 
-    // Put the resulting features into the returned list. We add as many features as were returned unless they're more
+    // Put the resulting features into the returned list. We add as many features as were returned
+    // unless they're more
     //  than the given max_amount.
     int num_features = lines_within->GetFeatureCount();
     int iterations = std::min(num_features, max_amount);
@@ -212,20 +223,19 @@ VectorExtractor::crop_lines_to_square(const char *path, double top_left_x, doubl
             // If this is a LineString, we can add it directly as a LineFeature.
             list.emplace_back(new LineFeature(feature));
         } else if (geometry_type_name == "MULTILINESTRING") {
-            // If this is a MultiLineString, we iterate over all the lines in the LineString and add those.
-            // All the individual LineStrings (and thus LineFeatures) then share the same Feature (with attributes etc).
+            // If this is a MultiLineString, we iterate over all the lines in the LineString and add
+            // those. All the individual LineStrings (and thus LineFeatures) then share the same
+            // Feature (with attributes etc).
             const OGRMultiLineString *linestrings = feature->GetGeometryRef()->toMultiLineString();
 
             for (const OGRLineString *linestring : linestrings) {
                 list.emplace_back(new LineFeature(feature, linestring));
             }
         }
-
     }
 
     return list;
 }
-
 
 NativeDataset::~NativeDataset() {
     delete dataset;
@@ -236,32 +246,26 @@ NativeDataset *NativeDataset::get_subdataset(const char *name) {
     return new NativeDataset(("GPKG:" + path + ":" + std::string(name)).c_str());
 }
 
-NativeDataset* NativeDataset::clone() {
+NativeDataset *NativeDataset::clone() {
     return new NativeDataset(path.c_str());
 }
 
 bool NativeDataset::is_valid() const {
     // No dataset at all?
-    if (dataset == nullptr) {
-        return false;
-    }
+    if (dataset == nullptr) { return false; }
 
     // No vector or raster layers?
-    if (dataset->GetRasterCount() == 0 && dataset->GetLayerCount() == 0) {
-        return false;
-    }
+    if (dataset->GetRasterCount() == 0 && dataset->GetLayerCount() == 0) { return false; }
 
     return true;
 }
 
 bool NativeLayer::is_valid() const {
-    if (layer == nullptr) {
-        return false;
-    }
+    if (layer == nullptr) { return false; }
 
     return true;
 }
 
 NativeDataset::NativeDataset(const char *path) : path(path) {
-    dataset = (GDALDataset *) GDALOpenEx(path, 0, nullptr, nullptr, nullptr);
+    dataset = (GDALDataset *)GDALOpenEx(path, 0, nullptr, nullptr, nullptr);
 }

@@ -55,8 +55,7 @@ void GeoLine::_register_methods() {
     register_method("get_offset_curve3d", &GeoLine::get_offset_curve3d);
 }
 
-Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y,
-                                         int offset_z) {
+Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
     LineFeature *line = (LineFeature *)gdal_feature;
 
     Ref<Curve3D> curve;
@@ -92,8 +91,7 @@ PoolVector2Array GeoPolygon::get_outer_vertices() {
     PoolVector2Array vertices = PoolVector2Array();
     PolygonFeature *polygon = (PolygonFeature *)gdal_feature;
 
-    std::list<std::vector<double>> raw_outer_vertices =
-        polygon->get_outer_vertices();
+    std::list<std::vector<double>> raw_outer_vertices = polygon->get_outer_vertices();
 
     for (const std::vector<double> vertex : raw_outer_vertices) {
         vertices.push_back(Vector2(vertex[0], vertex[1]));

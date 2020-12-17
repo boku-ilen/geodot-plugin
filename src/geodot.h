@@ -41,8 +41,7 @@ class EXPORT Geodot : public Node {
     /// encapsulated
     ///  by a dataset.
     /// Will possibly become deprecated.
-    Ref<GeoRasterLayer> get_raster_layer_for_pyramid(String root_folder,
-                                                     String image_ending);
+    Ref<GeoRasterLayer> get_raster_layer_for_pyramid(String root_folder, String image_ending);
 
     Geodot() = default;
     ~Geodot() = default;

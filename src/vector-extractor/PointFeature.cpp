@@ -1,18 +1,18 @@
 #include "PointFeature.h"
 
 #ifdef _WIN32
-    #include <gdal_priv.h>
+#include <gdal_priv.h>
 #elif __unix__
-    #include <gdal/gdal_priv.h>
+#include <gdal/gdal_priv.h>
 #endif
-
 
 PointFeature::PointFeature(OGRFeature *feature) : Feature(feature) {
     point = feature->GetGeometryRef()->toPoint();
     geometry_type = POINT;
 }
 
-PointFeature::PointFeature(OGRFeature *feature, const OGRGeometry *ogrPoint) : Feature(feature), point(ogrPoint->toPoint()) {
+PointFeature::PointFeature(OGRFeature *feature, const OGRGeometry *ogrPoint)
+    : Feature(feature), point(ogrPoint->toPoint()) {
     geometry_type = POINT;
 }
 

@@ -18,9 +18,8 @@ class EXPORT GeoFeatureLayer : public Resource {
 
   public:
     GeoFeatureLayer() = default;
-    virtual ~GeoFeatureLayer() =
-        default; // No need to delete anything here - OGRLayers are part of the
-                 // dataset and deleted with it.
+    virtual ~GeoFeatureLayer() = default; // No need to delete anything here - OGRLayers are part of
+                                          // the dataset and deleted with it.
 
     /// Automatically called by Godot
     void _init() {} // Must be here as Godot always calls this for Objects
@@ -34,14 +33,13 @@ class EXPORT GeoFeatureLayer : public Resource {
 
     /// Returns all features, regardless of the geometry, near the given
     /// position (within the given radius).
-    Array get_features_near_position(double pos_x, double pos_y, double radius,
-                                     int max_features);
+    Array get_features_near_position(double pos_x, double pos_y, double radius, int max_features);
 
     /// Crops features with line geometry to the square created by the given
     /// coordinates and size. Useful for doing tile-based requests.
     /// TODO: Can this be made generic like 'get_features_near_position'?
-    Array crop_lines_to_square(double top_left_x, double top_left_y,
-                               double size_meters, int max_lines);
+    Array crop_lines_to_square(double top_left_x, double top_left_y, double size_meters,
+                               int max_lines);
 
     /// Load the first layer of the dataset at the given path into this object.
     /// Useful e.g. for simple shapefiles with only one layer.
@@ -79,8 +77,7 @@ class EXPORT GeoRasterLayer : public Resource {
     /// layer in multiple threads.
     Ref<GeoRasterLayer> clone();
 
-    Ref<GeoImage> get_image(double top_left_x, double top_left_y,
-                            double size_meters, int img_size,
+    Ref<GeoImage> get_image(double top_left_x, double top_left_y, double size_meters, int img_size,
                             int interpolation_type);
 
     /// Load a raster dataset file such as a GeoTIFF into this object.
@@ -111,8 +108,7 @@ class EXPORT PyramidGeoRasterLayer : public GeoRasterLayer {
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
 
-    Ref<GeoImage> get_image(double top_left_x, double top_left_y,
-                            double size_meters, int img_size,
+    Ref<GeoImage> get_image(double top_left_x, double top_left_y, double size_meters, int img_size,
                             int interpolation_type);
 
     void set_pyramid_base(String path);

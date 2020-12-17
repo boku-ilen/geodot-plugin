@@ -1,21 +1,16 @@
 #ifndef VECTOREXTRACTOR_FEATURE_H
 #define VECTOREXTRACTOR_FEATURE_H
 
-#include <string>
-#include <map>
 #include "defines.h"
+#include <map>
+#include <string>
 
 class OGRFeature;
 class OGRGeometry;
 
 class EXPORT Feature {
-public:
-    enum GeometryType {
-        NONE,
-        POINT,
-        LINE,
-        POLYGON
-    };
+  public:
+    enum GeometryType { NONE, POINT, LINE, POLYGON };
 
     /// Construct a Feature from an OGRFeature from GDAL.
     explicit Feature(OGRFeature *feature);
@@ -35,10 +30,9 @@ public:
     const char *get_attribute(const char *name);
 
     GeometryType geometry_type = NONE;
-    
-protected:
+
+  protected:
     OGRFeature *feature;
 };
 
-
-#endif //VECTOREXTRACTOR_FEATURE_H
+#endif // VECTOREXTRACTOR_FEATURE_H

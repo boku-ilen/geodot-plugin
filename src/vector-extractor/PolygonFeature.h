@@ -10,12 +10,13 @@
 class OGRPolygon;
 
 class EXPORT PolygonFeature : public Feature {
-public:
+  public:
     /// Construct a PolygonFeature with a feature which contains a Polygon.
     explicit PolygonFeature(OGRFeature *feature);
 
-    /// Construct a PolygonFeature with a feature that can contain any geometry (usually used for MultiPolygons) - it is
-    /// not accessed, the geometry is given as a separate PolygonFeature parameter instead.
+    /// Construct a PolygonFeature with a feature that can contain any geometry (usually used for
+    /// MultiPolygons) - it is not accessed, the geometry is given as a separate PolygonFeature
+    /// parameter instead.
     PolygonFeature(OGRFeature *feature, const OGRGeometry *ogrPolygon);
 
     /// Get the vertices of the base shape
@@ -24,7 +25,7 @@ public:
     /// Get all cutout shapes
     std::list<std::list<std::vector<double>>> get_holes();
 
-private:
+  private:
     const OGRPolygon *polygon;
 };
 

@@ -1,13 +1,13 @@
-#include <iostream>
-#include <filesystem>
 #include "RasterTileExtractor.h"
+#include <filesystem>
+#include <iostream>
 
 #ifdef _WIN32
-    #include <gdal_priv.h>
-    #include <gdalwarper.h>
+#include <gdal_priv.h>
+#include <gdalwarper.h>
 #elif __unix__
-    #include <gdal/gdal_priv.h>
-    #include <gdal/gdalwarper.h>
+#include <gdal/gdal_priv.h>
+#include <gdal/gdalwarper.h>
 #endif
 
 void RasterTileExtractor::initialize() {
@@ -25,20 +25,21 @@ void RasterTileExtractor::reproject_to_webmercator(const char *base_path, const 
     hSrcDS = GDALOpen(base_path, GA_ReadOnly);
     CPLAssert(hSrcDS != NULL)
 
-    // Create output with same datatype as first input band.
-    eDT = GDALGetRasterDataType(GDALGetRasterBand(hSrcDS, 1));
+        // Create output with same datatype as first input band.
+        eDT = GDALGetRasterDataType(GDALGetRasterBand(hSrcDS, 1));
 
     // TODO: Instead of hardcoding the driver, use the same as before or pass it as a parameter
     hDriver = GDALGetDriverByName("GTiff");
     CPLAssert(hDriver != NULL)
 
-    // Get Source coordinate system.
-    const char *pszSrcWKT, *pszDstWKT = nullptr;
+        // Get Source coordinate system.
+        const char *pszSrcWKT,
+        *pszDstWKT = nullptr;
     pszSrcWKT = GDALGetProjectionRef(hSrcDS);
     CPLAssert(pszSrcWKT != NULL && strlen(pszSrcWKT) > 0)
 
-    // Get Webmercator coordinate system
-    OGRSpatialReference oSRS;
+        // Get Webmercator coordinate system
+        OGRSpatialReference oSRS;
     oSRS.importFromEPSG(3857);
     oSRS.exportToWkt(const_cast<char **>(&pszDstWKT));
 
@@ -48,36 +49,33 @@ void RasterTileExtractor::reproject_to_webmercator(const char *base_path, const 
     // handle (setting it to NULL).
     void *hTransformArg;
     hTransformArg =
-            GDALCreateGenImgProjTransformer(hSrcDS, pszSrcWKT, nullptr, pszDstWKT,
-                                            FALSE, 0, 1);
+        GDALCreateGenImgProjTransformer(hSrcDS, pszSrcWKT, nullptr, pszDstWKT, FALSE, 0, 1);
     CPLAssert(hTransformArg != NULL)
 
-    // Get approximate output georeferenced bounds and resolution for file.
-    double adfDstGeoTransform[6];
+        // Get approximate output georeferenced bounds and resolution for file.
+        double adfDstGeoTransform[6];
     int nPixels = 0, nLines = 0;
     CPLErr eErr;
-    eErr = GDALSuggestedWarpOutput(hSrcDS,
-                                   GDALGenImgProjTransform, hTransformArg,
+    eErr = GDALSuggestedWarpOutput(hSrcDS, GDALGenImgProjTransform, hTransformArg,
                                    adfDstGeoTransform, &nPixels, &nLines);
     CPLAssert(eErr == CE_None)
 
-    GDALDestroyGenImgProjTransformer(hTransformArg);
+        GDALDestroyGenImgProjTransformer(hTransformArg);
 
     // Create the output file.
-    hDstDS = GDALCreate(hDriver, outfile, nPixels, nLines,
-                        GDALGetRasterCount(hSrcDS), eDT, nullptr);
+    hDstDS =
+        GDALCreate(hDriver, outfile, nPixels, nLines, GDALGetRasterCount(hSrcDS), eDT, nullptr);
     CPLAssert(hDstDS != NULL)
 
-    // Write out the projection definition.
-    GDALSetProjection(hDstDS, pszDstWKT);
+        // Write out the projection definition.
+        GDALSetProjection(hDstDS, pszDstWKT);
     GDALSetGeoTransform(hDstDS, adfDstGeoTransform);
 
     // Copy the color table, if required.
     // FIXME: Only supports one raster band!
     GDALColorTableH hCT;
     hCT = GDALGetRasterColorTable(GDALGetRasterBand(hSrcDS, 1));
-    if (hCT != nullptr)
-        GDALSetRasterColorTable(GDALGetRasterBand(hDstDS, 1), hCT);
+    if (hCT != nullptr) GDALSetRasterColorTable(GDALGetRasterBand(hDstDS, 1), hCT);
 
     int band_count = GDALGetRasterCount(hSrcDS);
 
@@ -86,29 +84,21 @@ void RasterTileExtractor::reproject_to_webmercator(const char *base_path, const 
     psWarpOptions->hSrcDS = hSrcDS;
     psWarpOptions->hDstDS = hDstDS;
     psWarpOptions->nBandCount = band_count;
-    psWarpOptions->panSrcBands =
-            (int *) CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
+    psWarpOptions->panSrcBands = (int *)CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
     psWarpOptions->panSrcBands[0] = band_count;
-    psWarpOptions->panDstBands =
-            (int *) CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
+    psWarpOptions->panDstBands = (int *)CPLMalloc(sizeof(int) * psWarpOptions->nBandCount);
     psWarpOptions->panDstBands[0] = band_count;
     psWarpOptions->pfnProgress = GDALTermProgress;
 
     // Establish reprojection transformer.
-    psWarpOptions->pTransformerArg =
-            GDALCreateGenImgProjTransformer(hSrcDS,
-                                            GDALGetProjectionRef(hSrcDS),
-                                            hDstDS,
-                                            GDALGetProjectionRef(hDstDS),
-                                            FALSE, 0.0, 1);
+    psWarpOptions->pTransformerArg = GDALCreateGenImgProjTransformer(
+        hSrcDS, GDALGetProjectionRef(hSrcDS), hDstDS, GDALGetProjectionRef(hDstDS), FALSE, 0.0, 1);
     psWarpOptions->pfnTransformer = GDALGenImgProjTransform;
 
     // Initialize and execute the warp operation.
     GDALWarpOperation oOperation;
     oOperation.Initialize(psWarpOptions);
-    oOperation.ChunkAndWarpImage(0, 0,
-                                 GDALGetRasterXSize(hDstDS),
-                                 GDALGetRasterYSize(hDstDS));
+    oOperation.ChunkAndWarpImage(0, 0, GDALGetRasterXSize(hDstDS), GDALGetRasterYSize(hDstDS));
     GDALDestroyGenImgProjTransformer(psWarpOptions->pTransformerArg);
     GDALDestroyWarpOptions(psWarpOptions);
 
@@ -121,7 +111,9 @@ double webmercator_to_latitude(double webm_meters) {
     return (atan(pow(M_E, ((webm_meters) / 111319.490778) * M_PI / 180.0)) * 2.0 - M_PI / 2.0);
 }
 
-GeoRaster* RasterTileExtractor::clip_dataset(GDALDataset *dataset, double top_left_x, double top_left_y, double size_meters, int img_size, int interpolation_type) {
+GeoRaster *RasterTileExtractor::clip_dataset(GDALDataset *dataset, double top_left_x,
+                                             double top_left_y, double size_meters, int img_size,
+                                             int interpolation_type) {
     // Save the result in RAM
     GDALDriver *driver = (GDALDriver *)GDALGetDriverByName("MEM");
 
@@ -142,18 +134,19 @@ GeoRaster* RasterTileExtractor::clip_dataset(GDALDataset *dataset, double top_le
     int offset_pixels_y = static_cast<int>(offset_meters_y / pixel_size);
 
     // Calculate the desired size in pixels
-    int size_pixels  = static_cast<int>(size_meters / pixel_size);
+    int size_pixels = static_cast<int>(size_meters / pixel_size);
 
     // With these parameters, we can construct a GeoRaster!
-    return new GeoRaster(dataset, offset_pixels_x, offset_pixels_y, size_pixels, img_size, interpolation_type);
+    return new GeoRaster(dataset, offset_pixels_x, offset_pixels_y, size_pixels, img_size,
+                         interpolation_type);
 }
 
-GeoRaster *
-RasterTileExtractor::get_raster_from_pyramid(const char *base_path, const char *file_ending, double top_left_x,
-                                            double top_left_y,
-                                            double size_meters, int img_size, int interpolation_type) {
-    GDALDataset *dataset_from_pyramid = get_from_pyramid(base_path, file_ending, top_left_x,
-                                                         top_left_y, size_meters, img_size, interpolation_type);
+GeoRaster *RasterTileExtractor::get_raster_from_pyramid(const char *base_path,
+                                                        const char *file_ending, double top_left_x,
+                                                        double top_left_y, double size_meters,
+                                                        int img_size, int interpolation_type) {
+    GDALDataset *dataset_from_pyramid = get_from_pyramid(
+        base_path, file_ending, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
 
     if (dataset_from_pyramid != nullptr) {
         return new GeoRaster(dataset_from_pyramid, interpolation_type);
@@ -163,7 +156,9 @@ RasterTileExtractor::get_raster_from_pyramid(const char *base_path, const char *
     return nullptr;
 }
 
-GeoRaster* RasterTileExtractor::get_tile_from_dataset(GDALDataset *dataset, double top_left_x, double top_left_y, double size_meters, int img_size, int interpolation_type) {
+GeoRaster *RasterTileExtractor::get_tile_from_dataset(GDALDataset *dataset, double top_left_x,
+                                                      double top_left_y, double size_meters,
+                                                      int img_size, int interpolation_type) {
     return clip_dataset(dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
 }
 
@@ -173,10 +168,10 @@ GeoRaster* RasterTileExtractor::get_tile_from_dataset(GDALDataset *dataset, doub
 
 class path;
 
-GDALDataset *
-RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_ending, double top_left_x,
-                                      double top_left_y, double size_meters,
-                                      int img_size, int interpolation_type) {
+GDALDataset *RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_ending,
+                                                   double top_left_x, double top_left_y,
+                                                   double size_meters, int img_size,
+                                                   int interpolation_type) {
     // Norm webmercator position (in meters) to value between -1 and 1
     double norm_x = 0.5 + ((top_left_x + size_meters / 2.0) / WEBMERCATOR_MAX) * 0.5;
 
@@ -184,15 +179,16 @@ RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_en
 
     // Get latitude and use it to calculate the zoom level here
     double latitude = webmercator_to_latitude(top_left_y);
-    // Original formula: size = C * cos(latitude) / pow(2, zoom_level) (from https://wiki.openstreetmap.org/wiki/Zoom_levels)
-    int zoom_level = (int) round(log2(CIRCUMEFERENCE * cos(latitude) / size_meters)) + 1;
+    // Original formula: size = C * cos(latitude) / pow(2, zoom_level) (from
+    // https://wiki.openstreetmap.org/wiki/Zoom_levels)
+    int zoom_level = (int)round(log2(CIRCUMEFERENCE * cos(latitude) / size_meters)) + 1;
 
     // Number of tiles at this zoom level
     int num_tiles = pow(2.0, zoom_level);
 
     // Tile coordinates in OSM pyramid
-    int tile_x = (int) floor(norm_x * num_tiles);
-    int tile_y = (int) floor(norm_y * num_tiles);
+    int tile_x = (int)floor(norm_x * num_tiles);
+    int tile_y = (int)floor(norm_y * num_tiles);
 
     // Build the complete path
     std::filesystem::path path = std::filesystem::path(base_path);
@@ -203,5 +199,5 @@ RasterTileExtractor::get_from_pyramid(const char *base_path, const char *file_en
     path += file_ending;
 
     // Load the result as a GDALDataset and return it
-    return (GDALDataset *) GDALOpen(path.u8string().c_str(), GA_ReadOnly);
+    return (GDALDataset *)GDALOpen(path.u8string().c_str(), GA_ReadOnly);
 }
