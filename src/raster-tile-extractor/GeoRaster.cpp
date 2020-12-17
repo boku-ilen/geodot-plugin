@@ -20,6 +20,17 @@ void *GeoRaster::get_as_array() {
     }
     rasterio_args.eResampleAlg = static_cast<GDALRIOResampleAlg>(interpolation);
 
+    // Check whether the requested image exceeds the extent of the data
+    if ((pixel_offset_x < 0 || pixel_offset_x + source_window_size_pixels > data->GetRasterXSize()) || (pixel_offset_y < 0 || pixel_offset_y + source_window_size_pixels > data->GetRasterYSize())) {
+        // TODO: Handle properly:
+        // 1. Create array using size destination_window_size_pixels
+        // 2. Extract into other array as usual, but with clamped extent
+        // 3. Insert other array into 1. array line-by-line using the part which was clamped as the offset
+        // This has the disadvantage of potentially allocating twice as much data, but it seems to be the only option with GDAL's RasterIO.
+        // Until this is done, return null:
+        return nullptr;
+    }
+
     // Depending on the image format, we need to structure the resulting array differently and/or read multiple bands.
     if (format == RF) {
         // Write the data directly into a float array.
