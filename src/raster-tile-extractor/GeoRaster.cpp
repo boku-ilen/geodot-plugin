@@ -2,8 +2,10 @@
 
 #ifdef _WIN32
 #include <gdal_priv.h>
+#include <cpl_error.h>
 #elif __unix__
 #include <gdal/gdal_priv.h>
+#include <gdal/cpl_error.h>
 #endif
 
 void *GeoRaster::get_as_array() {
@@ -33,6 +35,10 @@ void *GeoRaster::get_as_array() {
         return nullptr;
     }
 
+    // TODO: We could do more precise error handling by getting the error number using
+    // CPLGetLastErrorNo() and returning that to the user somehow - maybe a flag in the GeoRaster.
+    CPLErr error = CE_Failure;
+
     // Depending on the image format, we need to structure the resulting array differently and/or
     // read multiple bands.
     if (format == RF) {
@@ -40,11 +46,11 @@ void *GeoRaster::get_as_array() {
         GDALRasterBand *band = data->GetRasterBand(1);
         float *array = new float[get_size_in_bytes()];
 
-        band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels,
-                       source_window_size_pixels, array, destination_window_size_pixels,
-                       destination_window_size_pixels, GDT_Float32, 0, 0, &rasterio_args);
+        error = band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels,
+                               source_window_size_pixels, array, destination_window_size_pixels,
+                               destination_window_size_pixels, GDT_Float32, 0, 0, &rasterio_args);
 
-        return array;
+        if (error < CE_Failure) { return array; }
     } else if (format == RGBA) {
         // Write the data into a byte array like this:
         // R   R   R
@@ -58,13 +64,13 @@ void *GeoRaster::get_as_array() {
             GDALRasterBand *band = data->GetRasterBand(band_number);
 
             // Read into the array with 4 bytes between the pixels
-            band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels,
-                           source_window_size_pixels, array + (band_number - 1),
-                           destination_window_size_pixels, destination_window_size_pixels, GDT_Byte,
-                           4, 0, &rasterio_args);
+            error = band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y,
+                                   source_window_size_pixels, source_window_size_pixels,
+                                   array + (band_number - 1), destination_window_size_pixels,
+                                   destination_window_size_pixels, GDT_Byte, 4, 0, &rasterio_args);
         }
 
-        return array;
+        if (error < CE_Failure) { return array; }
     } else if (format == RGB) {
         // Write the data into a byte array like this:
         // R  R  R
@@ -77,13 +83,13 @@ void *GeoRaster::get_as_array() {
             GDALRasterBand *band = data->GetRasterBand(band_number);
 
             // Read into the array with 3 bytes between the pixels
-            band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels,
-                           source_window_size_pixels, array + (band_number - 1),
-                           destination_window_size_pixels, destination_window_size_pixels, GDT_Byte,
-                           3, 0, &rasterio_args);
+            error = band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y,
+                                   source_window_size_pixels, source_window_size_pixels,
+                                   array + (band_number - 1), destination_window_size_pixels,
+                                   destination_window_size_pixels, GDT_Byte, 3, 0, &rasterio_args);
         }
 
-        return array;
+        if (error < CE_Failure) { return array; }
     } else if (format == BYTE) {
         // Simply write the bytes directly into a byte array.
         uint8_t *array = new uint8_t[get_size_in_bytes()];
@@ -91,11 +97,11 @@ void *GeoRaster::get_as_array() {
         GDALRasterBand *band = data->GetRasterBand(1);
 
         // Read into the array with 4 bytes between the pixels
-        band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels,
-                       source_window_size_pixels, array, destination_window_size_pixels,
-                       destination_window_size_pixels, GDT_Byte, 0, 0, &rasterio_args);
+        error = band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels,
+                               source_window_size_pixels, array, destination_window_size_pixels,
+                               destination_window_size_pixels, GDT_Byte, 0, 0, &rasterio_args);
 
-        return array;
+        if (error < CE_Failure) { return array; }
     }
 
     return nullptr;
