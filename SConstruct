@@ -7,6 +7,12 @@ opts = Variables([], ARGUMENTS)
 # Gets the standard flags CC, CCX, etc.
 env = DefaultEnvironment()
 
+try:
+    import scons_compiledb
+    scons_compiledb.enable_with_cmdline(env)
+except ImportError:
+    print("note: scons_compiledb could not be imported. To be able to use the `--compiledb=` flag, please run `pip3 install scons-compiledb`.")
+
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot_headers/"
 cpp_bindings_path = "godot-cpp/"

@@ -96,34 +96,38 @@ When using GDAL on Windows, problems with DLLs not being found are pretty freque
 
 If you still get `Error 126: The specified module could not be found.` when starting the demo project, we recommend checking the Geodot DLL and the GDAL DLL with [Dependencies](https://github.com/lucasg/Dependencies).
 
-## Project structure
+# Developing
 
-### Demo
+We recommend VSCodium for developing. For on-the-fly code completion, error reporting, etc., install the `clangd` extension and run `scons platform=linux --compiledb=` once in order to generate the required compilation database. 
+
+# Project structure
+
+## Demo
 
 A minimal Godot project which the plugin is compiled into by default. Used to test its functionality.
 
-### godot-cpp
+## godot-cpp
 
 Git submodule with everything that's required for building a GDNative plugin with C++.
 
-### Geodot
+## Geodot
 
 `geodot.h` and `geodot.cpp` - the GDNative C++ code for the actual plugin. It mainly acts as an interface from Godot-compatible types to custom libraries - it is kept as simple as possible so that adapting it to changes in Godot is easy.
 
-### RasterTileExtractor
+## RasterTileExtractor
 
 Processing library called by Geodot. Mainly wraps GDAL functionality so that Geodot does not need to depend on GDAL. Responsible for the actual image extraction, warping, etc.
 
 The reason why Geodot doesn't directly call GDAL functions without this additional layer of abstraction is ease of compilation and extendibility: The libraries can remain the same, only the core Geodot must be kept consistent with Godot.
 
-### VectorExtractor
+## VectorExtractor
 
 Another processing library like the RasterTileExtractor. Also uses GDAL internally, but for vector data functionality.
 
-## Contributing
+# Contributing
 Help is greatly appreciated! You can test and report bugs, fix known [issues](https://github.com/boku-ilen/geodot-plugin/issues) or submit new functionality.
 
-### Adding a new feature
+## Adding a new feature
 
 - Actual processing code and external library calls should be put into a separate project (a processing library) which compiles to a library and is independent from Godot.
 - Geodot should only translate Godot calls and types to calls to this custom library. Its only dependencies should be Godot and custom libraries.
@@ -131,6 +135,6 @@ Help is greatly appreciated! You can test and report bugs, fix known [issues](ht
 Summed up, dependencies should only go in this direction:
 Godot + Geodot -> Processing Library -> External Libraries
 
-## Credits
+# Credits
 
 The provided Linux build ships with libgdal.so, a build of the GDAL library. All credits for this library go to [OSGeo/gdal](https://github.com/OSGeo/gdal/) ([license](https://raw.githubusercontent.com/OSGeo/gdal/master/gdal/LICENSE.TXT)).
