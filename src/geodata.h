@@ -77,9 +77,15 @@ class EXPORT GeoRasterLayer : public Resource {
     /// layer in multiple threads.
     Ref<GeoRasterLayer> clone();
 
+    /// Returns a GeoImage corresponding to the given position and size.
+    /// The requested section is read from this GeoRasterLayer into that GeoImage, so this operation
+    /// is costly for large images. (Consider multithreading.)
     Ref<GeoImage> get_image(double top_left_x, double top_left_y, double size_meters, int img_size,
                             int interpolation_type);
 
+    /// Returns the value in the GeoRasterLayer at exactly the given position.
+    /// Note that when reading many values from a confined area, it is more efficient to call
+    /// get_image and read the pixels from there.
     float get_value_at_position(double pos_x, double pos_y);
 
     /// Load a raster dataset file such as a GeoTIFF into this object.
@@ -96,6 +102,10 @@ class EXPORT GeoRasterLayer : public Resource {
     NativeDataset *dataset;
 };
 
+/// A layer which contains raster data, loaded from a well-defined pyramid folder structure.
+/// (See https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames)
+/// Requires a separate class as it does not wrap a GDALDataset and thus handles its data
+/// differently.
 class EXPORT PyramidGeoRasterLayer : public GeoRasterLayer {
     GODOT_SUBCLASS(PyramidGeoRasterLayer, GeoRasterLayer)
 
