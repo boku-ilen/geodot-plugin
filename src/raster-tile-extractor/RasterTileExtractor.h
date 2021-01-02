@@ -9,10 +9,6 @@ class EXPORT RasterTileExtractor {
     /// Must be called before any other function to initialize GDAL.
     static void initialize();
 
-    /// Reproject the raster file at infile to Webmercator and save the result to outfile.
-    /// Adapted from https://gdal.org/tutorials/warp_tut.html
-    static void reproject_to_webmercator(const char *infile, const char *outfile);
-
     /// Returns a GeoRaster with the data at raster_name and the given parameters.
     /// raster_name can be the name of a geotiff or the top folder of a pre-tiled raster pyramid.
     static GeoRaster *get_raster_from_pyramid(const char *raster_name, const char *file_ending,
