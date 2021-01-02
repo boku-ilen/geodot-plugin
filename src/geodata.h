@@ -80,6 +80,8 @@ class EXPORT GeoRasterLayer : public Resource {
     Ref<GeoImage> get_image(double top_left_x, double top_left_y, double size_meters, int img_size,
                             int interpolation_type);
 
+    float get_value_at_position(double pos_x, double pos_y);
+
     /// Load a raster dataset file such as a GeoTIFF into this object.
     /// Not exposed to Godot since Godot should create datasets and layers from
     /// the Geodot singleton (the factory).

@@ -134,7 +134,7 @@ GeoRaster *RasterTileExtractor::clip_dataset(GDALDataset *dataset, double top_le
     int offset_pixels_y = static_cast<int>(offset_meters_y / pixel_size);
 
     // Calculate the desired size in pixels
-    int size_pixels = static_cast<int>(size_meters / pixel_size);
+    int size_pixels = static_cast<int>(ceil(size_meters / pixel_size));
 
     // With these parameters, we can construct a GeoRaster!
     return new GeoRaster(dataset, offset_pixels_x, offset_pixels_y, size_pixels, img_size,

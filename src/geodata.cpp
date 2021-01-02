@@ -169,6 +169,7 @@ GeoRasterLayer::~GeoRasterLayer() {
 void GeoRasterLayer::_register_methods() {
     register_method("is_valid", &GeoRasterLayer::is_valid);
     register_method("get_image", &GeoRasterLayer::get_image);
+    register_method("get_value_at_position", &GeoRasterLayer::get_value_at_position);
     register_method("clone", &GeoRasterLayer::clone);
 }
 
@@ -194,6 +195,24 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
     image->set_raster(raster, interpolation_type);
 
     return image;
+}
+
+float GeoRasterLayer::get_value_at_position(double pos_x, double pos_y) {
+    // Get the GeoRaster for this position with a resolution of 1x1px.
+    // 0.0001 meters are used for the size because it can't be 0, but should be a pinpoint value.
+    GeoRaster *raster =
+        RasterTileExtractor::get_tile_from_dataset(dataset->dataset, pos_x, pos_y, 0.0001, 1, 1);
+
+    // TODO: Currently only implemented for RF type.
+    // For others, we would either need a completely generic return value, or other specific
+    // functions (as the user likely knows or wants to know the exact type).
+    if (raster->get_format() == GeoRaster::FORMAT::RF) {
+        float *array = (float *)raster->get_as_array();
+
+        return array[0];
+    }
+
+    return -1.0;
 }
 
 bool PyramidGeoRasterLayer::is_valid() {
