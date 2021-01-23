@@ -6,6 +6,8 @@ A Godot plugin for loading geospatial data. Written in GDNative with C++ and GDA
 
 Various types of Raster and Vector data can be loaded from georeferenced files and used in Godot. One might load a heightmap from a GeoTIFF, building footprints from a Shapefile, or an entire database of data from a GeoPackage. Thanks to efficient filtering and cropping, data can be loaded in real-time.
 
+Feel free to join our Discord for talking about geospatial Godot: https://discord.gg/MhB5sG7czF
+
 ## Usage
 
 The included Godot project offers various demo scenes - we recommend looking through that code to get started. Just do give you an idea, this is how you would load a heightmap at a given position and size:
