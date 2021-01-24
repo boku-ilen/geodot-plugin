@@ -55,7 +55,7 @@ if env['p'] != '':
 
 if env['platform'] == '':
     print("No valid target platform selected.")
-    quit();
+    quit()
 
 
 # Build the extractor libraries
