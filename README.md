@@ -49,7 +49,7 @@ __You will need some sort of geodata to use this plugin.__ A good starting point
 
 1. Install GDAL. (With apt: `sudo apt install libgdal-dev`)
 2. Initialize all git submodules: `git submodule update --init --recursive`
-3. Generate the GDNative C++ bindings: `scons platform=linux generate_bindings=yes` (in `godot-cpp`)
+3. Generate the GDNative C++ bindings: `cd godot-cpp; scons platform=linux generate_bindings=yes`
 
 ### Compiling
 
