@@ -140,6 +140,9 @@ env.Append(LIBS=[cpp_library, rte_library, vector_library])
 if env['platform'] == "windows":
     env.Append(LIBS=['gdal_i.lib'])
     env.Append(LIBPATH=[env['osgeo_path'] + '\\lib\\'])
+elif env['platform'] == 'osx':
+    env.Append(LIBS=['libgdal.dylib'])
+    env.Append(LIBPATH=[os.path.join(env['osgeo_path'], "lib")])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])

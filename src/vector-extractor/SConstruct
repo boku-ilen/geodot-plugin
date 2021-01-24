@@ -50,6 +50,19 @@ elif env['platform'] == "windows":
         print("OSGeo paths are invalid!")
         quit()
 
+elif env['platform'] == 'osx':
+    #env.Append(LINKFLAGS=['/WHOLEARCHIVE'])
+    #env.Append(CXXFLAGS=['-std=c++17', '-std:c++17'])
+
+    # Include GDAL
+    gdal_include_path = '/usr/local/Cellar/gdal/3.2.1/include'
+    gdal_lib_path = '/usr/local/Cellar/gdal/3.2.1/lib'
+    gdal_lib_name = "libgdal.dylib"
+
+    if not os.path.exists(gdal_include_path) or not os.path.exists(gdal_lib_path):
+        print("OSGeo paths are invalid!")
+        quit()
+
 env.Append(CPPPATH=[gdal_include_path])
 env.Append(LIBPATH=[gdal_lib_path])
 env.Append(LIBS=[gdal_lib_name])
