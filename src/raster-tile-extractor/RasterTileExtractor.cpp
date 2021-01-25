@@ -4,6 +4,9 @@
 #ifdef _WIN32
 #include <gdal_priv.h>
 #include <gdalwarper.h>
+#elif __APPLE__
+#include <gdal_priv.h>
+#include <gdalwarper.h>
 #elif __unix__
 #include <gdal/gdal_priv.h>
 #include <gdal/gdalwarper.h>

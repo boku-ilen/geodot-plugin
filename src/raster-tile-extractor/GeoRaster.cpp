@@ -3,6 +3,9 @@
 #ifdef _WIN32
 #include <cpl_error.h>
 #include <gdal_priv.h>
+#elif __APPLE__
+#include <cpl_error.h>
+#include <gdal_priv.h>
 #elif __unix__
 #include <gdal/cpl_error.h>
 #include <gdal/gdal_priv.h>
