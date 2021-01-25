@@ -57,6 +57,9 @@ elif env['platform'] == 'osx':
     # Include GDAL
     gdal_include_path = '/usr/local/Cellar/gdal/3.2.1/include'
     gdal_lib_path = '/usr/local/Cellar/gdal/3.2.1/lib'
+
+    # gdal_include_path = os.path.join(env['osgeo_path'], "include")
+    # gdal_lib_path = os.path.join(env['osgeo_path'], "lib")
     gdal_lib_name = "libgdal.dylib"
 
     if not os.path.exists(gdal_include_path) or not os.path.exists(gdal_lib_path):
