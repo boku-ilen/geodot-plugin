@@ -85,6 +85,9 @@ if env['platform'] == "osx":
     lib_file_ending = ".dylib"
     env['target_path'] += 'osx/'
     cpp_library += '.osx'
+
+    env.Append(CXXFLAGS=['-std=c++17'])
+
     if env['target'] in ('debug', 'd'):
         env.Append(CCFLAGS=['-g', '-O2', '-arch', 'x86_64'])
         env.Append(LINKFLAGS=['-arch', 'x86_64'])
