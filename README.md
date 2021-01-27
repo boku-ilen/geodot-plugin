@@ -95,7 +95,7 @@ If you still get `Error 126: The specified module could not be found.` when star
 
 # Developing
 
-We recommend VSCodium for developing. For on-the-fly code completion, error reporting, etc., install the `clangd` extension and run `scons platform=linux --compiledb=` once in order to generate the required compilation database. 
+We recommend VSCodium for developing. For on-the-fly code completion, error reporting, etc., install the `clangd` extension in VSCodium and run `scons compiledb=yes` in order to generate the required compilation database.
 
 # Project structure
 

@@ -6,13 +6,7 @@ from shutil import copyfile
 opts = Variables([], ARGUMENTS)
 
 # Gets the standard flags CC, CCX, etc.
-env = DefaultEnvironment()
-
-try:
-    import scons_compiledb
-    scons_compiledb.enable_with_cmdline(env)
-except ImportError:
-    print("note: scons_compiledb could not be imported. To be able to use the `--compiledb=` flag, please run `pip3 install scons-compiledb`.")
+env = DefaultEnvironment(tools=['default', 'compilation_db'])
 
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot_headers/"
@@ -50,6 +44,7 @@ opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r
 opts.Add(EnumVariable('platform', 'Compilation platform', host_platform, allowed_values=('linux', 'osx', 'windows'), ignorecase=2))
 opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
+opts.Add(BoolVariable('compiledb', "Build a Compilation Database, e.g. for live error reporting in VSCodium", 'no'))
 opts.Add(PathVariable('target_path', 'The path where the lib is installed.', demo_path))
 opts.Add(PathVariable('target_name', 'The library name.', 'libgeodot', PathVariable.PathAccept))
 opts.Add(PathVariable('osgeo_path', "(Windows only) path to OSGeo installation", "", PathVariable.PathAccept))
@@ -64,6 +59,9 @@ opts.Update(env)
 if env['use_llvm']:
     env['CC'] = 'clang'
     env['CXX'] = 'clang++'
+
+if env['compiledb']:
+    env.CompilationDatabase()
 
 if env['p'] != '':
     env['platform'] = env['p']
@@ -152,8 +150,6 @@ env.Append(CPPPATH=['src/global/'])
 sources = Glob('src/*.cpp')
 
 library = env.SharedLibrary(target=env['target_path'] + env['target_name'] , source=sources)
-
-Default(library)
 
 # Generates help for the -h scons option.
 Help(opts.GenerateHelpText(env))
