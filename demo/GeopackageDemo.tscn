@@ -4,6 +4,6 @@
 
 [node name="GeopackageDemo" type="Node"]
 script = ExtResource( 1 )
-path = "/home/karl/Downloads/sample1_2.gpkg"
-layer_name = "countiestbl"
-attribute_name = "NAME"
+path = "geodata/geopackage_sample.gpkg"
+layer_name = "geopackage_sample"
+attribute_name = "Test"
