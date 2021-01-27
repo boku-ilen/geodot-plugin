@@ -34,15 +34,11 @@ elif sys.platform == 'darwin':
 elif sys.platform == 'win32' or sys.platform == 'msys':
     host_platform = 'windows'
 else:
-    raise ValueError(
-        'Could not detect platform automatically, please specify with '
-        'platform=<platform>'
-    )
+    host_platform = "Unknown platform: " + sys.platform
 
 # Define our options
 opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r', 'release']))
 opts.Add(EnumVariable('platform', 'Compilation platform', host_platform, allowed_values=('linux', 'osx', 'windows'), ignorecase=2))
-opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
 opts.Add(BoolVariable('compiledb', "Build a Compilation Database, e.g. for live error reporting in VSCodium", 'no'))
 opts.Add(PathVariable('target_path', 'The path where the lib is installed.', demo_path))
@@ -62,9 +58,6 @@ if env['use_llvm']:
 
 if env['compiledb']:
     env.CompilationDatabase()
-
-if env['p'] != '':
-    env['platform'] = env['p']
 
 if env['platform'] == '':
     print("No valid target platform selected.")
