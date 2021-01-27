@@ -39,7 +39,6 @@ if env['platform'] in ('x11', 'linux'):
     gdal_lib_name = "libgdal"
 
 elif env['platform'] == "windows":
-    env.Append(LINKFLAGS=['/WHOLEARCHIVE'])
     env.Append(CXXFLAGS=['-std=c++17', '-std:c++17'])
 
     # Include GDAL
