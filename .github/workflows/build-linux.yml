@@ -25,14 +25,26 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - name: Cache generated godot-cpp bindings
+        id: cache-bindings
+        uses: actions/cache@v2
+        env:
+          cache-name: godot-cpp-cache
+        with:
+          path: godot-cpp
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('godot-cpp') }}
+
       - name: Initialize submodules
+        if: steps.cache-bindings.outputs.cache-hit != 'true'
         run: git submodule update --init --recursive
         
       - name: Install dependencies
         run: |
-          sudo apt-get update && sudo apt-get install libgdal-dev python3 scons
+          sudo apt-get update && sudo apt-get install libgdal-dev python3 python3-pip
+          sudo pip3 install scons
       
       - name: Generate Godot-CPP bindings
+        if: steps.cache-bindings.outputs.cache-hit != 'true'
         run: scons platform=linux generate_bindings=yes
         working-directory: godot-cpp
         
