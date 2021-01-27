@@ -1,5 +1,4 @@
 #include "RasterTileExtractor.h"
-#include <filesystem>
 #include <iostream>
 
 #ifdef _WIN32
@@ -100,13 +99,16 @@ GDALDataset *RasterTileExtractor::get_from_pyramid(const char *base_path, const 
     int tile_y = (int)floor(norm_y * num_tiles);
 
     // Build the complete path
-    std::filesystem::path path = std::filesystem::path(base_path);
-    path /= std::filesystem::path(std::to_string(zoom_level));
-    path /= std::filesystem::path(std::to_string(tile_x));
-    path /= std::filesystem::path(std::to_string(tile_y));
+    std::string path = std::string(base_path);
+    path += "/";
+    path += std::to_string(zoom_level);
+    path += "/";
+    path += std::to_string(tile_x);
+    path += "/";
+    path += std::to_string(tile_y);
     path += ".";
     path += file_ending;
 
     // Load the result as a GDALDataset and return it
-    return (GDALDataset *)GDALOpen(path.u8string().c_str(), GA_ReadOnly);
+    return (GDALDataset *)GDALOpen(path.c_str(), GA_ReadOnly);
 }
