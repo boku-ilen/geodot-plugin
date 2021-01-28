@@ -1,0 +1,2 @@
+- GeoPackage Sample: Self-made.
+- Vienna DSM and Orthophoto: Datenquelle: Stadt Wien - https://data.wien.gv.at/ (CC BY 4.0)

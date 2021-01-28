@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://RasterDemo.gd" type="Script" id=1]
 [ext_resource path="res://WorldEnvironment.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Camera.gd" type="Script" id=3]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type spatial;
@@ -10,7 +11,7 @@ uniform sampler2D ortho: hint_albedo;
 uniform sampler2D heightmap;
 
 void vertex() {
-	VERTEX.y = texture(heightmap, UV).r / 1000.0;
+	VERTEX.y = texture(heightmap, UV).r * 0.025;
 }
 
 void fragment() {
@@ -22,21 +23,26 @@ shader = SubResource( 1 )
 
 [sub_resource type="PlaneMesh" id=3]
 material = SubResource( 2 )
-subdivide_width = 256
-subdivide_depth = 256
+size = Vector2( 40, 40 )
+subdivide_width = 500
+subdivide_depth = 500
 
 [node name="RasterDemo" type="Spatial"]
 script = ExtResource( 1 )
-heightmap_data_path = "/media/karl/loda/geodata/austria/austria-heights.tif"
-ortho_data_path = "/media/karl/loda/geodata/austria/austria-heights.tif"
+start_position_x = -1990.0
+start_position_y = 344790.0
+tile_size_meters = 900.0
+heightmap_data_path = "geodata/vienna-test-dsm.tif"
+ortho_data_path = "geodata/vienna-test-ortho.jpg"
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 mesh = SubResource( 3 )
 material/0 = null
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( -1.62921e-07, -0.744824, 0.667261, 0, 0.667261, 0.744824, -1, 1.21347e-07, -1.08711e-07, 1.358, 2.642, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0154812, 5.6217, 3.60627 )
 far = 10000.0
+script = ExtResource( 3 )
 
 [node name="WorldEnvironment" parent="." instance=ExtResource( 2 )]
 
