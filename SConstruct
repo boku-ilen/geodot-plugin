@@ -6,7 +6,11 @@ from shutil import copyfile
 opts = Variables([], ARGUMENTS)
 
 # Gets the standard flags CC, CCX, etc.
-env = DefaultEnvironment(tools=['default', 'compilation_db'])
+try:
+    env = DefaultEnvironment(tools=['default', 'compilation_db'])
+except SConsEnvironmentError:
+    print("Compilation Database creation is not supported. Please consider upgrading to SCons 4.x.x!")
+    env = DefaultEnvironment()
 
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot_headers/"
