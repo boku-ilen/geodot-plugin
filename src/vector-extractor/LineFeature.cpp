@@ -3,6 +3,9 @@
 #ifdef _WIN32
 #include <gdal_priv.h>
 #include <ogr_geometry.h>
+#elif __APPLE__
+#include <gdal_priv.h>
+#include <ogr_geometry.h>
 #elif __unix__
 #include <gdal/gdal_priv.h>
 #include <gdal/ogr_geometry.h>

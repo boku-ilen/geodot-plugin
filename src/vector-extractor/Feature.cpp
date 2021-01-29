@@ -2,6 +2,8 @@
 
 #ifdef _WIN32
 #include <ogr_feature.h>
+#elif __APPLE__
+#include <ogr_feature.h>
 #elif __unix__
 #include <gdal/ogr_feature.h>
 #endif

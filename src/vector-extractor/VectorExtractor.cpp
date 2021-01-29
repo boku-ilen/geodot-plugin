@@ -3,6 +3,9 @@
 #ifdef _WIN32
 #include <gdal.h>
 #include <ogrsf_frmts.h>
+#elif __APPLE__
+#include <gdal.h>
+#include <ogrsf_frmts.h>
 #elif __unix__
 #include <gdal/gdal.h>
 #include <gdal/ogrsf_frmts.h>

@@ -11,7 +11,7 @@ opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r
 opts.Add(EnumVariable('platform', "Compilation platform", '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
-opts.Add(PathVariable('osgeo_path', "(Windows only) path to OSGeo installation", "", PathVariable.PathAccept))
+opts.Add(PathVariable('osgeo_path', "(Windows and Mac) path to OSGeo installation", "", PathVariable.PathAccept))
 
 # only support 64 at this time..
 bits = 64
@@ -25,7 +25,7 @@ if env['p'] != '':
 
 if env['platform'] == '':
     print("No valid target platform selected.")
-    quit();
+    quit()
 
 env['target_path'] = 'build/'
 env['target_name'] = 'libRasterTileExtractor'
@@ -45,6 +45,19 @@ elif env['platform'] == "windows":
     gdal_include_path = os.path.join(env['osgeo_path'], "include")
     gdal_lib_path = os.path.join(env['osgeo_path'], "lib")
     gdal_lib_name = "gdal_i"
+
+    if not os.path.exists(gdal_include_path) or not os.path.exists(gdal_lib_path):
+        print("OSGeo paths are invalid!")
+        quit()
+
+elif env['platform'] == 'osx':
+    #env.Append(LINKFLAGS=['/WHOLEARCHIVE'])
+    env.Append(CXXFLAGS=['-std=c++17'])
+
+    # Include GDAL
+    gdal_include_path = os.path.join(env['osgeo_path'], "include")
+    gdal_lib_path = os.path.join(env['osgeo_path'], "lib")
+    gdal_lib_name = "libgdal.dylib"
 
     if not os.path.exists(gdal_include_path) or not os.path.exists(gdal_lib_path):
         print("OSGeo paths are invalid!")

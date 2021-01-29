@@ -43,6 +43,11 @@ __You will need some sort of geodata to use this plugin.__ A good starting point
 
 # Building
 
+For building this project we need to install [Scons](https://scons.org) by following one of the [User Guide](https://scons.org/documentation.html) *Installing Scons* which is both used for Godot GDNative and this project and we need the GDAL library which has different installation instruction listed below.
+
+- [Linux](#building-on-linux)
+- [Windows](#building-on-windows)
+- [MacOS](#building-on-macos)
 ## Building on Linux
 
 ### Preparation
@@ -92,6 +97,31 @@ If you're working on a processing library, you can also only compile this librar
 When using GDAL on Windows, problems with DLLs not being found are pretty frequent. We got the best results by simply copying all DLLs from the OSGeo `bin` directory to `demo/addons/geodot/win64`. Depending on your luck, you may or may not have to do this.
 
 If you still get `Error 126: The specified module could not be found.` when starting the demo project, we recommend checking the Geodot DLL and the GDAL DLL with [Dependencies](https://github.com/lucasg/Dependencies).
+
+## Building on MacOS
+
+The current implementation only has support for x86 and not for the new M1 processor.
+
+### Preparation
+
+1. Install using `brew install gdal` or manually https://github.com/OSGeo/gdal.
+  1. Check installation with ie `gdalinfo --formats`
+  1. Use `brew info gdal | grep '/usr/local' | cut -d ' ' -f 1` or `which gdalinfo` to find the GDAL install location.
+  1. Make a note of this path like `/usr/local/Cellar/gdal/3.2.1` and use that below for `osgeo_path=...`
+1. Initialize all git submodules: `git submodule update --init --recursive`
+1. Generate the GDNative C++ bindings:
+```
+cd godot-cpp
+scons generate_bindings=yes target=release --jobs=$(sysctl -n hw.logicalcpu)
+cd ..
+```
+
+### Compiling
+
+1. Compile the project itself using the GDAL location like `scons target=release osgeo_path=/usr/local/Cellar/gdal/3.2.1`
+  1. This generates the file `libgeodot.dylib` and 2 more located in `demo/addons/geodot/osx`
+1. Move the files `libRasterTileExtractor.dylib` and `libVectorExtractor.dylib` from `demo/addons/geodot/osx` into `demo/build` directory. See #52
+  1. `mkdir build ; mv demo/addons/geodot/osx/libRasterTileExtractor.dylib demo/addons/geodot/osx/libVectorExtractor.dylib demo/build`
 
 # Developing
 

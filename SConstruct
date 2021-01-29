@@ -85,6 +85,9 @@ if env['platform'] == "osx":
     lib_file_ending = ".dylib"
     env['target_path'] += 'osx/'
     cpp_library += '.osx'
+
+    env.Append(CXXFLAGS=['-std=c++17'])
+
     if env['target'] in ('debug', 'd'):
         env.Append(CCFLAGS=['-g', '-O2', '-arch', 'x86_64'])
         env.Append(LINKFLAGS=['-arch', 'x86_64'])
@@ -140,6 +143,9 @@ env.Append(LIBS=[cpp_library, rte_library, vector_library])
 if env['platform'] == "windows":
     env.Append(LIBS=['gdal_i.lib'])
     env.Append(LIBPATH=[env['osgeo_path'] + '\\lib\\'])
+elif env['platform'] == 'osx':
+    env.Append(LIBS=['libgdal.dylib'])
+    env.Append(LIBPATH=[os.path.join(env['osgeo_path'], "lib")])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])
