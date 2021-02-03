@@ -100,7 +100,10 @@ If you still get `Error 126: The specified module could not be found.` when star
 
 ## Building on MacOS
 
-The current implementation only has support for x86 and not for the new M1 processor.
+NOTES
+- The current implementation only has support for x86 and **not for** the new M1 processor.
+- VectorExtractor is causing the game to crash. See #51
+- You have to move some generated files. See #52
 
 ### Preparation
 
