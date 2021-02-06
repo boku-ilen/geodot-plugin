@@ -8,7 +8,7 @@
 class OGRFeature;
 class OGRGeometry;
 
-class EXPORT Feature {
+class Feature {
   public:
     enum GeometryType { NONE, POINT, LINE, POLYGON };
 

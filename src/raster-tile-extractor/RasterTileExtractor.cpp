@@ -12,6 +12,8 @@
 #include <gdal/gdalwarper.h>
 #endif
 
+#define M_E 2.718281828459045
+
 void RasterTileExtractor::initialize() {
     // Register all drivers - without this, GDALGetDriverByName doesn't work
     GDALAllRegister();

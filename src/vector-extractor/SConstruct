@@ -1,5 +1,6 @@
 #!python
-import os, subprocess
+import os
+import subprocess
 
 opts = Variables([], ARGUMENTS)
 
@@ -39,19 +40,21 @@ if env['platform'] in ('x11', 'linux'):
     gdal_lib_name = "libgdal"
 
 elif env['platform'] == "windows":
-    env.Append(CXXFLAGS=['-std=c++17', '-std:c++17'])
+    env.Append(CXXFLAGS=['-std=c++17', '-static'])
+    env.Replace(CXX=['/usr/bin/x86_64-w64-mingw32-g++'])
+    env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
 
     # Include GDAL
     gdal_include_path = os.path.join(env['osgeo_path'], "include")
     gdal_lib_path = os.path.join(env['osgeo_path'], "lib")
-    gdal_lib_name = "gdal_i"
+    gdal_lib_name = "gdal"
 
     if not os.path.exists(gdal_include_path) or not os.path.exists(gdal_lib_path):
         print("OSGeo paths are invalid!")
         quit()
 
 elif env['platform'] == 'osx':
-    #env.Append(LINKFLAGS=['/WHOLEARCHIVE'])
+    # env.Append(LINKFLAGS=['/WHOLEARCHIVE'])
     env.Append(CXXFLAGS=['-std=c++17'])
 
     # Include GDAL
@@ -64,12 +67,10 @@ elif env['platform'] == 'osx':
         quit()
 
 env.Append(CPPPATH=[gdal_include_path])
-env.Append(LIBPATH=[gdal_lib_path])
-env.Append(LIBS=[gdal_lib_name])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['./'])
 env.Append(CPPPATH=['../global/'])
 sources = Glob('./*.cpp')
 
-library = env.SharedLibrary(target=env['target_path'] + env['target_name'] , source=sources)
+library = env.StaticLibrary(target=env['target_path'] + env['target_name'], source=sources)

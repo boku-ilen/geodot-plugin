@@ -10,7 +10,7 @@
 class OGRLayer;
 class GDALDataset;
 
-class EXPORT NativeDataset {
+class NativeDataset {
   public:
     NativeDataset(const char *path);
     ~NativeDataset();
@@ -26,7 +26,7 @@ class EXPORT NativeDataset {
     GDALDataset *dataset;
 };
 
-class EXPORT NativeLayer {
+class NativeLayer {
   public:
     NativeLayer(OGRLayer *layer) : layer(layer){};
 
@@ -37,7 +37,7 @@ class EXPORT NativeLayer {
     OGRLayer *layer;
 };
 
-class EXPORT VectorExtractor {
+class VectorExtractor {
   public:
     /// Must be called before any other function to initialize GDAL.
     static void initialize();

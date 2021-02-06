@@ -9,7 +9,7 @@ class GDALDataset;
 
 /// Wrapper for GDALDataset and its relevant functions.
 /// Provides easy access without GDAL dependencies to library users.
-class EXPORT GeoRaster {
+class GeoRaster {
   public:
     enum FORMAT {
         RGB,  // 3 8-bit int channels

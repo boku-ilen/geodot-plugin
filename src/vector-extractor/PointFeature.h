@@ -9,7 +9,7 @@
 
 class OGRPoint;
 
-class EXPORT PointFeature : public Feature {
+class PointFeature : public Feature {
   public:
     /// Construct a LineFeature with a feature which contains a LineString.
     explicit PointFeature(OGRFeature *feature);
