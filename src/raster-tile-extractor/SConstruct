@@ -33,14 +33,14 @@ env['target_name'] = 'libRasterTileExtractor'
 
 # Check our platform specifics
 if env['platform'] in ('x11', 'linux'):
-    env.Append(CXXFLAGS=['-std=c++17'])
+    env.Append(CXXFLAGS=['-std=c++17', '-fPIC'])
 
     gdal_include_path = ""
     gdal_lib_path = ""
     gdal_lib_name = "libgdal"
 
 elif env['platform'] == "windows":
-    env.Append(CXXFLAGS=['-std=c++17', '-static'])
+    env.Append(CXXFLAGS=['-std=c++17'])
     env.Replace(CXX=['/usr/bin/x86_64-w64-mingw32-g++'])
     env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
 
