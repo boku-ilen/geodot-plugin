@@ -10,7 +10,6 @@ env = DefaultEnvironment()
 # Define our options
 opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r', 'release']))
 opts.Add(EnumVariable('platform', "Compilation platform", '', ['', 'windows', 'x11', 'linux', 'osx']))
-opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
 opts.Add(PathVariable('osgeo_path', "(Windows and Mac) path to OSGeo installation", "", PathVariable.PathAccept))
 
@@ -19,11 +18,6 @@ bits = 64
 
 # Updates the environment with the option variables.
 opts.Update(env)
-
-# Process some arguments
-if env['p'] != '':
-    env['platform'] = env['p']
-
 if env['platform'] == '':
     print("No valid target platform selected.")
     quit()
@@ -31,16 +25,15 @@ if env['platform'] == '':
 env['target_path'] = 'build/'
 env['target_name'] = 'libVectorExtractor'
 
+env.Append(CXXFLAGS=['-std=c++17', '-fPIC'])
+
 # Check our platform specifics
 if env['platform'] in ('x11', 'linux'):
-    env.Append(CXXFLAGS=['-std=c++17', '-fPIC'])
-
     gdal_include_path = ""
     gdal_lib_path = ""
     gdal_lib_name = "libgdal"
 
 elif env['platform'] == "windows":
-    env.Append(CXXFLAGS=['-std=c++17'])
     env.Replace(CXX=['/usr/bin/x86_64-w64-mingw32-g++'])
     env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
 
@@ -54,9 +47,6 @@ elif env['platform'] == "windows":
         quit()
 
 elif env['platform'] == 'osx':
-    # env.Append(LINKFLAGS=['/WHOLEARCHIVE'])
-    env.Append(CXXFLAGS=['-std=c++17'])
-
     # Include GDAL
     gdal_include_path = os.path.join(env['osgeo_path'], "include")
     gdal_lib_path = os.path.join(env['osgeo_path'], "lib")

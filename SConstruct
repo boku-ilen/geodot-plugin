@@ -28,7 +28,7 @@ vector_library = "libVectorExtractor"
 
 demo_path = "demo/addons/geodot/"
 
-lib_file_ending = ""
+lib_file_ending = ".a"
 
 # Try to detect the host platform automatically.
 # This is used if no `platform` argument is passed
@@ -78,7 +78,7 @@ subprocess.call(
     "cd " + vector_cpp_path + " && scons platform=" + env['platform'] + " osgeo_path=" + env['osgeo_path'],
     shell=True)
 
-# For the reference:
+# For reference:
 # - CCFLAGS are compilation flags shared between C and C++
 # - CFLAGS are for C-specific compilation flags
 # - CXXFLAGS are for C++-specific compilation flags
@@ -86,23 +86,24 @@ subprocess.call(
 # - CPPDEFINES are for pre-processor defines
 # - LINKFLAGS are for linking flags
 
+env.Append(CXXFLAGS=['-std=c++17'])
+
 # Check our platform specifics
 if env['platform'] == "osx":
-    lib_file_ending = ".dylib"
     env['target_path'] += 'osx/'
     cpp_library += '.osx'
 
-    env.Append(CXXFLAGS=['-std=c++17'])
+    env.Append(LINKFLAGS=['-arch', 'x86_64'])
 
     if env['target'] in ('debug', 'd'):
         env.Append(CCFLAGS=['-g', '-O2', '-arch', 'x86_64'])
-        env.Append(LINKFLAGS=['-arch', 'x86_64'])
     else:
         env.Append(CCFLAGS=['-g', '-O3', '-arch', 'x86_64'])
-        env.Append(LINKFLAGS=['-arch', 'x86_64'])
+
+    env.Append(LIBS=['libgdal.dylib'])
+    env.Append(LIBPATH=[os.path.join(env['osgeo_path'], "lib")])
 
 elif env['platform'] in ('x11', 'linux'):
-    lib_file_ending = ".a"
     env['target_path'] += 'x11/'
     cpp_library += '.linux'
 
@@ -110,22 +111,19 @@ elif env['platform'] in ('x11', 'linux'):
         '-Wl,-rpath,\'$$ORIGIN\''
     ])
 
-    env.Append(CXXFLAGS=['-std=c++17'])
-
     if env['target'] in ('debug', 'd'):
         env.Append(CCFLAGS=['-fPIC', '-g3', '-Og'])
     else:
         env.Append(CCFLAGS=['-fPIC', '-g', '-O3'])
 
 elif env['platform'] == "windows":
-    lib_file_ending = ".a"
     env['target_path'] += 'win64/'
     env['target_name'] += ".dll"
     env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++', '-static'])
     cpp_library += '.windows'
 
-    env.Append(CXXFLAGS=['-std=c++17'])
-    env.Replace(CXX=['/usr/bin/x86_64-w64-mingw32-g++'])
+    # Set the compiler to MinGW (is this command valid on native Windows too?)
+    env.Replace(CXX=['x86_64-w64-mingw32-g++'])
 
     gdal_include_path = os.path.join(env['osgeo_path'], "include")
     env.Append(CPPPATH=[gdal_include_path])
