@@ -35,6 +35,11 @@ jobs:
       - name: Initialize submodules
         if: steps.cache-bindings.outputs.cache-hit != 'true'
         run: git submodule update --init --recursive
+        
+      - name: Install scons
+        run: |
+          sudo apt-get update && sudo apt-get install python3 python3-pip g++-mingw-w64-x86-64
+          sudo pip3 install scons
       
       - name: Generate Godot-CPP bindings
         if: steps.cache-bindings.outputs.cache-hit != 'true'
@@ -43,7 +48,6 @@ jobs:
         
       - name: Create the build container
         run: docker build -f DockerfileMinGW -t gdal-mingw .
-        working-directory: build-container
         
       - name: Build Geodot on the container
         run: docker run gdal-mingw:latest
