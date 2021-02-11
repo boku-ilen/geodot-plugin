@@ -92,6 +92,7 @@ env.Append(CXXFLAGS=['-std=c++17'])
 if env['platform'] == "osx":
     env['target_path'] += 'osx/'
     cpp_library += '.osx'
+    gdal_lib_name = 'gdal'
 
     env.Append(LINKFLAGS=['-arch', 'x86_64'])
 
@@ -106,6 +107,7 @@ if env['platform'] == "osx":
 elif env['platform'] in ('x11', 'linux'):
     env['target_path'] += 'x11/'
     cpp_library += '.linux'
+    gdal_lib_name = 'gdal'
 
     env.Append(LINKFLAGS=[
         '-Wl,-rpath,\'$$ORIGIN\''
@@ -121,7 +123,8 @@ elif env['platform'] == "windows":
     env['target_name'] += ".dll"
     env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++', '-static'])
     cpp_library += '.windows'
-
+    gdal_lib_name = 'gdal.dll'
+    
     # Set the compiler to MinGW (is this command valid on native Windows too?)
     env.Replace(CXX=['x86_64-w64-mingw32-g++'])
 
@@ -140,7 +143,7 @@ cpp_library += '.' + str(bits)
 env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/',
                     cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/', rte_cpp_path, vector_cpp_path])
 env.Append(LIBPATH=[cpp_bindings_path + 'bin/', rte_libpath, vector_libpath, os.path.join(env['osgeo_path'], "lib")])
-env.Append(LIBS=[cpp_library, rte_library, vector_library, 'gdal'])
+env.Append(LIBS=[cpp_library, rte_library, vector_library, gdal_lib_name])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])

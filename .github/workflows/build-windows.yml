@@ -1,4 +1,4 @@
-name: Compile Geodot for Mac OS
+name: Cross-compile Geodot for Windows from Linux
 
 # Controls when the action will run. 
 on:
@@ -16,7 +16,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: macos-latest
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -30,21 +30,20 @@ jobs:
           cache-name: godot-cpp-cache
         with:
           path: godot-cpp
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('godot-cpp') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('godot-cpp') }}-windows
 
       - name: Initialize submodules
         if: steps.cache-bindings.outputs.cache-hit != 'true'
         run: git submodule update --init --recursive
-        
-      - name: Install dependencies
-        run: |
-          brew install gdal
-          brew install scons
       
       - name: Generate Godot-CPP bindings
         if: steps.cache-bindings.outputs.cache-hit != 'true'
-        run: scons platform=osx generate_bindings=yes
+        run: scons platform=windows generate_bindings=yes
         working-directory: godot-cpp
         
-      - name: Build Geodot
-        run: scons platform=osx  osgeo_path=$(brew info gdal | grep '/usr/local' | cut -d ' ' -f 1)
+      - name: Create the build container
+        run: docker build -f DockerfileMinGW -t gdal-mingw .
+        working-directory: build-container
+        
+      - name: Build Geodot on the container
+        run: docker run gdal-mingw:latest
