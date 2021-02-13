@@ -26,7 +26,7 @@ class EXPORT GeoFeature : public Resource {
 
     String get_attribute(String name);
 
-    Array get_attributes();
+    Dictionary get_attributes();
 
     void set_gdal_feature(Feature *gdal_feature);
 

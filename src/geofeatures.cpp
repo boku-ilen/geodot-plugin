@@ -12,16 +12,21 @@ GeoFeature::~GeoFeature() {
 
 void GeoFeature::_register_methods() {
     register_method("get_attribute", &GeoFeature::get_attribute);
+    register_method("get_attributes", &GeoFeature::get_attributes);
 }
 
 String GeoFeature::get_attribute(String name) {
     return gdal_feature->get_attribute(name.utf8().get_data());
 }
 
-Array GeoFeature::get_attributes() {
-    Array attributes = Array();
+Dictionary GeoFeature::get_attributes() {
+    Dictionary attributes = Dictionary();
 
-    // TODO
+    std::map<std::string, std::string> attribute_map = gdal_feature->get_attributes();
+
+    for (const auto &attribute : attribute_map) {
+        attributes[attribute.first.c_str()] = attribute.second.c_str();
+    }
 
     return attributes;
 }
