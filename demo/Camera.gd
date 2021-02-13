@@ -8,8 +8,6 @@ var rot_y:float = 0
 const MOVE_SPEED:float = 2.0
 const LOOKAROUND_SPEED:float = 0.005
 
-var is_right_mouse_button_down:bool = false
-
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
