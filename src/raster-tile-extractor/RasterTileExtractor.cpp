@@ -12,13 +12,15 @@
 #include <gdal/gdalwarper.h>
 #endif
 
-#define M_E 2.718281828459045
-
 void RasterTileExtractor::initialize() {
     // Register all drivers - without this, GDALGetDriverByName doesn't work
     GDALAllRegister();
 }
 
+// Some compilers seem to already include M_E, other's dont...
+#ifndef M_E
+#define M_E 2.71828182845904523536028747135266250
+#endif
 double webmercator_to_latitude(double webm_meters) {
     // Adapted from https://gist.github.com/springmeyer/871897#gistcomment-1185502
     return (atan(pow(M_E, ((webm_meters) / 111319.490778) * M_PI / 180.0)) * 2.0 - M_PI / 2.0);
