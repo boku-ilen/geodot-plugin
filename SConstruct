@@ -28,8 +28,6 @@ vector_library = "libVectorExtractor"
 
 demo_path = "demo/addons/geodot/"
 
-lib_file_ending = ".a"
-
 # Try to detect the host platform automatically.
 # This is used if no `platform` argument is passed
 if sys.platform.startswith('linux'):
@@ -124,7 +122,7 @@ elif env['platform'] == "windows":
     env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++', '-static'])
     cpp_library += '.windows'
     gdal_lib_name = 'gdal.dll'
-    
+
     # Set the compiler to MinGW (is this command valid on native Windows too?)
     env.Replace(CXX=['x86_64-w64-mingw32-g++'])
 
@@ -154,12 +152,3 @@ library = env.SharedLibrary(target=env['target_path'] + env['target_name'], sour
 
 # Generates help for the -h scons option.
 Help(opts.GenerateHelpText(env))
-
-# Copy the libRasterTileExtractor dependency
-# First, make sure the target path exists
-if not os.path.exists(env['target_path']):
-    os.makedirs(env['target_path'])
-copyfile(os.path.join(rte_libpath, rte_library) + lib_file_ending,
-         os.path.join(env['target_path'], rte_library) + lib_file_ending)
-copyfile(os.path.join(vector_libpath, vector_library) + lib_file_ending,
-         os.path.join(env['target_path'], vector_library) + lib_file_ending)
