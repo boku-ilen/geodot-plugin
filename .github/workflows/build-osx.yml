@@ -48,3 +48,10 @@ jobs:
         
       - name: Build Geodot
         run: scons platform=osx  osgeo_path=$(brew info gdal | grep '/usr/local' | cut -d ' ' -f 1)
+        
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: macos-build
+          path: |
+            demo
