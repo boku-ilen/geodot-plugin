@@ -56,7 +56,10 @@ jobs:
         run: docker cp mingw-builder:/geodot/demo/addons/geodot/win64 ./demo/addons/geodot
         
       - name: Copy the DLLs for GDAL and all dependencies
-        run: docker cp mingw-builder:/usr/x86_64-w64-mingw32/sys-root/mingw/bin ./demo/addons/geodot/win64
+        run: |
+          docker cp mingw-builder:/usr/x86_64-w64-mingw32/sys-root/mingw/bin ./tmp
+          cp ./tmp/*.dll ./demo/addons/geodot/win64/
+          
         
       - name: Publish Artifacts
         uses: actions/upload-artifact@v2
