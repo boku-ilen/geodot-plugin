@@ -108,7 +108,7 @@ elif env['platform'] in ('x11', 'linux'):
     gdal_lib_name = 'gdal'
 
     env.Append(LINKFLAGS=[
-        '-Wl,-rpath,\'$$ORIGIN\''
+        '-Wl,--disable-new-dtags,-rpath,\'$$ORIGIN\''
     ])
 
     if env['target'] in ('debug', 'd'):
