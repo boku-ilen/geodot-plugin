@@ -50,4 +50,17 @@ jobs:
         run: docker build -f DockerfileMinGW -t gdal-mingw .
         
       - name: Build Geodot on the container
-        run: docker run gdal-mingw:latest
+        run: docker run --name mingw-builder gdal-mingw:latest
+        
+      - name: Copy the resulting Geodot library
+        run: docker cp mingw-builder:/geodot/demo/addons/geodot/win64 ./demo/addons/geodot
+        
+      - name: Copy the DLLs for GDAL and all dependencies
+        run: docker cp mingw-builder:/usr/x86_64-w64-mingw32/sys-root/mingw/bin ./demo/addons/geodot/win64
+        
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-build
+          path: |
+            demo

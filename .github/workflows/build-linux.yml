@@ -48,3 +48,10 @@ jobs:
         
       - name: Build Geodot
         run: scons platform=linux
+        
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux-build
+          path: |
+            demo
