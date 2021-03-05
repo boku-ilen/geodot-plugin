@@ -88,7 +88,7 @@ bool GeoFeatureLayer::is_valid() {
 Array GeoFeatureLayer::get_all_features() {
     Array geofeatures = Array();
 
-    std::list<Feature *> gdal_features = VectorExtractor::get_features(layer->layer);
+    std::list<Feature *> gdal_features = VectorExtractor::get_features(layer);
 
     for (Feature *gdal_feature : gdal_features) {
         Ref<GeoFeature> geofeature;
@@ -106,8 +106,8 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
                                                   int max_features) {
     Array features = Array();
 
-    std::list<Feature *> raw_features = VectorExtractor::get_features_near_position(
-        layer->layer, pos_x, pos_y, radius, max_features);
+    std::list<Feature *> raw_features =
+        VectorExtractor::get_features_near_position(layer, pos_x, pos_y, radius, max_features);
 
     for (Feature *raw_feature : raw_features) {
         // Check which geometry this feature has, and cast it to the according

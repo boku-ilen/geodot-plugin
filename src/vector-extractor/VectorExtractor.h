@@ -53,14 +53,14 @@ class VectorExtractor {
     /// Return all features, regardless of what the geometry is (or if there even is geometry).
     /// Note that this means that no geometry will be available in those features - this should only
     /// be used for attributes.
-    static std::list<Feature *> get_features(OGRLayer *layer);
+    static std::list<Feature *> get_features(NativeLayer *layer);
 
     /// Return all features, regardless of what the geometry is, which somehow overlap with the
     /// circle created by the given position and radius. Parts of the geometry outside the circle
     /// are not cut, so features may extend outside of the circle. To prevent hangups from
     /// unexpectedly many features, a maximum amount can be given so that the remaining features are
     /// skipped.
-    static std::list<Feature *> get_features_near_position(OGRLayer *layer, double pos_x,
+    static std::list<Feature *> get_features_near_position(NativeLayer *layer, double pos_x,
                                                            double pos_y, double radius,
                                                            int max_amount);
 

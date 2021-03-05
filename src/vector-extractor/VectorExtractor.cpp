@@ -74,22 +74,22 @@ std::list<Feature *> get_specialized_features(OGRFeature *feature) {
     return list;
 }
 
-std::list<Feature *> VectorExtractor::get_features(OGRLayer *layer) {
+std::list<Feature *> VectorExtractor::get_features(NativeLayer *layer) {
     auto list = std::list<Feature *>();
 
-    OGRFeature *current_feature = current_feature = layer->GetNextFeature();
+    OGRFeature *current_feature = current_feature = layer->layer->GetNextFeature();
 
     while (current_feature != nullptr) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
         list.splice(list.end(), get_specialized_features(current_feature));
 
-        current_feature = layer->GetNextFeature();
+        current_feature = layer->layer->GetNextFeature();
     }
 
     return list;
 }
 
-std::list<Feature *> VectorExtractor::get_features_near_position(OGRLayer *layer, double pos_x,
+std::list<Feature *> VectorExtractor::get_features_near_position(NativeLayer *layer, double pos_x,
                                                                  double pos_y, double radius,
                                                                  int max_amount) {
     std::list<Feature *> list = std::list<Feature *>();
@@ -103,17 +103,17 @@ std::list<Feature *> VectorExtractor::get_features_near_position(OGRLayer *layer
     OGRGeometry *circle = new OGRPoint(pos_x, pos_y);
     OGRGeometry *circle_buffer = circle->Buffer(radius);
 
-    layer->SetSpatialFilter(circle_buffer);
+    layer->layer->SetSpatialFilter(circle_buffer);
 
     // Put the resulting features into the returned list. We add as many features as were returned
     // unless they're more
     //  than the given max_amount.
-    int num_features = layer->GetFeatureCount();
+    int num_features = layer->layer->GetFeatureCount();
     int iterations = std::min(num_features, max_amount);
 
     for (int i = 0; i < iterations; i++) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
-        list.splice(list.end(), get_specialized_features(layer->GetNextFeature()));
+        list.splice(list.end(), get_specialized_features(layer->layer->GetNextFeature()));
     }
 
     return list;
@@ -240,9 +240,7 @@ std::list<LineFeature *> VectorExtractor::crop_lines_to_square(const char *path,
     return list;
 }
 
-NativeDataset::~NativeDataset() {
-    delete dataset;
-}
+NativeDataset::~NativeDataset() {}
 
 NativeDataset *NativeDataset::get_subdataset(const char *name) {
     // TODO: Hardcoded for the way GeoPackages work - do we want to support others too?
