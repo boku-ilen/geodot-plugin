@@ -48,3 +48,14 @@ jobs:
         
       - name: Build Geodot
         run: scons platform=linux
+        
+      - name: Copy dependencies of Geodot to the addon folder
+        run: ldd libgeodot.so | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp '{}' ./
+        working-directory: demo/addons/geodot/x11
+        
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux-build
+          path: |
+            demo
