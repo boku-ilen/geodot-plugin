@@ -81,6 +81,12 @@ void GeoFeatureLayer::_register_methods() {
     register_method("get_features_near_position", &GeoFeatureLayer::get_features_near_position);
     register_method("add_feature", &GeoFeatureLayer::add_feature);
     register_method("remove_feature", &GeoFeatureLayer::remove_feature);
+
+    register_signal<GeoFeatureLayer>((char *)"feature_added", "new_feature",
+                                     GODOT_VARIANT_TYPE_OBJECT);
+
+    register_signal<GeoFeatureLayer>((char *)"feature_removed", "removed_feature",
+                                     GODOT_VARIANT_TYPE_OBJECT);
 }
 
 bool GeoFeatureLayer::is_valid() {
@@ -109,12 +115,16 @@ void GeoFeatureLayer::add_feature(Ref<GeoFeature> feature) {
     // Add the feature to that in-RAM layer
 
     // TODO: Implement
+
+    emit_signal("feature_added", this, feature);
 }
 
 void GeoFeatureLayer::remove_feature(Ref<GeoFeature> feature) {
     // Mark the feature for deletion
 
     // TODO: Implement
+
+    emit_signal("feature_removed", this, feature);
 }
 
 Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, double radius,
