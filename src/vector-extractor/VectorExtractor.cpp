@@ -1,4 +1,5 @@
 #include "VectorExtractor.h"
+#include <gdal/ogr_core.h>
 
 #ifdef _WIN32
 #include <gdal.h>
@@ -205,7 +206,10 @@ std::list<LineFeature *> VectorExtractor::crop_lines_to_square(const char *path,
     // Create the feature for that layer
     OGRFeature *square_feature = OGRFeature::CreateFeature(square_layer->GetLayerDefn());
     square_feature->SetGeometry(square);
-    square_layer->CreateFeature(square_feature);
+    OGRErr error = square_layer->CreateFeature(square_feature);
+
+    // This shouldn't happen since we're in a custom RAM dataset, but just to make sure
+    if (error != OGRERR_NONE) { return list; }
 
     // Finally do the actual intersection, save the result to a new layer in the previously created
     // dataset
