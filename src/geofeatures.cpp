@@ -12,11 +12,16 @@ GeoFeature::~GeoFeature() {
 
 void GeoFeature::_register_methods() {
     register_method("get_attribute", &GeoFeature::get_attribute);
+    register_method("set_attribute", &GeoFeature::set_attribute);
     register_method("get_attributes", &GeoFeature::get_attributes);
 }
 
 String GeoFeature::get_attribute(String name) {
     return gdal_feature->get_attribute(name.utf8().get_data());
+}
+
+void GeoFeature::set_attribute(String name, String value) {
+    // TODO: Implement
 }
 
 Dictionary GeoFeature::get_attributes() {
@@ -40,6 +45,8 @@ void GeoFeature::set_gdal_feature(Feature *gdal_feature) {
 void GeoPoint::_register_methods() {
     register_method("get_vector3", &GeoPoint::get_vector3);
     register_method("get_offset_vector3", &GeoPoint::get_offset_vector3);
+    register_method("set_vector3", &GeoPoint::set_vector3);
+    register_method("set_offset_vector3", &GeoPoint::set_offset_vector3);
 }
 
 Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
@@ -49,8 +56,16 @@ Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
                    -(point->get_y() + offset_z));
 }
 
+void GeoPoint::set_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z) {
+    // TODO: Implement
+}
+
 Vector3 GeoPoint::get_vector3() {
     return get_offset_vector3(0, 0, 0);
+}
+
+void GeoPoint::set_vector3(Vector3 vector) {
+    set_offset_vector3(vector, 0, 0, 0);
 }
 
 // GeoLine
@@ -58,6 +73,8 @@ Vector3 GeoPoint::get_vector3() {
 void GeoLine::_register_methods() {
     register_method("get_curve3d", &GeoLine::get_curve3d);
     register_method("get_offset_curve3d", &GeoLine::get_offset_curve3d);
+    register_method("set_curve3d", &GeoLine::set_curve3d);
+    register_method("set_offset_curve3d", &GeoLine::set_offset_curve3d);
 }
 
 Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
@@ -81,15 +98,25 @@ Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_
     return curve;
 }
 
+void GeoLine::set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y, int offset_z) {
+    // TODO: Implement
+}
+
 Ref<Curve3D> GeoLine::get_curve3d() {
     return get_offset_curve3d(0, 0, 0);
+}
+
+void GeoLine::set_curve3d(Ref<Curve3D> curve) {
+    set_offset_curve3d(curve, 0, 0, 0);
 }
 
 // GeoPolygon
 
 void GeoPolygon::_register_methods() {
     register_method("get_outer_vertices", &GeoPolygon::get_outer_vertices);
+    register_method("set_outer_vertices", &GeoPolygon::set_outer_vertices);
     register_method("get_holes", &GeoPolygon::get_holes);
+    register_method("add_hole", &GeoPolygon::add_hole);
 }
 
 PoolVector2Array GeoPolygon::get_outer_vertices() {
@@ -103,6 +130,10 @@ PoolVector2Array GeoPolygon::get_outer_vertices() {
     }
 
     return vertices;
+}
+
+void GeoPolygon::set_outer_vertices(PoolVector2Array vertices) {
+    // TODO: Implement
 }
 
 Array GeoPolygon::get_holes() {
@@ -122,4 +153,8 @@ Array GeoPolygon::get_holes() {
     }
 
     return holes;
+}
+
+void GeoPolygon::add_hole(PoolVector2Array hole) {
+    // TODO: Implement
 }

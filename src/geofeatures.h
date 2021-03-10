@@ -25,6 +25,7 @@ class EXPORT GeoFeature : public Resource {
     static void _register_methods();
 
     String get_attribute(String name);
+    void set_attribute(String name, String value);
 
     Dictionary get_attributes();
 
@@ -46,9 +47,11 @@ class EXPORT GeoPoint : public GeoFeature {
     void _init() {} // Must be here as Godot always calls this for Objects
     static void _register_methods();
 
-    Vector3 get_vector3();
-
     Vector3 get_offset_vector3(int offset_x, int offset_y, int offset_z);
+    void set_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z);
+
+    Vector3 get_vector3();
+    void set_vector3(Vector3 vector);
 };
 
 // Wrapper for a LineFeature from the VectorExtractor.
@@ -64,8 +67,10 @@ class EXPORT GeoLine : public GeoFeature {
     static void _register_methods();
 
     Ref<Curve3D> get_offset_curve3d(int offset_x, int offset_y, int offset_z);
+    void set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y, int offset_z);
 
     Ref<Curve3D> get_curve3d();
+    void set_curve3d(Ref<Curve3D> curve);
 };
 
 // Wrapper for a PolygonFeature from the VectorExtractor.
@@ -82,11 +87,13 @@ class EXPORT GeoPolygon : public GeoFeature {
 
     /// Return the vertices making up the base polygon in a PoolVector2Array.
     PoolVector2Array get_outer_vertices();
+    void set_outer_vertices(PoolVector2Array vertices);
 
     /// Return a list with any number of PoolVector2Arrays. These represent
     /// polygons that
     ///  should be cut out of the base polygon retreived by get_outer_vertices.
     Array get_holes();
+    void add_hole(PoolVector2Array hole);
 };
 
 } // namespace godot

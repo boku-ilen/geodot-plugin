@@ -79,6 +79,8 @@ void GeoFeatureLayer::_register_methods() {
     register_method("is_valid", &GeoFeatureLayer::is_valid);
     register_method("get_all_features", &GeoFeatureLayer::get_all_features);
     register_method("get_features_near_position", &GeoFeatureLayer::get_features_near_position);
+    register_method("add_feature", &GeoFeatureLayer::add_feature);
+    register_method("remove_feature", &GeoFeatureLayer::remove_feature);
 }
 
 bool GeoFeatureLayer::is_valid() {
@@ -102,6 +104,19 @@ Array GeoFeatureLayer::get_all_features() {
     return geofeatures;
 }
 
+void GeoFeatureLayer::add_feature(Ref<GeoFeature> feature) {
+    // Create a new in-RAM layer which reflects the fields etc. of this layer
+    // Add the feature to that in-RAM layer
+
+    // TODO: Implement
+}
+
+void GeoFeatureLayer::remove_feature(Ref<GeoFeature> feature) {
+    // Mark the feature for deletion
+
+    // TODO: Implement
+}
+
 Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, double radius,
                                                   int max_features) {
     Array features = Array();
@@ -110,6 +125,8 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
         VectorExtractor::get_features_near_position(layer, pos_x, pos_y, radius, max_features);
 
     for (Feature *raw_feature : raw_features) {
+        // TODO: Check here if the feature is deleted in RAM?
+
         // Check which geometry this feature has, and cast it to the according
         // specialized class
         if (raw_feature->geometry_type == raw_feature->NONE) {

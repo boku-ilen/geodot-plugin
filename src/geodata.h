@@ -5,6 +5,7 @@
 
 #include "VectorExtractor.h"
 #include "defines.h"
+#include "geofeatures.h"
 #include "geoimage.h"
 
 namespace godot {
@@ -30,6 +31,14 @@ class EXPORT GeoFeatureLayer : public Resource {
 
     /// Returns all features, regardless of the geometry, within this layer.
     Array get_all_features();
+
+    /// Adds the given feature to the layer.
+    /// This change has no effect on the dataset on disk unless TODO is called.
+    void add_feature(Ref<GeoFeature> feature);
+
+    /// Removes the given feature from the layer.
+    /// This change has no effect on the dataset on disk unless TODO is called.
+    void remove_feature(Ref<GeoFeature> feature);
 
     /// Returns all features, regardless of the geometry, near the given
     /// position (within the given radius).
