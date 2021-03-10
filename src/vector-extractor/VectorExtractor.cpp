@@ -1,5 +1,4 @@
 #include "VectorExtractor.h"
-#include <gdal/ogr_core.h>
 
 #ifdef _WIN32
 #include <gdal.h>
