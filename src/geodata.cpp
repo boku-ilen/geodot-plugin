@@ -158,13 +158,6 @@ Ref<GeoFeature> GeoFeatureLayer::create_feature() {
     Ref<GeoFeature> feature = get_specialized_feature(gdal_feature);
 
     emit_signal("feature_added", this, feature);
-
-    // TODO: This feature only exists in RAM for now, it isn't actually related to the layer until
-    // layer->CreateFeature(new_feature) is called (in the NativeLayer with the OGRFeature).
-    // This is good, but this also means it's not returned by functions like `get_all_features()`.
-    // We might need an additional in-memory layer for this... This in-memory layer could be synced
-    // with OGRLayer::Update.
-
     return feature;
 }
 

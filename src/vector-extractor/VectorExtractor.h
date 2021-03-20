@@ -48,6 +48,9 @@ class NativeLayer {
     /// The exact type of the returned feature corresponds to the layer's geometry type.
     Feature *create_feature();
 
+    // TODO: Add something like `forget_feature(Feature)` so that the cache can be cleared (and the
+    // memory freed) by the user
+
     /// Return all features, regardless of what the geometry is (or if there even is geometry).
     /// Note that this means that no geometry will be available in those features - this should only
     /// be used for attributes.
@@ -77,13 +80,14 @@ class NativeLayer {
     OGRLayer *layer;
     OGRLayer *ram_layer;
 
-    // Keeps track of all features which are in use due to having been returned, in order to ensure
-    // that we don't return two different Feature instances pointing to the same data.
-    // A list of Feature pointers is used for the case of multi-features (e.g. MULTILINESTRING),
-    // where one OGRFeature corresponds to multiple of our Features. Usually though, each list has
-    // only one element.
-    // TODO: Add something like `forget_feature(Feature)` so that the cache can be cleared by the
-    // user (this could be combined with other requried destructor calls)
+    /// Keeps track of all features which are in use due to having been returned, in order to ensure
+    /// that we don't return two different Feature instances pointing to the same data. That way,
+    /// updates to features don't need to be written anywhere: they exist within the Features of the
+    /// feature cache.
+    ///
+    /// A list of Feature pointers is used for the case of multi-features (e.g. MULTILINESTRING),
+    /// where one OGRFeature corresponds to multiple of our Features. Usually though, each list has
+    /// only one element.
     std::map<GUIntBig, std::list<Feature *>> feature_cache;
 };
 

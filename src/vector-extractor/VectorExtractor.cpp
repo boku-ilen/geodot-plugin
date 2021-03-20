@@ -98,17 +98,10 @@ std::list<Feature *> NativeLayer::get_features() {
         current_feature = layer->GetNextFeature();
     }
 
-    // TODO: Check the features in the list against the feature_cache; get_specialized_features
-    // could do that
-
     // Same as above but for in-RAM data
     // TODO: Remove code duplication
     current_feature = ram_layer->GetNextFeature();
 
-    // TODO: We want to keep track of a "feature cache" within the class. So we only save
-    // updates in there, and before returning, check whether the feature is already in the cache and
-    // replace it with the cached one if so. Another reason why this would be elgant is that
-    // different `get_features` calls return the same objects.
     while (current_feature != nullptr) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
         list.splice(list.end(), get_feature_for_fid(current_feature));
@@ -145,7 +138,15 @@ std::list<Feature *> NativeLayer::get_features_near_position(double pos_x, doubl
         list.splice(list.end(), get_feature_for_fid(layer->GetNextFeature()));
     }
 
-    // TODO: Also check the RAM layer
+    // Also check the RAM layer
+    // FIXME: Take care of max_amount here too
+    // TODO: Code duplication (similar as in `get_features`)
+    ram_layer->SetSpatialFilter(circle_buffer);
+
+    for (int i = 0; i < ram_layer->GetFeatureCount(); i++) {
+        // Add the Feature objects from the next OGRFeature in the layer to the list
+        list.splice(list.end(), get_feature_for_fid(ram_layer->GetNextFeature()));
+    }
 
     return list;
 }
@@ -312,8 +313,8 @@ bool NativeLayer::is_valid() const {
 }
 
 Feature *NativeLayer::create_feature() {
-    OGRFeature *new_feature = new OGRFeature(layer->GetLayerDefn()); // TOOD: delete
-    Feature *feature;                                                // TODO: delete
+    OGRFeature *new_feature = new OGRFeature(layer->GetLayerDefn()); // TOOD: delete somewhere
+    Feature *feature;                                                // TODO: delete somewhere
 
     // Create an instance of a specific class based on the layer's geometry type
     OGRwkbGeometryType geometry_type = layer->GetGeomType();
@@ -325,6 +326,7 @@ Feature *NativeLayer::create_feature() {
     } else if (geometry_type == OGRwkbGeometryType::wkbLineString) {
         feature = new LineFeature(new_feature);
     } else {
+        // Either no geometry or unknown -- create a basic feature without geometry
         feature = new Feature(new_feature);
     }
 
