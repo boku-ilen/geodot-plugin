@@ -1,4 +1,5 @@
 #include "VectorExtractor.h"
+#include <gdal/ogr_feature.h>
 
 #ifdef _WIN32
 #include <gdal.h>
@@ -268,6 +269,13 @@ bool NativeLayer::is_valid() const {
     if (layer == nullptr) { return false; }
 
     return true;
+}
+
+Feature *NativeLayer::create_feature() {
+    OGRFeature *new_feature = new OGRFeature(layer->GetLayerDefn()); // TOOD: delete
+    Feature *feature = new Feature(new_feature);                     // TODO: delete
+
+    return feature; // TODO: delete
 }
 
 NativeDataset::NativeDataset(const char *path) : path(path) {

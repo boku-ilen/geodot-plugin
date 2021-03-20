@@ -34,7 +34,7 @@ class EXPORT GeoFeatureLayer : public Resource {
 
     /// Adds the given feature to the layer.
     /// This change has no effect on the dataset on disk unless TODO is called.
-    void add_feature(Ref<GeoFeature> feature);
+    Ref<GeoFeature> create_feature();
 
     /// Removes the given feature from the layer.
     /// This change has no effect on the dataset on disk unless TODO is called.

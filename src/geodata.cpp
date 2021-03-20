@@ -79,7 +79,7 @@ void GeoFeatureLayer::_register_methods() {
     register_method("is_valid", &GeoFeatureLayer::is_valid);
     register_method("get_all_features", &GeoFeatureLayer::get_all_features);
     register_method("get_features_near_position", &GeoFeatureLayer::get_features_near_position);
-    register_method("add_feature", &GeoFeatureLayer::add_feature);
+    register_method("create_feature", &GeoFeatureLayer::create_feature);
     register_method("remove_feature", &GeoFeatureLayer::remove_feature);
 
     register_signal<GeoFeatureLayer>((char *)"feature_added", "new_feature",
@@ -110,13 +110,21 @@ Array GeoFeatureLayer::get_all_features() {
     return geofeatures;
 }
 
-void GeoFeatureLayer::add_feature(Ref<GeoFeature> feature) {
-    // Create a new in-RAM layer which reflects the fields etc. of this layer
-    // Add the feature to that in-RAM layer
+Ref<GeoFeature> GeoFeatureLayer::create_feature() {
+    Ref<GeoFeature> feature;
+    feature.instance();
 
-    // TODO: Implement
+    feature->set_gdal_feature(layer->create_feature());
 
     emit_signal("feature_added", this, feature);
+
+    // TODO: This feature only exists in RAM for now, it isn't actually related to the layer until
+    // layer->CreateFeature(new_feature) is called (in the NativeLayer with the OGRFeature).
+    // This is good, but this also means it's not returned by functions like `get_all_features()`.
+    // We might need an additional in-memory layer for this... This in-memory layer could be synced
+    // with OGRLayer::Update.
+
+    return feature;
 }
 
 void GeoFeatureLayer::remove_feature(Ref<GeoFeature> feature) {

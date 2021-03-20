@@ -21,7 +21,7 @@ String GeoFeature::get_attribute(String name) {
 }
 
 void GeoFeature::set_attribute(String name, String value) {
-    // TODO: Implement
+    gdal_feature->set_attribute(name.utf8().get_data(), value.utf8().get_data());
 }
 
 Dictionary GeoFeature::get_attributes() {

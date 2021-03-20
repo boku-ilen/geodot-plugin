@@ -29,6 +29,8 @@ class Feature {
     /// A field with the given name must exist.
     const char *get_attribute(const char *name);
 
+    void set_attribute(const char *name, const char *value);
+
     GeometryType geometry_type = NONE;
 
   protected:

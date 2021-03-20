@@ -34,6 +34,8 @@ class NativeLayer {
 
     bool is_valid() const;
 
+    Feature *create_feature();
+
     OGRLayer *layer;
 };
 

@@ -23,3 +23,7 @@ std::map<std::string, std::string> Feature::get_attributes() {
 const char *Feature::get_attribute(const char *name) {
     return feature->GetFieldAsString(name);
 }
+
+void Feature::set_attribute(const char *name, const char *value) {
+    feature->SetField(name, value);
+}
