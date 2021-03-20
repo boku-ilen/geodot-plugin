@@ -140,6 +140,11 @@ std::list<Feature *> NativeLayer::get_features_near_position(double pos_x, doubl
     // TODO: Code duplication (similar as in `get_features`)
     ram_layer->SetSpatialFilter(circle_buffer);
 
+    // FIXME: In this case, we need to copy the cached features into the RAM dataset with
+    // layer->CreateFeature because otherwise, the spatial filter doesn't return them! So we should
+    // iterate over the values in cached_features and call CreateFeature with them, and perhaps
+    // optimize it by checking if there was a change first?
+
     for (int i = 0; i < ram_layer->GetFeatureCount(); i++) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
         list.splice(list.end(), get_feature_for_fid(ram_layer->GetNextFeature()));
