@@ -5,7 +5,9 @@
 #include "PointFeature.h"
 #include "PolygonFeature.h"
 #include "defines.h"
+#include <gdal/cpl_port.h>
 #include <list>
+#include <map>
 
 // Forward declarations
 class OGRLayer;
@@ -40,8 +42,11 @@ class NativeLayer {
     OGRLayer *layer;
     OGRLayer *ram_layer;
 
-    // Keeps track of OGRFeatures which were created by the user and which are thus in the ram_layer
-    std::list<OGRFeature *> custom_features;
+    // Keeps track of all features which are in use due to having been returned, in order to ensure
+    // that we don't return two different Feature instances pointing to the same data.
+    // TODO: Add something like `forget_feature(Feature)` so that the cache can be cleared by the
+    // user (this could be combined with other requried destructor calls)
+    std::map<GUIntBig, Feature *> feature_cache;
 };
 
 class VectorExtractor {
@@ -56,6 +61,8 @@ class VectorExtractor {
     /// Returns the layer from the given dataset with the given name, or null if there is no layer
     /// with that name.
     static NativeLayer *get_layer_from_dataset(GDALDataset *dataset, const char *name);
+
+    // TODO: Move all the below to NativeLayer! (We need statefulness for the feature_cache!)
 
     /// Return all features, regardless of what the geometry is (or if there even is geometry).
     /// Note that this means that no geometry will be available in those features - this should only

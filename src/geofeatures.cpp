@@ -1,4 +1,5 @@
 #include "geofeatures.h"
+#include "Godot.hpp"
 
 using namespace godot;
 
@@ -47,17 +48,22 @@ void GeoPoint::_register_methods() {
     register_method("get_offset_vector3", &GeoPoint::get_offset_vector3);
     register_method("set_vector3", &GeoPoint::set_vector3);
     register_method("set_offset_vector3", &GeoPoint::set_offset_vector3);
+
+    register_signal<GeoPoint>((char *)"point_changed", Dictionary());
 }
 
 Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
-    PointFeature *point = (PointFeature *)gdal_feature;
+    PointFeature *point = dynamic_cast<PointFeature *>(gdal_feature);
 
     return Vector3(point->get_x() + offset_x, point->get_z() + offset_y,
                    -(point->get_y() + offset_z));
 }
 
 void GeoPoint::set_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z) {
-    // TODO: Implement
+    PointFeature *point = dynamic_cast<PointFeature *>(gdal_feature);
+    point->set_vector(offset_x + vector.x, offset_y + vector.y, offset_z + vector.z);
+
+    emit_signal("point_changed");
 }
 
 Vector3 GeoPoint::get_vector3() {

@@ -17,7 +17,7 @@ class PointFeature : public Feature {
     /// Construct a LineFeature with a feature that can contain any geometry (usually used for
     /// MultiLineStrings) - it is not accessed, the geometry is given as a separate LineString
     /// parameter instead.
-    PointFeature(OGRFeature *feature, const OGRGeometry *ogrPoint);
+    PointFeature(OGRFeature *feature, OGRGeometry *ogrPoint);
 
     /// Get the individual x, y and z components from the line point at the given index.
     /// The same can be accomplished with the `get_line_point` function, but this one works without
@@ -26,8 +26,10 @@ class PointFeature : public Feature {
     double get_y();
     double get_z();
 
+    void set_vector(double x, double y, double z);
+
   private:
-    const OGRPoint *point;
+    OGRPoint *point;
 };
 
 #endif // VECTOREXTRACTOR_POINTFEATURE_H

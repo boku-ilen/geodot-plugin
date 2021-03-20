@@ -87,18 +87,17 @@ std::list<Feature *> VectorExtractor::get_features(NativeLayer *layer) {
         current_feature = layer->layer->GetNextFeature();
     }
 
-    // Sync all custom features to the RAM dataset; the original CreateFeature copies the data, so
-    // it might not be up-to-date if changes were made!
-    // TODO: This might be slow -- consider introducing a flag signifying whether a feature has
-    // changed since the last update
-    for (const auto custom_feature : layer->custom_features) {
-        const OGRErr error = layer->ram_layer->SetFeature(custom_feature);
-    }
+    // TODO: Check the features in the list against the feature_cache; get_specialized_features
+    // could do that
 
     // Same as above but for in-RAM data
     // TODO: Remove code duplication
     current_feature = layer->ram_layer->GetNextFeature();
 
+    // TODO: We want to keep track of a "feature cache" within the class. So we only save
+    // updates in there, and before returning, check whether the feature is already in the cache and
+    // replace it with the cached one if so. Another reason why this would be elgant is that
+    // different `get_features` calls return the same objects.
     while (current_feature != nullptr) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
         list.splice(list.end(), get_specialized_features(current_feature));
@@ -312,9 +311,11 @@ Feature *NativeLayer::create_feature() {
     const OGRErr error = ram_layer->CreateFeature(new_feature);
     // (No need to check that error, we're in a self-owned in-RAM dataset)
 
-    custom_features.emplace_back(new_feature);
+    // TODO: Generate a new ID based on the highest ID within the original data plus the highest
+    // added ID
+    feature_cache[123] = feature;
 
-    return feature; // TODO: delete
+    return feature;
 }
 
 NativeDataset::NativeDataset(const char *path) : path(path) {
