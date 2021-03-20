@@ -1,9 +1,6 @@
 #include "VectorExtractor.h"
 #include "LineFeature.h"
 #include "PointFeature.h"
-#include <gdal/cpl_port.h>
-#include <gdal/ogr_core.h>
-#include <gdal/ogr_feature.h>
 
 #ifdef _WIN32
 #include <gdal.h>
