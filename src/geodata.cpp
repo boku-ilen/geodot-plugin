@@ -110,11 +110,52 @@ Array GeoFeatureLayer::get_all_features() {
     return geofeatures;
 }
 
-Ref<GeoFeature> GeoFeatureLayer::create_feature() {
-    Ref<GeoFeature> feature;
-    feature.instance();
+// Utility function for converting a Processing Library Feature to the appropriate GeoFeature
+Ref<GeoFeature> get_specialized_feature(Feature *raw_feature) {
+    // Check which geometry this feature has, and cast it to the according
+    // specialized class
+    if (raw_feature->geometry_type == raw_feature->POINT) {
+        Ref<GeoPoint> point;
+        point.instance();
 
-    feature->set_gdal_feature(layer->create_feature());
+        PointFeature *point_feature = dynamic_cast<PointFeature *>(raw_feature);
+
+        point->set_gdal_feature(point_feature);
+
+        return point;
+    } else if (raw_feature->geometry_type == raw_feature->LINE) {
+        Ref<GeoLine> line;
+        line.instance();
+
+        LineFeature *line_feature = dynamic_cast<LineFeature *>(raw_feature);
+
+        line->set_gdal_feature(line_feature);
+
+        return line;
+    } else if (raw_feature->geometry_type == raw_feature->POLYGON) {
+        Ref<GeoPolygon> polygon;
+        polygon.instance();
+
+        PolygonFeature *polygon_feature = dynamic_cast<PolygonFeature *>(raw_feature);
+
+        polygon->set_gdal_feature(polygon_feature);
+
+        return polygon;
+    } else {
+        // Geometry type is NONE or unknown
+        Ref<GeoFeature> feature;
+        feature.instance();
+
+        feature->set_gdal_feature(raw_feature);
+
+        return feature;
+    }
+}
+
+Ref<GeoFeature> GeoFeatureLayer::create_feature() {
+    Feature *gdal_feature = layer->create_feature();
+
+    Ref<GeoFeature> feature = get_specialized_feature(gdal_feature);
 
     emit_signal("feature_added", this, feature);
 
@@ -143,45 +184,7 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
         layer->get_features_near_position(pos_x, pos_y, radius, max_features);
 
     for (Feature *raw_feature : raw_features) {
-        // TODO: Check here if the feature is deleted in RAM?
-
-        // Check which geometry this feature has, and cast it to the according
-        // specialized class
-        if (raw_feature->geometry_type == raw_feature->NONE) {
-            Ref<GeoFeature> feature;
-            feature.instance();
-
-            feature->set_gdal_feature(raw_feature);
-
-            features.push_back(feature);
-        } else if (raw_feature->geometry_type == raw_feature->POINT) {
-            Ref<GeoPoint> point;
-            point.instance();
-
-            PointFeature *point_feature = dynamic_cast<PointFeature *>(raw_feature);
-
-            point->set_gdal_feature(point_feature);
-
-            features.push_back(point);
-        } else if (raw_feature->geometry_type == raw_feature->LINE) {
-            Ref<GeoLine> line;
-            line.instance();
-
-            LineFeature *line_feature = dynamic_cast<LineFeature *>(raw_feature);
-
-            line->set_gdal_feature(line_feature);
-
-            features.push_back(line);
-        } else if (raw_feature->geometry_type == raw_feature->POLYGON) {
-            Ref<GeoPolygon> polygon;
-            polygon.instance();
-
-            PolygonFeature *polygon_feature = dynamic_cast<PolygonFeature *>(raw_feature);
-
-            polygon->set_gdal_feature(polygon_feature);
-
-            features.push_back(polygon);
-        }
+        features.push_back(get_specialized_feature(raw_feature));
     }
 
     return features;

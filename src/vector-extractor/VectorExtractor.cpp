@@ -1,5 +1,8 @@
 #include "VectorExtractor.h"
+#include "LineFeature.h"
+#include "PointFeature.h"
 #include <gdal/cpl_port.h>
+#include <gdal/ogr_core.h>
 #include <gdal/ogr_feature.h>
 
 #ifdef _WIN32
@@ -310,7 +313,20 @@ bool NativeLayer::is_valid() const {
 
 Feature *NativeLayer::create_feature() {
     OGRFeature *new_feature = new OGRFeature(layer->GetLayerDefn()); // TOOD: delete
-    Feature *feature = new Feature(new_feature);                     // TODO: delete
+    Feature *feature;                                                // TODO: delete
+
+    // Create an instance of a specific class based on the layer's geometry type
+    OGRwkbGeometryType geometry_type = layer->GetGeomType();
+
+    if (geometry_type == OGRwkbGeometryType::wkbPoint) {
+        feature = new PointFeature(new_feature);
+    } else if (geometry_type == OGRwkbGeometryType::wkbPolygon) {
+        feature = new PolygonFeature(new_feature);
+    } else if (geometry_type == OGRwkbGeometryType::wkbLineString) {
+        feature = new LineFeature(new_feature);
+    } else {
+        feature = new Feature(new_feature);
+    }
 
     // FIXME: Generate a new ID based on the highest ID within the original data plus the highest
     // added ID

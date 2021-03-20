@@ -45,6 +45,7 @@ class NativeLayer {
 
     /// Create a new feature on the in-RAM layer corresponding to the actual disk layer. No changes
     /// are made on the original layer, so that layer can be opened as read-only.
+    /// The exact type of the returned feature corresponds to the layer's geometry type.
     Feature *create_feature();
 
     /// Return all features, regardless of what the geometry is (or if there even is geometry).
