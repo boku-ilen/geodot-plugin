@@ -5,9 +5,16 @@
 #include "PointFeature.h"
 #include "PolygonFeature.h"
 #include "defines.h"
-#include <gdal/cpl_port.h>
 #include <list>
 #include <map>
+
+#ifdef _WIN32
+#include <cpl_port.h>
+#elif __APPLE__
+#include <cpl_port.h>
+#elif __unix__
+#include <gdal/cpl_port.h>
+#endif
 
 // Forward declarations
 class OGRLayer;
