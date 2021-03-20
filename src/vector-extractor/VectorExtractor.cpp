@@ -78,13 +78,32 @@ std::list<Feature *> get_specialized_features(OGRFeature *feature) {
 std::list<Feature *> VectorExtractor::get_features(NativeLayer *layer) {
     auto list = std::list<Feature *>();
 
-    OGRFeature *current_feature = current_feature = layer->layer->GetNextFeature();
+    OGRFeature *current_feature = layer->layer->GetNextFeature();
 
     while (current_feature != nullptr) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
         list.splice(list.end(), get_specialized_features(current_feature));
 
         current_feature = layer->layer->GetNextFeature();
+    }
+
+    // Sync all custom features to the RAM dataset; the original CreateFeature copies the data, so
+    // it might not be up-to-date if changes were made!
+    // TODO: This might be slow -- consider introducing a flag signifying whether a feature has
+    // changed since the last update
+    for (const auto custom_feature : layer->custom_features) {
+        const OGRErr error = layer->ram_layer->SetFeature(custom_feature);
+    }
+
+    // Same as above but for in-RAM data
+    // TODO: Remove code duplication
+    current_feature = layer->ram_layer->GetNextFeature();
+
+    while (current_feature != nullptr) {
+        // Add the Feature objects from the next OGRFeature in the layer to the list
+        list.splice(list.end(), get_specialized_features(current_feature));
+
+        current_feature = layer->ram_layer->GetNextFeature();
     }
 
     return list;
@@ -116,6 +135,8 @@ std::list<Feature *> VectorExtractor::get_features_near_position(NativeLayer *la
         // Add the Feature objects from the next OGRFeature in the layer to the list
         list.splice(list.end(), get_specialized_features(layer->layer->GetNextFeature()));
     }
+
+    // TODO: Also check the RAM layer
 
     return list;
 }
@@ -265,6 +286,16 @@ bool NativeDataset::is_valid() const {
     return true;
 }
 
+NativeLayer::NativeLayer(OGRLayer *layer) : layer(layer) {
+    // We want users to be able to create and modify features, but we also don't necessarily want to
+    // write those changes to disk. So we create a in-RAM layer with the same footprint as this
+    // layer. It starts empty and is filled with new user-created features once they are created.
+    GDALDriver *out_driver = (GDALDriver *)GDALGetDriverByName("Memory");
+    GDALDataset *intersection_dataset = out_driver->Create("", 0, 0, 0, GDT_Unknown, nullptr);
+    ram_layer = intersection_dataset->CreateLayer(layer->GetName(), layer->GetSpatialRef(),
+                                                  layer->GetGeomType());
+}
+
 bool NativeLayer::is_valid() const {
     if (layer == nullptr) { return false; }
 
@@ -274,6 +305,14 @@ bool NativeLayer::is_valid() const {
 Feature *NativeLayer::create_feature() {
     OGRFeature *new_feature = new OGRFeature(layer->GetLayerDefn()); // TOOD: delete
     Feature *feature = new Feature(new_feature);                     // TODO: delete
+
+    // Create the feature on the in-RAM layer. Calling layer->CreateFeature would attempt to write
+    // to disk! Note that CreateFeature only copies the current data, it must be kept up-to-date
+    // with SetFeature.
+    const OGRErr error = ram_layer->CreateFeature(new_feature);
+    // (No need to check that error, we're in a self-owned in-RAM dataset)
+
+    custom_features.emplace_back(new_feature);
 
     return feature; // TODO: delete
 }

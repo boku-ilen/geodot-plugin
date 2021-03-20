@@ -5,6 +5,7 @@
 #include "PointFeature.h"
 #include "PolygonFeature.h"
 #include "defines.h"
+#include <list>
 
 // Forward declarations
 class OGRLayer;
@@ -28,7 +29,7 @@ class NativeDataset {
 
 class NativeLayer {
   public:
-    NativeLayer(OGRLayer *layer) : layer(layer){};
+    NativeLayer(OGRLayer *layer);
 
     ~NativeLayer() = default;
 
@@ -37,6 +38,10 @@ class NativeLayer {
     Feature *create_feature();
 
     OGRLayer *layer;
+    OGRLayer *ram_layer;
+
+    // Keeps track of OGRFeatures which were created by the user and which are thus in the ram_layer
+    std::list<OGRFeature *> custom_features;
 };
 
 class VectorExtractor {
