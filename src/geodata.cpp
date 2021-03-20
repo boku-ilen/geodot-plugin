@@ -25,7 +25,7 @@ bool GeoDataset::is_valid() {
 Array GeoDataset::get_raster_layers() {
     Array layers = Array();
 
-    std::vector<std::string> names = VectorExtractor::get_raster_layer_names(dataset);
+    std::vector<std::string> names = dataset->get_raster_layer_names();
 
     for (std::string name : names) {
         layers.append(get_raster_layer(name.c_str()));
@@ -37,7 +37,7 @@ Array GeoDataset::get_raster_layers() {
 Array GeoDataset::get_feature_layers() {
     Array layers = Array();
 
-    std::vector<std::string> names = VectorExtractor::get_feature_layer_names(dataset);
+    std::vector<std::string> names = dataset->get_feature_layer_names();
 
     for (std::string name : names) {
         layers.append(get_feature_layer(name.c_str()));
@@ -96,7 +96,7 @@ bool GeoFeatureLayer::is_valid() {
 Array GeoFeatureLayer::get_all_features() {
     Array geofeatures = Array();
 
-    std::list<Feature *> gdal_features = VectorExtractor::get_features(layer);
+    std::list<Feature *> gdal_features = layer->get_features();
 
     for (Feature *gdal_feature : gdal_features) {
         Ref<GeoFeature> geofeature;
@@ -140,7 +140,7 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
     Array features = Array();
 
     std::list<Feature *> raw_features =
-        VectorExtractor::get_features_near_position(layer, pos_x, pos_y, radius, max_features);
+        layer->get_features_near_position(pos_x, pos_y, radius, max_features);
 
     for (Feature *raw_feature : raw_features) {
         // TODO: Check here if the feature is deleted in RAM?

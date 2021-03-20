@@ -8,7 +8,7 @@ using namespace godot;
 GeoFeature::GeoFeature() {}
 
 GeoFeature::~GeoFeature() {
-    delete gdal_feature;
+    // FIXME: Decrease the GDAL feature's reference count?
 }
 
 void GeoFeature::_register_methods() {

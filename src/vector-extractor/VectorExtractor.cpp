@@ -1,4 +1,5 @@
 #include "VectorExtractor.h"
+#include <gdal/cpl_port.h>
 #include <gdal/ogr_feature.h>
 
 #ifdef _WIN32
@@ -27,10 +28,14 @@ NativeLayer *VectorExtractor::get_layer_from_dataset(GDALDataset *dataset, const
     return new NativeLayer(dataset->GetLayerByName(name));
 }
 
-// Utilify function to get the appropriate VectorExtractor Feature (e.g. LineFeature) for the given
-// OGRFeature. Return type is a list because it's possible that multiple features are retreived in
-// the case of e.g. a MULTILINESTRING.
-std::list<Feature *> get_specialized_features(OGRFeature *feature) {
+std::list<Feature *> NativeLayer::get_feature_for_fid(OGRFeature *feature) {
+    if (feature_cache.count(feature->GetFID())) {
+        // The feature is already cached, return that one
+        return feature_cache[feature->GetFID()];
+    }
+
+    // The feature is not cached; create a new one and cache that.
+    // To do that, check which specific class we need to instance:
     std::list<Feature *> list = std::list<Feature *>();
 
     const OGRGeometry *geometry_ref = feature->GetGeometryRef();
@@ -72,19 +77,22 @@ std::list<Feature *> get_specialized_features(OGRFeature *feature) {
         }
     }
 
+    // Add to the cache and return
+    feature_cache[feature->GetFID()] = list;
+
     return list;
 }
 
-std::list<Feature *> VectorExtractor::get_features(NativeLayer *layer) {
+std::list<Feature *> NativeLayer::get_features() {
     auto list = std::list<Feature *>();
 
-    OGRFeature *current_feature = layer->layer->GetNextFeature();
+    OGRFeature *current_feature = layer->GetNextFeature();
 
     while (current_feature != nullptr) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
-        list.splice(list.end(), get_specialized_features(current_feature));
+        list.splice(list.end(), get_feature_for_fid(current_feature));
 
-        current_feature = layer->layer->GetNextFeature();
+        current_feature = layer->GetNextFeature();
     }
 
     // TODO: Check the features in the list against the feature_cache; get_specialized_features
@@ -92,7 +100,7 @@ std::list<Feature *> VectorExtractor::get_features(NativeLayer *layer) {
 
     // Same as above but for in-RAM data
     // TODO: Remove code duplication
-    current_feature = layer->ram_layer->GetNextFeature();
+    current_feature = ram_layer->GetNextFeature();
 
     // TODO: We want to keep track of a "feature cache" within the class. So we only save
     // updates in there, and before returning, check whether the feature is already in the cache and
@@ -100,17 +108,16 @@ std::list<Feature *> VectorExtractor::get_features(NativeLayer *layer) {
     // different `get_features` calls return the same objects.
     while (current_feature != nullptr) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
-        list.splice(list.end(), get_specialized_features(current_feature));
+        list.splice(list.end(), get_feature_for_fid(current_feature));
 
-        current_feature = layer->ram_layer->GetNextFeature();
+        current_feature = ram_layer->GetNextFeature();
     }
 
     return list;
 }
 
-std::list<Feature *> VectorExtractor::get_features_near_position(NativeLayer *layer, double pos_x,
-                                                                 double pos_y, double radius,
-                                                                 int max_amount) {
+std::list<Feature *> NativeLayer::get_features_near_position(double pos_x, double pos_y,
+                                                             double radius, int max_amount) {
     std::list<Feature *> list = std::list<Feature *>();
 
     // We want to extract the features within the circle constructed with the given position and
@@ -122,17 +129,17 @@ std::list<Feature *> VectorExtractor::get_features_near_position(NativeLayer *la
     OGRGeometry *circle = new OGRPoint(pos_x, pos_y);
     OGRGeometry *circle_buffer = circle->Buffer(radius);
 
-    layer->layer->SetSpatialFilter(circle_buffer);
+    layer->SetSpatialFilter(circle_buffer);
 
     // Put the resulting features into the returned list. We add as many features as were returned
     // unless they're more
     //  than the given max_amount.
-    int num_features = layer->layer->GetFeatureCount();
+    int num_features = layer->GetFeatureCount();
     int iterations = std::min(num_features, max_amount);
 
     for (int i = 0; i < iterations; i++) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
-        list.splice(list.end(), get_specialized_features(layer->layer->GetNextFeature()));
+        list.splice(list.end(), get_feature_for_fid(layer->GetNextFeature()));
     }
 
     // TODO: Also check the RAM layer
@@ -140,23 +147,23 @@ std::list<Feature *> VectorExtractor::get_features_near_position(NativeLayer *la
     return list;
 }
 
-std::vector<std::string> VectorExtractor::get_feature_layer_names(NativeDataset *dataset) {
+std::vector<std::string> NativeDataset::get_feature_layer_names() {
     std::vector<std::string> names;
 
-    int layer_count = dataset->dataset->GetLayerCount();
+    int layer_count = dataset->GetLayerCount();
 
     // Get each layer and emplace its name in the array
     for (int i = 0; i < layer_count; i++) {
-        names.emplace_back(dataset->dataset->GetLayer(i)->GetName());
+        names.emplace_back(dataset->GetLayer(i)->GetName());
     }
 
     return names;
 }
 
-std::vector<std::string> VectorExtractor::get_raster_layer_names(NativeDataset *dataset) {
+std::vector<std::string> NativeDataset::get_raster_layer_names() {
     std::vector<std::string> names;
 
-    char **subdataset_metadata = dataset->dataset->GetMetadata("SUBDATASETS");
+    char **subdataset_metadata = dataset->GetMetadata("SUBDATASETS");
 
     // This metadata is formated like this:
     // SUBDATASET_1_NAME=GPKG:/path/to/geopackage.gpkg:dhm
@@ -180,9 +187,9 @@ std::vector<std::string> VectorExtractor::get_raster_layer_names(NativeDataset *
     return names;
 }
 
-std::list<LineFeature *> VectorExtractor::crop_lines_to_square(const char *path, double top_left_x,
-                                                               double top_left_y,
-                                                               double size_meters, int max_amount) {
+std::list<LineFeature *> NativeLayer::crop_lines_to_square(const char *path, double top_left_x,
+                                                           double top_left_y, double size_meters,
+                                                           int max_amount) {
     auto list = std::list<LineFeature *>();
 
     // TODO: Remove this and pass a OGRLayer* instead of the path
@@ -305,15 +312,18 @@ Feature *NativeLayer::create_feature() {
     OGRFeature *new_feature = new OGRFeature(layer->GetLayerDefn()); // TOOD: delete
     Feature *feature = new Feature(new_feature);                     // TODO: delete
 
+    // FIXME: Generate a new ID based on the highest ID within the original data plus the highest
+    // added ID
+    GUIntBig id = 123;
+    new_feature->SetFID(id);
+
     // Create the feature on the in-RAM layer. Calling layer->CreateFeature would attempt to write
     // to disk! Note that CreateFeature only copies the current data, it must be kept up-to-date
     // with SetFeature.
     const OGRErr error = ram_layer->CreateFeature(new_feature);
     // (No need to check that error, we're in a self-owned in-RAM dataset)
 
-    // TODO: Generate a new ID based on the highest ID within the original data plus the highest
-    // added ID
-    feature_cache[123] = feature;
+    feature_cache[id] = std::list<Feature *>{feature};
 
     return feature;
 }
