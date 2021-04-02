@@ -322,10 +322,13 @@ Feature *NativeLayer::create_feature() {
     OGRwkbGeometryType geometry_type = layer->GetGeomType();
 
     if (geometry_type == OGRwkbGeometryType::wkbPoint) {
+        new_feature->SetGeometry(new OGRPoint());
         feature = new PointFeature(new_feature);
     } else if (geometry_type == OGRwkbGeometryType::wkbPolygon) {
+        new_feature->SetGeometry(new OGRPolygon());
         feature = new PolygonFeature(new_feature);
     } else if (geometry_type == OGRwkbGeometryType::wkbLineString) {
+        new_feature->SetGeometry(new OGRLineString());
         feature = new LineFeature(new_feature);
     } else {
         // Either no geometry or unknown -- create a basic feature without geometry
