@@ -61,7 +61,10 @@ Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
 
 void GeoPoint::set_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z) {
     PointFeature *point = dynamic_cast<PointFeature *>(gdal_feature);
-    point->set_vector(offset_x + vector.x, offset_y + vector.y, offset_z + vector.z);
+
+    // Internally, a different coordinate system is used (Z up and reversed), which is why the
+    // coordinates are passed in a different order here.
+    point->set_vector(offset_x + vector.x, offset_z - vector.z, offset_y + vector.y);
 
     emit_signal("point_changed");
 }
