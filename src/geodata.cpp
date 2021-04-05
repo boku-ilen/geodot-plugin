@@ -157,7 +157,7 @@ Ref<GeoFeature> GeoFeatureLayer::create_feature() {
 
     Ref<GeoFeature> feature = get_specialized_feature(gdal_feature);
 
-    emit_signal("feature_added", this, feature);
+    emit_signal("feature_added", feature);
     return feature;
 }
 
@@ -166,7 +166,7 @@ void GeoFeatureLayer::remove_feature(Ref<GeoFeature> feature) {
 
     // TODO: Implement
 
-    emit_signal("feature_removed", this, feature);
+    emit_signal("feature_removed", feature);
 }
 
 Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, double radius,
