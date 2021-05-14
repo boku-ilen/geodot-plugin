@@ -1,5 +1,5 @@
 #include "GeoRaster.h"
-#include "gdal.h"
+#include "gdal-includes.h"
 #include <algorithm> // For std::clamp etc
 
 void *GeoRaster::get_as_array() {

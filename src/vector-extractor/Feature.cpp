@@ -1,5 +1,5 @@
 #include "Feature.h"
-#include "gdal.h"
+#include "gdal-includes.h"
 
 Feature::Feature(OGRFeature *feature) : feature(feature) {}
 

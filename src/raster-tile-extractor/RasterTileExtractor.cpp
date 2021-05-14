@@ -1,5 +1,5 @@
 #include "RasterTileExtractor.h"
-#include "gdal.h"
+#include "gdal-includes.h"
 #include <iostream>
 
 void RasterTileExtractor::initialize() {

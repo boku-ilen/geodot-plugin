@@ -1,7 +1,7 @@
 #include "VectorExtractor.h"
 #include "LineFeature.h"
 #include "PointFeature.h"
-#include "gdal.h"
+#include "gdal-includes.h"
 
 #include <algorithm>
 #include <iostream>

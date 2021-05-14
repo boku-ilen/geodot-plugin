@@ -1,7 +1,7 @@
 #ifndef VECTOREXTRACTOR_VECTOREXTRACTOR_H
 #define VECTOREXTRACTOR_VECTOREXTRACTOR_H
 
-#include "gdal.h"
+#include "gdal-includes.h"
 
 #include "LineFeature.h"
 #include "PointFeature.h"

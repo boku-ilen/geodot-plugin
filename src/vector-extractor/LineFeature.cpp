@@ -1,5 +1,5 @@
 #include "LineFeature.h"
-#include "gdal.h"
+#include "gdal-includes.h"
 
 LineFeature::LineFeature(OGRFeature *feature) : Feature(feature) {
     line = feature->GetGeometryRef()->toLineString();

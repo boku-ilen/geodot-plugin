@@ -1,5 +1,5 @@
 #include "PointFeature.h"
-#include "gdal.h"
+#include "gdal-includes.h"
 
 PointFeature::PointFeature(OGRFeature *feature) : Feature(feature) {
     point = feature->GetGeometryRef()->toPoint();

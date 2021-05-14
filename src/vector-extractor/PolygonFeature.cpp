@@ -1,5 +1,5 @@
 #include "PolygonFeature.h"
-#include "gdal.h"
+#include "gdal-includes.h"
 
 PolygonFeature::PolygonFeature(OGRFeature *feature) : Feature(feature) {
     polygon = feature->GetGeometryRef()->toPolygon();
