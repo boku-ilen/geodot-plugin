@@ -1,0 +1,69 @@
+name: Cross-compile Geodot for Windows from Linux
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-20.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Cache generated godot-cpp bindings
+        id: cache-bindings
+        uses: actions/cache@v2
+        env:
+          cache-name: godot-cpp-cache
+        with:
+          path: godot-cpp
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('godot-cpp') }}-windows
+
+      - name: Initialize submodules
+        if: steps.cache-bindings.outputs.cache-hit != 'true'
+        run: git submodule update --init --recursive
+        
+      - name: Install Python and SCons
+        run: |
+          sudo apt-get update && sudo apt-get install python3 python3-pip g++-mingw-w64-x86-64
+          sudo pip3 install scons
+      
+      - name: Generate Godot-CPP bindings
+        if: steps.cache-bindings.outputs.cache-hit != 'true'
+        run: scons platform=windows generate_bindings=yes
+        working-directory: godot-cpp
+        
+      - name: Create the build container
+        run: docker build -f DockerfileMinGW -t gdal-mingw .
+        
+      - name: Build Geodot on the container
+        run: docker run --name mingw-builder gdal-mingw:latest
+        
+      - name: Copy the resulting Geodot library
+        run: docker cp mingw-builder:/geodot/demo/addons/geodot/win64 ./demo/addons/geodot
+        
+      - name: Copy the DLLs for GDAL and all dependencies
+        run: |
+          docker cp mingw-builder:/usr/x86_64-w64-mingw32/sys-root/mingw/bin ./tmp
+          cp ./tmp/*.dll ./demo/addons/geodot/win64/
+          
+        
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-build
+          path: |
+            demo

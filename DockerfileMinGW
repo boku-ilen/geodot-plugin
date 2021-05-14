@@ -1,0 +1,14 @@
+FROM fedora:latest
+
+RUN dnf install -y mingw64-gdal
+RUN dnf install -y scons
+RUN dnf install -y binutils
+RUN dnf install -y mingw64-winpthreads-static
+RUN dnf install -y python-distro
+
+COPY ./ /geodot
+
+WORKDIR /geodot
+ENTRYPOINT scons platform=windows osgeo_path=/usr/x86_64-w64-mingw32/sys-root/mingw
+
+# Then: docker cp a96d86493418:/geodot Downloads/geodot

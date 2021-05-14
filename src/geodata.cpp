@@ -25,7 +25,7 @@ bool GeoDataset::is_valid() {
 Array GeoDataset::get_raster_layers() {
     Array layers = Array();
 
-    std::vector<std::string> names = VectorExtractor::get_raster_layer_names(dataset);
+    std::vector<std::string> names = dataset->get_raster_layer_names();
 
     for (std::string name : names) {
         layers.append(get_raster_layer(name.c_str()));
@@ -37,7 +37,7 @@ Array GeoDataset::get_raster_layers() {
 Array GeoDataset::get_feature_layers() {
     Array layers = Array();
 
-    std::vector<std::string> names = VectorExtractor::get_feature_layer_names(dataset);
+    std::vector<std::string> names = dataset->get_feature_layer_names();
 
     for (std::string name : names) {
         layers.append(get_feature_layer(name.c_str()));
@@ -79,6 +79,14 @@ void GeoFeatureLayer::_register_methods() {
     register_method("is_valid", &GeoFeatureLayer::is_valid);
     register_method("get_all_features", &GeoFeatureLayer::get_all_features);
     register_method("get_features_near_position", &GeoFeatureLayer::get_features_near_position);
+    register_method("create_feature", &GeoFeatureLayer::create_feature);
+    register_method("remove_feature", &GeoFeatureLayer::remove_feature);
+
+    register_signal<GeoFeatureLayer>((char *)"feature_added", "new_feature",
+                                     GODOT_VARIANT_TYPE_OBJECT);
+
+    register_signal<GeoFeatureLayer>((char *)"feature_removed", "removed_feature",
+                                     GODOT_VARIANT_TYPE_OBJECT);
 }
 
 bool GeoFeatureLayer::is_valid() {
@@ -88,7 +96,7 @@ bool GeoFeatureLayer::is_valid() {
 Array GeoFeatureLayer::get_all_features() {
     Array geofeatures = Array();
 
-    std::list<Feature *> gdal_features = VectorExtractor::get_features(layer->layer);
+    std::list<Feature *> gdal_features = layer->get_features();
 
     for (Feature *gdal_feature : gdal_features) {
         Ref<GeoFeature> geofeature;
@@ -102,51 +110,74 @@ Array GeoFeatureLayer::get_all_features() {
     return geofeatures;
 }
 
+// Utility function for converting a Processing Library Feature to the appropriate GeoFeature
+Ref<GeoFeature> get_specialized_feature(Feature *raw_feature) {
+    // Check which geometry this feature has, and cast it to the according
+    // specialized class
+    if (raw_feature->geometry_type == raw_feature->POINT) {
+        Ref<GeoPoint> point;
+        point.instance();
+
+        PointFeature *point_feature = dynamic_cast<PointFeature *>(raw_feature);
+
+        point->set_gdal_feature(point_feature);
+
+        return point;
+    } else if (raw_feature->geometry_type == raw_feature->LINE) {
+        Ref<GeoLine> line;
+        line.instance();
+
+        LineFeature *line_feature = dynamic_cast<LineFeature *>(raw_feature);
+
+        line->set_gdal_feature(line_feature);
+
+        return line;
+    } else if (raw_feature->geometry_type == raw_feature->POLYGON) {
+        Ref<GeoPolygon> polygon;
+        polygon.instance();
+
+        PolygonFeature *polygon_feature = dynamic_cast<PolygonFeature *>(raw_feature);
+
+        polygon->set_gdal_feature(polygon_feature);
+
+        return polygon;
+    } else {
+        // Geometry type is NONE or unknown
+        Ref<GeoFeature> feature;
+        feature.instance();
+
+        feature->set_gdal_feature(raw_feature);
+
+        return feature;
+    }
+}
+
+Ref<GeoFeature> GeoFeatureLayer::create_feature() {
+    Feature *gdal_feature = layer->create_feature();
+
+    Ref<GeoFeature> feature = get_specialized_feature(gdal_feature);
+
+    emit_signal("feature_added", feature);
+    return feature;
+}
+
+void GeoFeatureLayer::remove_feature(Ref<GeoFeature> feature) {
+    // Mark the feature for deletion
+
+    // TODO: Implement
+
+    emit_signal("feature_removed", feature);
+}
+
 Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, double radius,
                                                   int max_features) {
     Array features = Array();
 
-    std::list<Feature *> raw_features = VectorExtractor::get_features_near_position(
-        layer->layer, pos_x, pos_y, radius, max_features);
+    std::list<Feature *> raw_features =
+        layer->get_features_near_position(pos_x, pos_y, radius, max_features);
 
     for (Feature *raw_feature : raw_features) {
-        // Check which geometry this feature has, and cast it to the according
-        // specialized class
-        if (raw_feature->geometry_type == raw_feature->NONE) {
-            Ref<GeoFeature> feature;
-            feature.instance();
-
-            feature->set_gdal_feature(raw_feature);
-
-            features.push_back(feature);
-        } else if (raw_feature->geometry_type == raw_feature->POINT) {
-            Ref<GeoPoint> point;
-            point.instance();
-
-            PointFeature *point_feature = dynamic_cast<PointFeature *>(raw_feature);
-
-            point->set_gdal_feature(point_feature);
-
-            features.push_back(point);
-        } else if (raw_feature->geometry_type == raw_feature->LINE) {
-            Ref<GeoLine> line;
-            line.instance();
-
-            LineFeature *line_feature = dynamic_cast<LineFeature *>(raw_feature);
-
-            line->set_gdal_feature(line_feature);
-
-            features.push_back(line);
-        } else if (raw_feature->geometry_type == raw_feature->POLYGON) {
-            Ref<GeoPolygon> polygon;
-            polygon.instance();
-
-            PolygonFeature *polygon_feature = dynamic_cast<PolygonFeature *>(raw_feature);
-
-            polygon->set_gdal_feature(polygon_feature);
-
-            features.push_back(polygon);
-        }
+        features.push_back(get_specialized_feature(raw_feature));
     }
 
     return features;

@@ -1,10 +1,5 @@
 #include "PolygonFeature.h"
-
-#ifdef _WIN32
-#include <gdal_priv.h>
-#elif __unix__
-#include <gdal/gdal_priv.h>
-#endif
+#include "gdal-includes.h"
 
 PolygonFeature::PolygonFeature(OGRFeature *feature) : Feature(feature) {
     polygon = feature->GetGeometryRef()->toPolygon();

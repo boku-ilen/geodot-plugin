@@ -1,17 +1,12 @@
 #include "PointFeature.h"
-
-#ifdef _WIN32
-#include <gdal_priv.h>
-#elif __unix__
-#include <gdal/gdal_priv.h>
-#endif
+#include "gdal-includes.h"
 
 PointFeature::PointFeature(OGRFeature *feature) : Feature(feature) {
     point = feature->GetGeometryRef()->toPoint();
     geometry_type = POINT;
 }
 
-PointFeature::PointFeature(OGRFeature *feature, const OGRGeometry *ogrPoint)
+PointFeature::PointFeature(OGRFeature *feature, OGRGeometry *ogrPoint)
     : Feature(feature), point(ogrPoint->toPoint()) {
     geometry_type = POINT;
 }
@@ -26,4 +21,10 @@ double PointFeature::get_y() {
 
 double PointFeature::get_z() {
     return point->getZ();
+}
+
+void PointFeature::set_vector(double x, double y, double z) {
+    point->setX(x);
+    point->setY(y);
+    point->setZ(z);
 }

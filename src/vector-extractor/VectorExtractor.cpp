@@ -1,12 +1,7 @@
 #include "VectorExtractor.h"
-
-#ifdef _WIN32
-#include <gdal.h>
-#include <ogrsf_frmts.h>
-#elif __unix__
-#include <gdal/gdal.h>
-#include <gdal/ogrsf_frmts.h>
-#endif
+#include "LineFeature.h"
+#include "PointFeature.h"
+#include "gdal-includes.h"
 
 #include <algorithm>
 #include <iostream>
@@ -23,10 +18,14 @@ NativeLayer *VectorExtractor::get_layer_from_dataset(GDALDataset *dataset, const
     return new NativeLayer(dataset->GetLayerByName(name));
 }
 
-// Utilify function to get the appropriate VectorExtractor Feature (e.g. LineFeature) for the given
-// OGRFeature. Return type is a list because it's possible that multiple features are retreived in
-// the case of e.g. a MULTILINESTRING.
-std::list<Feature *> get_specialized_features(OGRFeature *feature) {
+std::list<Feature *> NativeLayer::get_feature_for_fid(OGRFeature *feature) {
+    if (feature_cache.count(feature->GetFID())) {
+        // The feature is already cached, return that one
+        return feature_cache[feature->GetFID()];
+    }
+
+    // The feature is not cached; create a new one and cache that.
+    // To do that, check which specific class we need to instance:
     std::list<Feature *> list = std::list<Feature *>();
 
     const OGRGeometry *geometry_ref = feature->GetGeometryRef();
@@ -50,9 +49,9 @@ std::list<Feature *> get_specialized_features(OGRFeature *feature) {
         // If this is a MultiFeature, we iterate over all the features in it and add those.
         // All the individual Features then share the same OGRFeature (with the same attributes
         // etc).
-        const OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
+        OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
 
-        for (const OGRGeometry *geometry : collection) {
+        for (OGRGeometry *geometry : collection) {
             list.emplace_back(new LineFeature(feature, geometry));
         }
     } else if (geometry_type_name == "POLYGON") {
@@ -68,27 +67,40 @@ std::list<Feature *> get_specialized_features(OGRFeature *feature) {
         }
     }
 
+    // Add to the cache and return
+    feature_cache[feature->GetFID()] = list;
+
     return list;
 }
 
-std::list<Feature *> VectorExtractor::get_features(OGRLayer *layer) {
+std::list<Feature *> NativeLayer::get_features() {
     auto list = std::list<Feature *>();
 
-    OGRFeature *current_feature = current_feature = layer->GetNextFeature();
+    OGRFeature *current_feature = layer->GetNextFeature();
 
     while (current_feature != nullptr) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
-        list.splice(list.end(), get_specialized_features(current_feature));
+        list.splice(list.end(), get_feature_for_fid(current_feature));
 
         current_feature = layer->GetNextFeature();
+    }
+
+    // Same as above but for in-RAM data
+    // TODO: Remove code duplication
+    current_feature = ram_layer->GetNextFeature();
+
+    while (current_feature != nullptr) {
+        // Add the Feature objects from the next OGRFeature in the layer to the list
+        list.splice(list.end(), get_feature_for_fid(current_feature));
+
+        current_feature = ram_layer->GetNextFeature();
     }
 
     return list;
 }
 
-std::list<Feature *> VectorExtractor::get_features_near_position(OGRLayer *layer, double pos_x,
-                                                                 double pos_y, double radius,
-                                                                 int max_amount) {
+std::list<Feature *> NativeLayer::get_features_near_position(double pos_x, double pos_y,
+                                                             double radius, int max_amount) {
     std::list<Feature *> list = std::list<Feature *>();
 
     // We want to extract the features within the circle constructed with the given position and
@@ -110,29 +122,44 @@ std::list<Feature *> VectorExtractor::get_features_near_position(OGRLayer *layer
 
     for (int i = 0; i < iterations; i++) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
-        list.splice(list.end(), get_specialized_features(layer->GetNextFeature()));
+        list.splice(list.end(), get_feature_for_fid(layer->GetNextFeature()));
+    }
+
+    // Also check the RAM layer
+    // FIXME: Take care of max_amount here too
+    // TODO: Code duplication (similar as in `get_features`)
+    ram_layer->SetSpatialFilter(circle_buffer);
+
+    // FIXME: In this case, we need to copy the cached features into the RAM dataset with
+    // layer->CreateFeature because otherwise, the spatial filter doesn't return them! So we should
+    // iterate over the values in cached_features and call CreateFeature with them, and perhaps
+    // optimize it by checking if there was a change first?
+
+    for (int i = 0; i < ram_layer->GetFeatureCount(); i++) {
+        // Add the Feature objects from the next OGRFeature in the layer to the list
+        list.splice(list.end(), get_feature_for_fid(ram_layer->GetNextFeature()));
     }
 
     return list;
 }
 
-std::vector<std::string> VectorExtractor::get_feature_layer_names(NativeDataset *dataset) {
+std::vector<std::string> NativeDataset::get_feature_layer_names() {
     std::vector<std::string> names;
 
-    int layer_count = dataset->dataset->GetLayerCount();
+    int layer_count = dataset->GetLayerCount();
 
     // Get each layer and emplace its name in the array
     for (int i = 0; i < layer_count; i++) {
-        names.emplace_back(dataset->dataset->GetLayer(i)->GetName());
+        names.emplace_back(dataset->GetLayer(i)->GetName());
     }
 
     return names;
 }
 
-std::vector<std::string> VectorExtractor::get_raster_layer_names(NativeDataset *dataset) {
+std::vector<std::string> NativeDataset::get_raster_layer_names() {
     std::vector<std::string> names;
 
-    char **subdataset_metadata = dataset->dataset->GetMetadata("SUBDATASETS");
+    char **subdataset_metadata = dataset->GetMetadata("SUBDATASETS");
 
     // This metadata is formated like this:
     // SUBDATASET_1_NAME=GPKG:/path/to/geopackage.gpkg:dhm
@@ -156,9 +183,9 @@ std::vector<std::string> VectorExtractor::get_raster_layer_names(NativeDataset *
     return names;
 }
 
-std::list<LineFeature *> VectorExtractor::crop_lines_to_square(const char *path, double top_left_x,
-                                                               double top_left_y,
-                                                               double size_meters, int max_amount) {
+std::list<LineFeature *> NativeLayer::crop_lines_to_square(const char *path, double top_left_x,
+                                                           double top_left_y, double size_meters,
+                                                           int max_amount) {
     auto list = std::list<LineFeature *>();
 
     // TODO: Remove this and pass a OGRLayer* instead of the path
@@ -202,7 +229,10 @@ std::list<LineFeature *> VectorExtractor::crop_lines_to_square(const char *path,
     // Create the feature for that layer
     OGRFeature *square_feature = OGRFeature::CreateFeature(square_layer->GetLayerDefn());
     square_feature->SetGeometry(square);
-    square_layer->CreateFeature(square_feature);
+    OGRErr error = square_layer->CreateFeature(square_feature);
+
+    // This shouldn't happen since we're in a custom RAM dataset, but just to make sure
+    if (error != OGRERR_NONE) { return list; }
 
     // Finally do the actual intersection, save the result to a new layer in the previously created
     // dataset
@@ -226,9 +256,9 @@ std::list<LineFeature *> VectorExtractor::crop_lines_to_square(const char *path,
             // If this is a MultiLineString, we iterate over all the lines in the LineString and add
             // those. All the individual LineStrings (and thus LineFeatures) then share the same
             // Feature (with attributes etc).
-            const OGRMultiLineString *linestrings = feature->GetGeometryRef()->toMultiLineString();
+            OGRMultiLineString *linestrings = feature->GetGeometryRef()->toMultiLineString();
 
-            for (const OGRLineString *linestring : linestrings) {
+            for (OGRLineString *linestring : linestrings) {
                 list.emplace_back(new LineFeature(feature, linestring));
             }
         }
@@ -237,9 +267,7 @@ std::list<LineFeature *> VectorExtractor::crop_lines_to_square(const char *path,
     return list;
 }
 
-NativeDataset::~NativeDataset() {
-    delete dataset;
-}
+NativeDataset::~NativeDataset() {}
 
 NativeDataset *NativeDataset::get_subdataset(const char *name) {
     // TODO: Hardcoded for the way GeoPackages work - do we want to support others too?
@@ -260,10 +288,57 @@ bool NativeDataset::is_valid() const {
     return true;
 }
 
+NativeLayer::NativeLayer(OGRLayer *layer) : layer(layer) {
+    // We want users to be able to create and modify features, but we also don't necessarily want to
+    // write those changes to disk. So we create a in-RAM layer with the same footprint as this
+    // layer. It starts empty and is filled with new user-created features once they are created.
+    GDALDriver *out_driver = (GDALDriver *)GDALGetDriverByName("Memory");
+    GDALDataset *intersection_dataset = out_driver->Create("", 0, 0, 0, GDT_Unknown, nullptr);
+    ram_layer = intersection_dataset->CreateLayer(layer->GetName(), layer->GetSpatialRef(),
+                                                  layer->GetGeomType());
+}
+
 bool NativeLayer::is_valid() const {
     if (layer == nullptr) { return false; }
 
     return true;
+}
+
+Feature *NativeLayer::create_feature() {
+    OGRFeature *new_feature = new OGRFeature(layer->GetLayerDefn()); // TOOD: delete somewhere
+    Feature *feature;                                                // TODO: delete somewhere
+
+    // Create an instance of a specific class based on the layer's geometry type
+    OGRwkbGeometryType geometry_type = layer->GetGeomType();
+
+    if (geometry_type == OGRwkbGeometryType::wkbPoint) {
+        new_feature->SetGeometry(new OGRPoint());
+        feature = new PointFeature(new_feature);
+    } else if (geometry_type == OGRwkbGeometryType::wkbPolygon) {
+        new_feature->SetGeometry(new OGRPolygon());
+        feature = new PolygonFeature(new_feature);
+    } else if (geometry_type == OGRwkbGeometryType::wkbLineString) {
+        new_feature->SetGeometry(new OGRLineString());
+        feature = new LineFeature(new_feature);
+    } else {
+        // Either no geometry or unknown -- create a basic feature without geometry
+        feature = new Feature(new_feature);
+    }
+
+    // FIXME: Generate a new ID based on the highest ID within the original data plus the highest
+    // added ID
+    GUIntBig id = 123;
+    new_feature->SetFID(id);
+
+    // Create the feature on the in-RAM layer. Calling layer->CreateFeature would attempt to write
+    // to disk! Note that CreateFeature only copies the current data, it must be kept up-to-date
+    // with SetFeature.
+    const OGRErr error = ram_layer->CreateFeature(new_feature);
+    // (No need to check that error, we're in a self-owned in-RAM dataset)
+
+    feature_cache[id] = std::list<Feature *>{feature};
+
+    return feature;
 }
 
 NativeDataset::NativeDataset(const char *path) : path(path) {

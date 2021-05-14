@@ -3,9 +3,6 @@
 
 #include <algorithm>  // For std::clamp
 #include <functional> // For std::hash
-#include <mutex>      // For std::mutex
-
-std::mutex resource_creation_mutex;
 
 using namespace godot;
 

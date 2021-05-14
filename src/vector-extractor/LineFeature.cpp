@@ -1,12 +1,5 @@
 #include "LineFeature.h"
-
-#ifdef _WIN32
-#include <gdal_priv.h>
-#include <ogr_geometry.h>
-#elif __unix__
-#include <gdal/gdal_priv.h>
-#include <gdal/ogr_geometry.h>
-#endif
+#include "gdal-includes.h"
 
 LineFeature::LineFeature(OGRFeature *feature) : Feature(feature) {
     line = feature->GetGeometryRef()->toLineString();
@@ -14,7 +7,7 @@ LineFeature::LineFeature(OGRFeature *feature) : Feature(feature) {
     geometry_type = LINE;
 }
 
-LineFeature::LineFeature(OGRFeature *feature, const OGRGeometry *linestring) : Feature(feature) {
+LineFeature::LineFeature(OGRFeature *feature, OGRGeometry *linestring) : Feature(feature) {
     line = linestring->toLineString();
     point_count = line->getNumPoints();
     geometry_type = LINE;
@@ -38,4 +31,12 @@ double LineFeature::get_line_point_y(int index) {
 
 double LineFeature::get_line_point_z(int index) {
     return line->getZ(index);
+}
+
+void LineFeature::set_point_count(int new_count) {
+    line->setNumPoints(new_count);
+}
+
+void LineFeature::set_line_point(int index, double x, double y, double z) {
+    line->setPoint(index, x, y, z);
 }

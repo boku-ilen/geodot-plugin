@@ -9,7 +9,7 @@
 // Foward declarations
 class OGRPolygon;
 
-class EXPORT PolygonFeature : public Feature {
+class PolygonFeature : public Feature {
   public:
     /// Construct a PolygonFeature with a feature which contains a Polygon.
     explicit PolygonFeature(OGRFeature *feature);

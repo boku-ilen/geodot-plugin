@@ -17,6 +17,11 @@ void GeoImage::_register_methods() {
     register_method("get_normalmap_for_heightmap", &GeoImage::get_normalmap_for_heightmap);
     register_method("get_normalmap_texture_for_heightmap",
                     &GeoImage::get_normalmap_texture_for_heightmap);
+    register_method("is_valid", &GeoImage::is_valid);
+}
+
+bool GeoImage::is_valid() {
+    return validity;
 }
 
 union {
@@ -49,6 +54,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
     if (format == GeoRaster::RGB) {
         uint8_t *data = (uint8_t *)raster->get_as_array();
 
+        if (data == nullptr) return;
+
         // This copy is straightforward since the result if
         // ImageRaster::get_data is already in the correct format. Format of the
         // PoolByteArray: (RGB)(RGB)(RGB)...
@@ -63,6 +70,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGB8, pba);
     } else if (format == GeoRaster::RGBA) {
         uint8_t *data = (uint8_t *)raster->get_as_array();
+
+        if (data == nullptr) return;
 
         // Copy each of the 4 bands
         // Format of the PoolByteArray: (RGBA)(RGBA)(RGBA)...
@@ -84,6 +93,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
     } else if (format == GeoRaster::BYTE) {
         uint8_t *data = (uint8_t *)raster->get_as_array();
 
+        if (data == nullptr) return;
+
         // 1:1 copy
         // Format of the PoolByteArray: (B)(B)(B)...
         for (int y = 0; y < img_size_y; y++) {
@@ -101,6 +112,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_R8, pba);
     } else if (format == GeoRaster::RF) {
         float *data = (float *)raster->get_as_array();
+
+        if (data == nullptr) return;
 
         // Convert the float into 4 bytes and add those to the array
         // Format of the PoolByteArray: (F1F2F3F4)(F1F2F3F4)(F1F2F3F4)...
@@ -123,6 +136,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         // Create an image from the PoolByteArray
         image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RF, pba);
     }
+
+    validity = true;
 }
 
 Ref<Image> GeoImage::get_image() {
@@ -244,11 +259,13 @@ Ref<ImageTexture> GeoImage::get_image_texture() {
 Array GeoImage::get_most_common(int number_of_entries) {
     int *most_common = raster->get_most_common(number_of_entries);
     Array ret_array = Array();
-    ret_array.resize(number_of_entries);
 
     // Translate C-style array to Godot Array
     for (int i = 0; i < number_of_entries; i++) {
-        ret_array[i] = most_common[i];
+        if (most_common[i] == 0)
+            break; // An entry of 0 means that nothing with this index was found, so we're done
+
+        ret_array.append(most_common[i]);
     }
 
     return ret_array;

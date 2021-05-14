@@ -5,6 +5,8 @@
 #define EXPORT __declspec(dllexport)
 #elif __unix__
 #define EXPORT
+#elif __APPLE__
+#define EXPORT
 #endif
 
 #endif // __DEFINES_H__

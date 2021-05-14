@@ -44,6 +44,8 @@ class EXPORT GeoImage : public Resource {
     void _init() {} // Must be here as Godot always calls this for Objects
     static void _register_methods();
 
+    bool is_valid();
+
     /// Import a GeoRaster and prepare the Godot Image
     /// Should not be called from the outside; Geodot only returns GeoImages
     /// which already have raster data.
@@ -78,6 +80,8 @@ class EXPORT GeoImage : public Resource {
     Ref<Mutex> normalmap_load_mutex;
 
     int interpolation;
+
+    bool validity = false;
 };
 
 } // namespace godot

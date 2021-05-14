@@ -1,5 +1,6 @@
 #!python
-import os, subprocess
+import os
+import subprocess
 
 opts = Variables([], ARGUMENTS)
 
@@ -9,54 +10,62 @@ env = DefaultEnvironment()
 # Define our options
 opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r', 'release']))
 opts.Add(EnumVariable('platform', "Compilation platform", '', ['', 'windows', 'x11', 'linux', 'osx']))
-opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
-opts.Add(PathVariable('osgeo_path', "(Windows only) path to OSGeo installation", "", PathVariable.PathAccept))
+opts.Add(PathVariable('osgeo_path', "(Windows and Mac) path to OSGeo installation", "", PathVariable.PathAccept))
 
 # only support 64 at this time..
 bits = 64
 
 # Updates the environment with the option variables.
 opts.Update(env)
-
-# Process some arguments
-if env['p'] != '':
-    env['platform'] = env['p']
-
 if env['platform'] == '':
     print("No valid target platform selected.")
-    quit();
+    quit()
 
 env['target_path'] = 'build/'
 env['target_name'] = 'libVectorExtractor'
 
+env.Append(CXXFLAGS=['-std=c++17', '-fPIC'])
+
 # Check our platform specifics
 if env['platform'] in ('x11', 'linux'):
-    env.Append(CXXFLAGS=['-std=c++17'])
-
     gdal_include_path = ""
     gdal_lib_path = ""
     gdal_lib_name = "libgdal"
 
+    # Arch needs different includes!
+    import distro
+    if distro.id() == "arch":
+        env.Append(CPPDEFINES=["_ARCH"])
+
 elif env['platform'] == "windows":
-    env.Append(CXXFLAGS=['-std=c++17', '-std:c++17'])
+    env.Replace(CXX=['/usr/bin/x86_64-w64-mingw32-g++'])
+    env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
 
     # Include GDAL
     gdal_include_path = os.path.join(env['osgeo_path'], "include")
     gdal_lib_path = os.path.join(env['osgeo_path'], "lib")
-    gdal_lib_name = "gdal_i"
+    gdal_lib_name = "gdal"
+
+    if not os.path.exists(gdal_include_path) or not os.path.exists(gdal_lib_path):
+        print("OSGeo paths are invalid!")
+        quit()
+
+elif env['platform'] == 'osx':
+    # Include GDAL
+    gdal_include_path = os.path.join(env['osgeo_path'], "include")
+    gdal_lib_path = os.path.join(env['osgeo_path'], "lib")
+    gdal_lib_name = "libgdal.dylib"
 
     if not os.path.exists(gdal_include_path) or not os.path.exists(gdal_lib_path):
         print("OSGeo paths are invalid!")
         quit()
 
 env.Append(CPPPATH=[gdal_include_path])
-env.Append(LIBPATH=[gdal_lib_path])
-env.Append(LIBS=[gdal_lib_name])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['./'])
 env.Append(CPPPATH=['../global/'])
 sources = Glob('./*.cpp')
 
-library = env.SharedLibrary(target=env['target_path'] + env['target_name'] , source=sources)
+library = env.StaticLibrary(target=env['target_path'] + env['target_name'], source=sources)

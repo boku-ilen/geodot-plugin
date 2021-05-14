@@ -1,12 +1,6 @@
 #include "GeoRaster.h"
-
-#ifdef _WIN32
-#include <cpl_error.h>
-#include <gdal_priv.h>
-#elif __unix__
-#include <gdal/cpl_error.h>
-#include <gdal/gdal_priv.h>
-#endif
+#include "gdal-includes.h"
+#include <algorithm> // For std::clamp etc
 
 void *GeoRaster::get_as_array() {
     GDALRasterIOExtraArg rasterio_args;
@@ -19,24 +13,29 @@ void *GeoRaster::get_as_array() {
     // scaling usually causes
     //  very long loading times so this is the default for now
     if (destination_window_size_pixels < source_window_size_pixels) { interpolation = 0; }
+
     rasterio_args.eResampleAlg = static_cast<GDALRIOResampleAlg>(interpolation);
 
-    // Check whether the requested image exceeds the extent of the data
-    if ((pixel_offset_x < 0 ||
-         pixel_offset_x + source_window_size_pixels > data->GetRasterXSize()) ||
-        (pixel_offset_y < 0 ||
-         pixel_offset_y + source_window_size_pixels > data->GetRasterYSize())) {
-        // TODO: Handle properly:
-        // 1. Create array using size destination_window_size_pixels
-        // 2. Extract into other array as usual, but with clamped extent
-        // 3. Insert other array into 1. array line-by-line using the part which was clamped as the
-        // offset This has the disadvantage of potentially allocating twice as much data, but it
-        // seems to be the only option with GDAL's RasterIO. Until this is done, return null:
-        return nullptr;
-    }
+    // Restrict the offset and extent to the available data
+    // TODO: Handle properly:
+    // 1. Create array using size destination_window_size_pixels
+    // 2. Extract into other array as usual, but with clamped extent
+    // 3. Insert other array into 1. array line-by-line using the part which was clamped as the
+    // offset. This has the disadvantage of potentially allocating twice as much data, but it seems
+    // to be the only option with GDAL's RasterIO.
+    int min_raster_size = std::min(data->GetRasterXSize(), data->GetRasterYSize());
+
+    int clamped_source_window_size_pixels =
+        std::clamp(source_window_size_pixels, 1, min_raster_size - 1);
+
+    int clamped_pixel_offset_x =
+        std::clamp(pixel_offset_x, 0, data->GetRasterXSize() - source_window_size_pixels);
+    int clamped_pixel_offset_y =
+        std::clamp(pixel_offset_y, 0, data->GetRasterYSize() - source_window_size_pixels);
 
     // TODO: We could do more precise error handling by getting the error number using
-    // CPLGetLastErrorNo() and returning that to the user somehow - maybe a flag in the GeoRaster.
+    // CPLGetLastErrorNo() and returning that to the user somehow - maybe a flag in the
+    // GeoRaster.
     CPLErr error = CE_Failure;
 
     // Depending on the image format, we need to structure the resulting array differently and/or
@@ -46,8 +45,9 @@ void *GeoRaster::get_as_array() {
         GDALRasterBand *band = data->GetRasterBand(1);
         float *array = new float[get_size_in_bytes()];
 
-        error = band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels,
-                               source_window_size_pixels, array, destination_window_size_pixels,
+        error = band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
+                               clamped_source_window_size_pixels, clamped_source_window_size_pixels,
+                               array, destination_window_size_pixels,
                                destination_window_size_pixels, GDT_Float32, 0, 0, &rasterio_args);
 
         if (error < CE_Failure) { return array; }
@@ -64,10 +64,11 @@ void *GeoRaster::get_as_array() {
             GDALRasterBand *band = data->GetRasterBand(band_number);
 
             // Read into the array with 4 bytes between the pixels
-            error = band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y,
-                                   source_window_size_pixels, source_window_size_pixels,
-                                   array + (band_number - 1), destination_window_size_pixels,
-                                   destination_window_size_pixels, GDT_Byte, 4, 0, &rasterio_args);
+            error =
+                band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
+                               clamped_source_window_size_pixels, clamped_source_window_size_pixels,
+                               array + (band_number - 1), destination_window_size_pixels,
+                               destination_window_size_pixels, GDT_Byte, 4, 0, &rasterio_args);
         }
 
         if (error < CE_Failure) { return array; }
@@ -83,10 +84,11 @@ void *GeoRaster::get_as_array() {
             GDALRasterBand *band = data->GetRasterBand(band_number);
 
             // Read into the array with 3 bytes between the pixels
-            error = band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y,
-                                   source_window_size_pixels, source_window_size_pixels,
-                                   array + (band_number - 1), destination_window_size_pixels,
-                                   destination_window_size_pixels, GDT_Byte, 3, 0, &rasterio_args);
+            error =
+                band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
+                               clamped_source_window_size_pixels, clamped_source_window_size_pixels,
+                               array + (band_number - 1), destination_window_size_pixels,
+                               destination_window_size_pixels, GDT_Byte, 3, 0, &rasterio_args);
         }
 
         if (error < CE_Failure) { return array; }
@@ -97,8 +99,9 @@ void *GeoRaster::get_as_array() {
         GDALRasterBand *band = data->GetRasterBand(1);
 
         // Read into the array with 4 bytes between the pixels
-        error = band->RasterIO(GF_Read, pixel_offset_x, pixel_offset_y, source_window_size_pixels,
-                               source_window_size_pixels, array, destination_window_size_pixels,
+        error = band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
+                               clamped_source_window_size_pixels, clamped_source_window_size_pixels,
+                               array, destination_window_size_pixels,
                                destination_window_size_pixels, GDT_Byte, 0, 0, &rasterio_args);
 
         if (error < CE_Failure) { return array; }

@@ -1,4 +1,5 @@
 #include "geofeatures.h"
+#include "Godot.hpp"
 
 using namespace godot;
 
@@ -7,21 +8,31 @@ using namespace godot;
 GeoFeature::GeoFeature() {}
 
 GeoFeature::~GeoFeature() {
-    delete gdal_feature;
+    // FIXME: Decrease the GDAL feature's reference count?
 }
 
 void GeoFeature::_register_methods() {
     register_method("get_attribute", &GeoFeature::get_attribute);
+    register_method("set_attribute", &GeoFeature::set_attribute);
+    register_method("get_attributes", &GeoFeature::get_attributes);
 }
 
 String GeoFeature::get_attribute(String name) {
     return gdal_feature->get_attribute(name.utf8().get_data());
 }
 
-Array GeoFeature::get_attributes() {
-    Array attributes = Array();
+void GeoFeature::set_attribute(String name, String value) {
+    gdal_feature->set_attribute(name.utf8().get_data(), value.utf8().get_data());
+}
 
-    // TODO
+Dictionary GeoFeature::get_attributes() {
+    Dictionary attributes = Dictionary();
+
+    std::map<std::string, std::string> attribute_map = gdal_feature->get_attributes();
+
+    for (const auto &attribute : attribute_map) {
+        attributes[attribute.first.c_str()] = attribute.second.c_str();
+    }
 
     return attributes;
 }
@@ -35,17 +46,35 @@ void GeoFeature::set_gdal_feature(Feature *gdal_feature) {
 void GeoPoint::_register_methods() {
     register_method("get_vector3", &GeoPoint::get_vector3);
     register_method("get_offset_vector3", &GeoPoint::get_offset_vector3);
+    register_method("set_vector3", &GeoPoint::set_vector3);
+    register_method("set_offset_vector3", &GeoPoint::set_offset_vector3);
+
+    register_signal<GeoPoint>((char *)"point_changed", Dictionary());
 }
 
 Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
-    PointFeature *point = (PointFeature *)gdal_feature;
+    PointFeature *point = dynamic_cast<PointFeature *>(gdal_feature);
 
     return Vector3(point->get_x() + offset_x, point->get_z() + offset_y,
                    -(point->get_y() + offset_z));
 }
 
+void GeoPoint::set_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z) {
+    PointFeature *point = dynamic_cast<PointFeature *>(gdal_feature);
+
+    // Internally, a different coordinate system is used (Z up and reversed), which is why the
+    // coordinates are passed in a different order here.
+    point->set_vector(offset_x + vector.x, offset_z - vector.z, offset_y + vector.y);
+
+    emit_signal("point_changed");
+}
+
 Vector3 GeoPoint::get_vector3() {
     return get_offset_vector3(0, 0, 0);
+}
+
+void GeoPoint::set_vector3(Vector3 vector) {
+    set_offset_vector3(vector, 0, 0, 0);
 }
 
 // GeoLine
@@ -53,6 +82,8 @@ Vector3 GeoPoint::get_vector3() {
 void GeoLine::_register_methods() {
     register_method("get_curve3d", &GeoLine::get_curve3d);
     register_method("get_offset_curve3d", &GeoLine::get_offset_curve3d);
+    register_method("set_curve3d", &GeoLine::set_curve3d);
+    register_method("set_offset_curve3d", &GeoLine::set_offset_curve3d);
 }
 
 Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
@@ -76,15 +107,37 @@ Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_
     return curve;
 }
 
+void GeoLine::set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y, int offset_z) {
+    LineFeature *line = (LineFeature *)gdal_feature;
+    int point_count = curve->get_point_count();
+
+    // Update the number of points to free up space or create new space, depending on the difference
+    line->set_point_count(point_count);
+
+    // Set all points in the LineFeature according to the Curve3D
+    for (int i = 0; i < point_count; i++) {
+        Vector3 position = curve->get_point_position(i);
+        line->set_line_point(i, position.x - static_cast<double>(offset_x),
+                             position.z - static_cast<double>(offset_x),
+                             -position.y - static_cast<double>(offset_x));
+    }
+}
+
 Ref<Curve3D> GeoLine::get_curve3d() {
     return get_offset_curve3d(0, 0, 0);
+}
+
+void GeoLine::set_curve3d(Ref<Curve3D> curve) {
+    set_offset_curve3d(curve, 0, 0, 0);
 }
 
 // GeoPolygon
 
 void GeoPolygon::_register_methods() {
     register_method("get_outer_vertices", &GeoPolygon::get_outer_vertices);
+    register_method("set_outer_vertices", &GeoPolygon::set_outer_vertices);
     register_method("get_holes", &GeoPolygon::get_holes);
+    register_method("add_hole", &GeoPolygon::add_hole);
 }
 
 PoolVector2Array GeoPolygon::get_outer_vertices() {
@@ -98,6 +151,10 @@ PoolVector2Array GeoPolygon::get_outer_vertices() {
     }
 
     return vertices;
+}
+
+void GeoPolygon::set_outer_vertices(PoolVector2Array vertices) {
+    // TODO: Implement
 }
 
 Array GeoPolygon::get_holes() {
@@ -117,4 +174,8 @@ Array GeoPolygon::get_holes() {
     }
 
     return holes;
+}
+
+void GeoPolygon::add_hole(PoolVector2Array hole) {
+    // TODO: Implement
 }

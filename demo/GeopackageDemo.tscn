@@ -6,4 +6,3 @@
 script = ExtResource( 1 )
 path = "geodata/geopackage_sample.gpkg"
 layer_name = "geopackage_sample"
-attribute_name = "Test"
