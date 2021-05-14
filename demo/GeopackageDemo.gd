@@ -18,7 +18,7 @@ func _ready():
 	print(' fetching layer    : ', layer_name)
 	var layer = dataset.get_feature_layer(layer_name)
 
-  # Create a new feature
+	# Create a new feature
 	var new_feature = layer.create_feature()
 	new_feature.set_attribute("Test", "Another Success?")
 	
