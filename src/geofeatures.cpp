@@ -108,7 +108,19 @@ Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_
 }
 
 void GeoLine::set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y, int offset_z) {
-    // TODO: Implement
+    LineFeature *line = (LineFeature *)gdal_feature;
+    int point_count = curve->get_point_count();
+
+    // Update the number of points to free up space or create new space, depending on the difference
+    line->set_point_count(point_count);
+
+    // Set all points in the LineFeature according to the Curve3D
+    for (int i = 0; i < point_count; i++) {
+        Vector3 position = curve->get_point_position(i);
+        line->set_line_point(i, position.x - static_cast<double>(offset_x),
+                             position.z - static_cast<double>(offset_x),
+                             -position.y - static_cast<double>(offset_x));
+    }
 }
 
 Ref<Curve3D> GeoLine::get_curve3d() {

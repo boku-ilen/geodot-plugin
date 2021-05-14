@@ -59,9 +59,9 @@ std::list<Feature *> NativeLayer::get_feature_for_fid(OGRFeature *feature) {
         // If this is a MultiFeature, we iterate over all the features in it and add those.
         // All the individual Features then share the same OGRFeature (with the same attributes
         // etc).
-        const OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
+        OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
 
-        for (const OGRGeometry *geometry : collection) {
+        for (OGRGeometry *geometry : collection) {
             list.emplace_back(new LineFeature(feature, geometry));
         }
     } else if (geometry_type_name == "POLYGON") {
@@ -266,9 +266,9 @@ std::list<LineFeature *> NativeLayer::crop_lines_to_square(const char *path, dou
             // If this is a MultiLineString, we iterate over all the lines in the LineString and add
             // those. All the individual LineStrings (and thus LineFeatures) then share the same
             // Feature (with attributes etc).
-            const OGRMultiLineString *linestrings = feature->GetGeometryRef()->toMultiLineString();
+            OGRMultiLineString *linestrings = feature->GetGeometryRef()->toMultiLineString();
 
-            for (const OGRLineString *linestring : linestrings) {
+            for (OGRLineString *linestring : linestrings) {
                 list.emplace_back(new LineFeature(feature, linestring));
             }
         }
