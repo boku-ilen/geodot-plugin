@@ -1,11 +1,12 @@
 #ifndef VECTOREXTRACTOR_VECTOREXTRACTOR_H
 #define VECTOREXTRACTOR_VECTOREXTRACTOR_H
 
+#include "gdal.h"
+
 #include "LineFeature.h"
 #include "PointFeature.h"
 #include "PolygonFeature.h"
 #include "defines.h"
-#include "gdal.h"
 #include <list>
 #include <map>
 

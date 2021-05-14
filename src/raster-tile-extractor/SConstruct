@@ -1,7 +1,6 @@
 #!python
 import os
 import subprocess
-import distro
 
 opts = Variables([], ARGUMENTS)
 
@@ -35,6 +34,7 @@ if env['platform'] in ('x11', 'linux'):
     gdal_lib_name = "libgdal"
 
     # Arch needs different includes!
+    import distro
     if distro.id() == "arch":
         env.Append(CPPDEFINES=["_ARCH"])
 

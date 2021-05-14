@@ -10,7 +10,11 @@
 #include <ogrsf_frmts.h>
 #elif __APPLE__
 #include <cpl_error.h>
+#include <cpl_port.h>
+#include <gdal.h>
 #include <gdal_priv.h>
+#include <gdalwarper.h>
+#include <ogr_feature.h>
 #include <ogrsf_frmts.h>
 #elif __unix__
 #include <gdal/cpl_error.h>
