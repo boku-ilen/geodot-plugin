@@ -1,12 +1,5 @@
 #include "Feature.h"
-
-#ifdef _WIN32
-#include <ogr_feature.h>
-#elif __APPLE__
-#include <ogr_feature.h>
-#elif __unix__
-#include <gdal/ogr_feature.h>
-#endif
+#include "gdal.h"
 
 Feature::Feature(OGRFeature *feature) : feature(feature) {}
 

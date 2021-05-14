@@ -1,16 +1,6 @@
 #include "GeoRaster.h"
+#include "gdal.h"
 #include <algorithm> // For std::clamp etc
-
-#ifdef _WIN32
-#include <cpl_error.h>
-#include <gdal_priv.h>
-#elif __APPLE__
-#include <cpl_error.h>
-#include <gdal_priv.h>
-#elif __unix__
-#include <gdal/cpl_error.h>
-#include <gdal/gdal_priv.h>
-#endif
 
 void *GeoRaster::get_as_array() {
     GDALRasterIOExtraArg rasterio_args;

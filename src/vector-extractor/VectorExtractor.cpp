@@ -1,17 +1,7 @@
 #include "VectorExtractor.h"
 #include "LineFeature.h"
 #include "PointFeature.h"
-
-#ifdef _WIN32
-#include <gdal.h>
-#include <ogrsf_frmts.h>
-#elif __APPLE__
-#include <gdal.h>
-#include <ogrsf_frmts.h>
-#elif __unix__
-#include <gdal/gdal.h>
-#include <gdal/ogrsf_frmts.h>
-#endif
+#include "gdal.h"
 
 #include <algorithm>
 #include <iostream>
