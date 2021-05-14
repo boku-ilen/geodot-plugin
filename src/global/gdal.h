@@ -1,6 +1,10 @@
 // Simple header for including various GDAL includes without the need for platform-checks.
 
-#ifdef _WIN32
+#ifdef _ARCH
+#include <cpl_error.h>
+#include <gdal_priv.h>
+#include <ogrsf_frmts.h>
+#elif _WIN32
 #include <cpl_error.h>
 #include <gdal_priv.h>
 #include <ogrsf_frmts.h>

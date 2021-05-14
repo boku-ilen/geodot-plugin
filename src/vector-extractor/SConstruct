@@ -1,6 +1,7 @@
 #!python
 import os
 import subprocess
+import distro
 
 opts = Variables([], ARGUMENTS)
 
@@ -32,6 +33,10 @@ if env['platform'] in ('x11', 'linux'):
     gdal_include_path = ""
     gdal_lib_path = ""
     gdal_lib_name = "libgdal"
+
+    # Arch needs different includes!
+    if distro.id() == "arch":
+        env.Append(CPPDEFINES=["_ARCH"])
 
 elif env['platform'] == "windows":
     env.Replace(CXX=['/usr/bin/x86_64-w64-mingw32-g++'])
