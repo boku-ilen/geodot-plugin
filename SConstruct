@@ -115,6 +115,11 @@ elif env['platform'] in ('x11', 'linux'):
         env.Append(CCFLAGS=['-fPIC', '-g3', '-Og'])
     else:
         env.Append(CCFLAGS=['-fPIC', '-g', '-O3'])
+    
+    # Arch needs different includes!
+    import distro
+    if distro.like() == "arch":
+        env.Append(CPPDEFINES=["_ARCH"])
 
 elif env['platform'] == "windows":
     env['target_path'] += 'win64/'

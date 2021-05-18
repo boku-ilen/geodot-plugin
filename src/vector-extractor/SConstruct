@@ -35,7 +35,7 @@ if env['platform'] in ('x11', 'linux'):
 
     # Arch needs different includes!
     import distro
-    if distro.id() == "arch":
+    if distro.like() == "arch":
         env.Append(CPPDEFINES=["_ARCH"])
 
 elif env['platform'] == "windows":
