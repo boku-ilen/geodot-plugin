@@ -1,7 +1,9 @@
 #ifndef __DEFINES_H__
 #define __DEFINES_H__
 
-#ifdef _WIN32
+#ifdef __MINGW32__
+#define EXPORT __declspec(dllexport)
+#elif _WIN32
 #define EXPORT __declspec(dllexport)
 #elif __unix__
 #define EXPORT

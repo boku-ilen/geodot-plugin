@@ -1,5 +1,9 @@
 #include "geodot.h"
 
+#ifdef __MINGW32__
+#define GDN_EXPORT __declspec(dllexport)
+#endif
+
 extern "C" void GDN_EXPORT godot_gdnative_init(godot_gdnative_init_options *o) {
     godot::Godot::gdnative_init(o);
 }
