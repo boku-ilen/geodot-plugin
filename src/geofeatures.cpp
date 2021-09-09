@@ -84,6 +84,9 @@ void GeoLine::_register_methods() {
     register_method("get_offset_curve3d", &GeoLine::get_offset_curve3d);
     register_method("set_curve3d", &GeoLine::set_curve3d);
     register_method("set_offset_curve3d", &GeoLine::set_offset_curve3d);
+    register_method("add_point", &GeoLine::add_point);
+
+    register_signal<GeoLine>((char *)"line_changed", Dictionary());
 }
 
 Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
@@ -121,6 +124,8 @@ void GeoLine::set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y,
                              position.z - static_cast<double>(offset_x),
                              -position.y - static_cast<double>(offset_x));
     }
+
+    emit_signal("line_changed");
 }
 
 Ref<Curve3D> GeoLine::get_curve3d() {
@@ -129,6 +134,16 @@ Ref<Curve3D> GeoLine::get_curve3d() {
 
 void GeoLine::set_curve3d(Ref<Curve3D> curve) {
     set_offset_curve3d(curve, 0, 0, 0);
+
+    emit_signal("line_changed");
+}
+
+void GeoLine::add_point(Vector3 point) {
+    LineFeature *line = (LineFeature *)gdal_feature;
+    line->set_point_count(line->get_point_count() + 1);
+    line->set_line_point(line->get_point_count() - 1, point.x, point.y, point.z);
+
+    emit_signal("line_changed");
 }
 
 // GeoPolygon

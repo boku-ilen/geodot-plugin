@@ -71,6 +71,8 @@ class EXPORT GeoLine : public GeoFeature {
 
     Ref<Curve3D> get_curve3d();
     void set_curve3d(Ref<Curve3D> curve);
+
+    void add_point(Vector3 point);
 };
 
 // Wrapper for a PolygonFeature from the VectorExtractor.
