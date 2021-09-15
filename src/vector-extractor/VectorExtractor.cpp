@@ -18,6 +18,24 @@ NativeLayer *VectorExtractor::get_layer_from_dataset(GDALDataset *dataset, const
     return new NativeLayer(dataset->GetLayerByName(name));
 }
 
+std::vector<double> VectorExtractor::transform_coordinates(double input_x, double input_z,
+                                                           std::string from, std::string to) {
+    OGRSpatialReference source_reference, target_reference;
+
+    source_reference.SetWellKnownGeogCS(from.c_str());
+    target_reference.SetWellKnownGeogCS(to.c_str());
+
+    OGRCoordinateTransformation *transformation =
+        OGRCreateCoordinateTransformation(&source_reference, &target_reference);
+
+    double output_x = input_x;
+    double output_z = input_z;
+
+    transformation->Transform(1, &output_x, &output_z);
+
+    return std::vector{output_x, output_z};
+}
+
 std::list<Feature *> NativeLayer::get_feature_for_fid(OGRFeature *feature) {
     if (feature_cache.count(feature->GetFID())) {
         // The feature is already cached, return that one

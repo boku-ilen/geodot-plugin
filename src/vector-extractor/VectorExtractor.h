@@ -104,6 +104,9 @@ class VectorExtractor {
     /// Returns the layer from the given dataset with the given name, or null if there is no layer
     /// with that name.
     static NativeLayer *get_layer_from_dataset(GDALDataset *dataset, const char *name);
+
+    static std::vector<double> transform_coordinates(double input_x, double input_z,
+                                                     std::string from, std::string to);
 };
 
 #endif // VECTOREXTRACTOR_VECTOREXTRACTOR_H

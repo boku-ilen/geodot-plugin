@@ -39,6 +39,8 @@ class EXPORT Geodot : public Node {
     /// Will possibly become deprecated.
     Ref<GeoRasterLayer> get_raster_layer_for_pyramid(String root_folder, String image_ending);
 
+    Vector3 transform_coordinates(Vector3 coordinates, String from, String to);
+
     Geodot() = default;
     ~Geodot() = default;
 };
