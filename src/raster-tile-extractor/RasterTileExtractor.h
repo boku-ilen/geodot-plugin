@@ -22,10 +22,24 @@ class RasterTileExtractor {
                                             double top_left_y, double size_meters, int img_size,
                                             int interpolation_type);
 
+    struct ExtentData {
+        ExtentData(double left, double right, double top, double down)
+            : left(left), right(right), top(top), down(down) {}
+
+        ExtentData() = default;
+
+        double left;
+        double right;
+        double top;
+        double down;
+    };
+
+    static ExtentData get_extent_data(GDALDataset *dataset);
+
   private:
     /// Return a GeoRaster containing the area in the given dataset starting at top_left_x,
-    /// top_left_y with a given size (in meters). The resulting image has the resolution img_size *
-    /// img_size (pixels).
+    /// top_left_y with a given size (in meters). The resulting image has the resolution
+    /// img_size * img_size (pixels).
     static GeoRaster *clip_dataset(GDALDataset *dataset, double top_left_x, double top_left_y,
                                    double size_meters, int img_size, int interpolation_type);
 

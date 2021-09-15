@@ -67,6 +67,24 @@ GeoRaster *RasterTileExtractor::get_tile_from_dataset(GDALDataset *dataset, doub
     return clip_dataset(dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
 }
 
+RasterTileExtractor::ExtentData RasterTileExtractor::get_extent_data(GDALDataset *dataset) {
+    // Get the Transform of the image
+    double transform[6];
+    dataset->GetGeoTransform(transform);
+
+    double x_size = dataset->GetRasterXSize();
+    double y_size = dataset->GetRasterYSize();
+
+    ExtentData extent_data;
+
+    extent_data.left = transform[0] + 0 * transform[1] + 0 * transform[2];
+    extent_data.right = transform[0] + x_size * transform[1] + 0 * transform[2];
+    extent_data.top = transform[3] + 0 * transform[4] + 0 * transform[5];
+    extent_data.down = transform[3] + 0 * transform[4] + y_size * transform[5];
+
+    return extent_data;
+}
+
 #define WEBMERCATOR_MAX 20037508.0
 #define PI 3.14159265358979323846
 #define CIRCUMEFERENCE 40075016.686

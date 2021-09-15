@@ -201,6 +201,8 @@ void GeoRasterLayer::_register_methods() {
     register_method("is_valid", &GeoRasterLayer::is_valid);
     register_method("get_image", &GeoRasterLayer::get_image);
     register_method("get_value_at_position", &GeoRasterLayer::get_value_at_position);
+    register_method("get_extent", &GeoRasterLayer::get_extent);
+    register_method("get_center", &GeoRasterLayer::get_center);
     register_method("clone", &GeoRasterLayer::clone);
 }
 
@@ -246,6 +248,16 @@ float GeoRasterLayer::get_value_at_position(double pos_x, double pos_y) {
     return -1.0;
 }
 
+Rect2 GeoRasterLayer::get_extent() {
+    return Rect2(extent_data.left, extent_data.top, extent_data.right - extent_data.left,
+                 extent_data.down - extent_data.top);
+}
+
+Vector3 GeoRasterLayer::get_center() {
+    return Vector3(extent_data.left + (extent_data.right - extent_data.left) / 2.0, 0.0,
+                   extent_data.top + (extent_data.down - extent_data.top) / 2.0);
+}
+
 bool PyramidGeoRasterLayer::is_valid() {
     // TODO
     return true;
@@ -287,6 +299,7 @@ void GeoRasterLayer::load_from_file(String file_path) {
 
 void GeoRasterLayer::set_native_dataset(NativeDataset *new_dataset) {
     dataset = new_dataset;
+    extent_data = RasterTileExtractor::get_extent_data(new_dataset->dataset);
 }
 
 void PyramidGeoRasterLayer::_register_methods() {

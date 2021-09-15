@@ -3,6 +3,7 @@
 
 #include <Godot.hpp>
 
+#include "RasterTileExtractor.h"
 #include "VectorExtractor.h"
 #include "defines.h"
 #include "geofeatures.h"
@@ -97,6 +98,13 @@ class EXPORT GeoRasterLayer : public Resource {
     /// get_image and read the pixels from there.
     float get_value_at_position(double pos_x, double pos_y);
 
+    /// Returns the extent of the layer in projected meters (assuming it is rectangular).
+    Rect2 get_extent();
+
+    /// Returns the point in the center of the layer in projected meters.
+    /// The y-component is 0.0.
+    Vector3 get_center();
+
     /// Load a raster dataset file such as a GeoTIFF into this object.
     /// Not exposed to Godot since Godot should create datasets and layers from
     /// the Geodot singleton (the factory).
@@ -109,6 +117,7 @@ class EXPORT GeoRasterLayer : public Resource {
 
   private:
     NativeDataset *dataset;
+    RasterTileExtractor::ExtentData extent_data;
 };
 
 /// A layer which contains raster data, loaded from a well-defined pyramid folder structure.
