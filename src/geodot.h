@@ -6,12 +6,8 @@
 #include <Mutex.hpp>
 #include <Node.hpp>
 
-#include "RasterTileExtractor.h"
-#include "VectorExtractor.h"
 #include "defines.h"
 #include "geodata.h"
-#include "geofeatures.h"
-#include "geoimage.h"
 
 namespace godot {
 
