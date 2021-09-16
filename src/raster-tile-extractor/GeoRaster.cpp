@@ -2,7 +2,6 @@
 #include "gdal-includes.h"
 #include <algorithm> // For std::clamp etc
 #include <cstring>
-#include <iostream>
 
 void *GeoRaster::get_as_array() {
     GDALRasterIOExtraArg rasterio_args;
@@ -62,10 +61,6 @@ void *GeoRaster::get_as_array() {
     int target_width = usable_width * source_destination_ratio;
     int target_height = usable_height * source_destination_ratio;
 
-    std::cout << "usable width: " << usable_width << " vs requested: " << source_window_size_pixels
-              << std::endl;
-    std::cout << "target width: " << target_width << std::endl;
-
     // TODO: We could do more precise error handling by getting the error number using
     // CPLGetLastErrorNo() and returning that to the user somehow - maybe a flag in the
     // GeoRaster.
@@ -77,7 +72,7 @@ void *GeoRaster::get_as_array() {
     // subtle differences, it's tricky to generalize it. A templated factory class might help, but
     // seems overkill
     if (format == RF) {
-        if (usable_width <= 0 || target_width <= 0) {
+        if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
             // only 0s
             float *target_array = new float[get_size_in_bytes()];
@@ -105,14 +100,16 @@ void *GeoRaster::get_as_array() {
 
                 // Write the available data into the large result array at the appropriate positions
                 for (int y = 0; y < destination_window_size_pixels; y++) {
+                    // FIXME: Why - 4? Removing it causes odd behavior at the edges...
                     if (y >= remainder_y_top &&
-                        y <= destination_window_size_pixels - remainder_y_bottom) {
+                        y < destination_window_size_pixels - remainder_y_bottom - 4) {
                         // Not sure why we need to subtract 4 from the size, but not doing so
                         // results in bad values right at the transition from data to nodata.
                         // TODO: Is this required for the other types too? Doesn't seem so...
                         memcpy(target_array +
                                    (y * destination_window_size_pixels + remainder_x_left),
-                               array + (y * target_width), target_width * 4 - 4);
+                               array + ((y - remainder_y_top + 1) * target_width) + 1,
+                               target_width * 4 - 8);
                     }
                 }
 
@@ -120,7 +117,7 @@ void *GeoRaster::get_as_array() {
             }
         }
     } else if (format == RGBA) {
-        if (usable_width <= 0 || target_width <= 0) {
+        if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
             // only 0s
             uint8_t *target_array = new uint8_t[get_size_in_bytes()];
@@ -161,7 +158,8 @@ void *GeoRaster::get_as_array() {
                         y <= destination_window_size_pixels - remainder_y_bottom) {
                         memcpy(target_array +
                                    (y * destination_window_size_pixels + remainder_x_left) * 4,
-                               array + (y * target_width) * 4, target_width * 4);
+                               array + ((y - remainder_y_top) * target_width) * 4,
+                               target_width * 4);
                     }
                 }
 
@@ -169,7 +167,7 @@ void *GeoRaster::get_as_array() {
             }
         }
     } else if (format == RGB) {
-        if (usable_width <= 0 || target_width <= 0) {
+        if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
             // only 0s
             uint8_t *target_array = new uint8_t[get_size_in_bytes()];
@@ -209,7 +207,8 @@ void *GeoRaster::get_as_array() {
                         y <= destination_window_size_pixels - remainder_y_bottom) {
                         memcpy(target_array +
                                    (y * destination_window_size_pixels + remainder_x_left) * 3,
-                               array + (y * target_width) * 3, target_width * 3);
+                               array + ((y - remainder_y_top) * target_width) * 3,
+                               target_width * 3);
                     }
                 }
 
@@ -217,7 +216,7 @@ void *GeoRaster::get_as_array() {
             }
         }
     } else if (format == BYTE) {
-        if (usable_width <= 0 || target_width <= 0) {
+        if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
             // only 0s
             uint8_t *target_array = new uint8_t[get_size_in_bytes()];
@@ -251,7 +250,7 @@ void *GeoRaster::get_as_array() {
                         y <= destination_window_size_pixels - remainder_y_bottom) {
                         memcpy(target_array +
                                    (y * destination_window_size_pixels + remainder_x_left),
-                               array + (y * target_width), target_width);
+                               array + ((y - remainder_y_top) * target_width), target_width);
                     }
                 }
 
