@@ -2,7 +2,6 @@
 #include "gdal-includes.h"
 #include <algorithm> // For std::clamp etc
 #include <cstring>
-#include <iostream>
 
 void *GeoRaster::get_as_array() {
     GDALRasterIOExtraArg rasterio_args;
@@ -36,27 +35,31 @@ void *GeoRaster::get_as_array() {
     int clamped_pixel_offset_y = pixel_offset_y;
 
     int remainder_x_left = 0;
-    int remainder_x_right = 0;
-
-    int remainder_y_bottom = 0;
     int remainder_y_top = 0;
 
-    if (pixel_offset_x < 0) {
-        usable_width += pixel_offset_x;
-        remainder_x_left = -pixel_offset_x * source_destination_ratio;
-        clamped_pixel_offset_x = 0;
-    } else if (pixel_offset_x + source_window_size_pixels > data->GetRasterXSize()) {
-        usable_width -= pixel_offset_x + source_window_size_pixels - data->GetRasterXSize();
-        remainder_x_right = (source_window_size_pixels - usable_width) * source_destination_ratio;
+    // Required for some datasets which don't have a clean transition from data into nodata.
+    // TODO: Consider exposing as an argument
+    int padding = 40;
+
+    int available_x = data->GetRasterXSize() - padding;
+    int available_y = data->GetRasterYSize() - padding;
+
+    if (pixel_offset_x - padding < 0) {
+        // FIXME: There might be a slight logic error here, as there's a slight border on the wrong
+        // side
+        usable_width += pixel_offset_x - padding;
+        remainder_x_left = (-pixel_offset_x + padding) * source_destination_ratio;
+        clamped_pixel_offset_x = padding;
+    } else if (pixel_offset_x + source_window_size_pixels > available_x) {
+        usable_width -= pixel_offset_x + source_window_size_pixels - available_x;
     }
 
-    if (pixel_offset_y < 0) {
-        usable_height += pixel_offset_y;
-        remainder_y_top = -pixel_offset_y * source_destination_ratio;
-        clamped_pixel_offset_y = 0;
-    } else if (pixel_offset_y + source_window_size_pixels > data->GetRasterYSize()) {
-        usable_height -= pixel_offset_y + source_window_size_pixels - data->GetRasterYSize();
-        remainder_y_bottom = (source_window_size_pixels - usable_height) * source_destination_ratio;
+    if (pixel_offset_y - padding < 0) {
+        usable_height += pixel_offset_y - padding;
+        remainder_y_top = (-pixel_offset_y + padding) * source_destination_ratio;
+        clamped_pixel_offset_y = padding;
+    } else if (pixel_offset_y + source_window_size_pixels > available_y) {
+        usable_height -= pixel_offset_y + source_window_size_pixels - available_y;
     }
 
     int target_width = usable_width * source_destination_ratio;
@@ -73,8 +76,6 @@ void *GeoRaster::get_as_array() {
     // subtle differences, it's tricky to generalize it. A templated factory class might help, but
     // seems overkill
     if (format == RF) {
-        std::cout << "left: " << remainder_x_left << ", right: " << remainder_x_right << std::endl;
-
         if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
             // only 0s
@@ -186,8 +187,8 @@ void *GeoRaster::get_as_array() {
     return nullptr;
 }
 
-int GeoRaster::get_size_in_bytes(int pixel_size) {
-    if (pixel_size == 0) { pixel_size = get_pixel_size_x() * get_pixel_size_y(); }
+int GeoRaster::get_size_in_bytes() {
+    int pixel_size = get_pixel_size_x() * get_pixel_size_y();
 
     if (format == BYTE) {
         return pixel_size;
