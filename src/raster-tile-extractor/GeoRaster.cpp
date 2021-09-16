@@ -1,6 +1,8 @@
 #include "GeoRaster.h"
 #include "gdal-includes.h"
 #include <algorithm> // For std::clamp etc
+#include <cstring>
+#include <iostream>
 
 void *GeoRaster::get_as_array() {
     GDALRasterIOExtraArg rasterio_args;
@@ -10,8 +12,7 @@ void *GeoRaster::get_as_array() {
 
     // If we're requesting downscaled data, always use nearest neighbour scaling.
     // TODO: Would be good if this could be overridden with an optional parameter, but any other
-    // scaling usually causes
-    //  very long loading times so this is the default for now
+    // scaling usually causes very long loading times so this is the default for now
     if (destination_window_size_pixels < source_window_size_pixels) { interpolation = 0; }
 
     rasterio_args.eResampleAlg = static_cast<GDALRIOResampleAlg>(interpolation);
@@ -25,13 +26,45 @@ void *GeoRaster::get_as_array() {
     // to be the only option with GDAL's RasterIO.
     int min_raster_size = std::min(data->GetRasterXSize(), data->GetRasterYSize());
 
-    int clamped_source_window_size_pixels =
-        std::clamp(source_window_size_pixels, 1, min_raster_size - 1);
+    double source_destination_ratio = static_cast<double>(destination_window_size_pixels) /
+                                      static_cast<double>(source_window_size_pixels);
 
-    int clamped_pixel_offset_x =
-        std::clamp(pixel_offset_x, 0, data->GetRasterXSize() - source_window_size_pixels);
-    int clamped_pixel_offset_y =
-        std::clamp(pixel_offset_y, 0, data->GetRasterYSize() - source_window_size_pixels);
+    int usable_width = source_window_size_pixels;
+    int usable_height = source_window_size_pixels;
+
+    int clamped_pixel_offset_x = pixel_offset_x;
+    int clamped_pixel_offset_y = pixel_offset_y;
+
+    int remainder_x_left = 0;
+    int remainder_x_right = 0;
+
+    int remainder_y_bottom = 0;
+    int remainder_y_top = 0;
+
+    if (pixel_offset_x < 0) {
+        usable_width += pixel_offset_x;
+        remainder_x_left = -pixel_offset_x * source_destination_ratio;
+        clamped_pixel_offset_x = 0;
+    } else if (pixel_offset_x + source_window_size_pixels > data->GetRasterXSize()) {
+        usable_width -= pixel_offset_x + source_window_size_pixels - data->GetRasterXSize();
+        remainder_x_right = (source_window_size_pixels - usable_width) * source_destination_ratio;
+    }
+
+    if (pixel_offset_y < 0) {
+        usable_height += pixel_offset_y;
+        remainder_y_top = -pixel_offset_y * source_destination_ratio;
+        clamped_pixel_offset_y = 0;
+    } else if (pixel_offset_y + source_window_size_pixels > data->GetRasterYSize()) {
+        usable_height -= pixel_offset_y + source_window_size_pixels - data->GetRasterYSize();
+        remainder_y_bottom = (source_window_size_pixels - usable_height) * source_destination_ratio;
+    }
+
+    int target_width = usable_width * source_destination_ratio;
+    int target_height = usable_height * source_destination_ratio;
+
+    std::cout << "usable width: " << usable_width << " vs requested: " << source_window_size_pixels
+              << std::endl;
+    std::cout << "target width: " << target_width << std::endl;
 
     // TODO: We could do more precise error handling by getting the error number using
     // CPLGetLastErrorNo() and returning that to the user somehow - maybe a flag in the
@@ -43,14 +76,35 @@ void *GeoRaster::get_as_array() {
     if (format == RF) {
         // Write the data directly into a float array.
         GDALRasterBand *band = data->GetRasterBand(1);
-        float *array = new float[get_size_in_bytes()];
+        float *array = new float[get_size_in_bytes(target_width * target_height)];
 
         error = band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
-                               clamped_source_window_size_pixels, clamped_source_window_size_pixels,
-                               array, destination_window_size_pixels,
-                               destination_window_size_pixels, GDT_Float32, 0, 0, &rasterio_args);
+                               usable_width, usable_height, array, target_width, target_height,
+                               GDT_Float32, 0, 0, &rasterio_args);
 
-        if (error < CE_Failure) { return array; }
+        if (error < CE_Failure) {
+            // If we got a full result, we can return right away
+            if (target_width == destination_window_size_pixels &&
+                target_height == destination_window_size_pixels) {
+                return array;
+            } else {
+                // Otherwise, we need to pad the available data
+                float *target_array = new float[get_size_in_bytes()];
+                std::fill(target_array, target_array + get_size_in_bytes(), 0.0);
+
+                // Write the available data into the large result array at the appropriate positions
+                for (int y = 0; y < destination_window_size_pixels; y++) {
+                    if (y >= remainder_y_top &&
+                        y <= destination_window_size_pixels - remainder_y_bottom) {
+                        memcpy(target_array +
+                                   (y * destination_window_size_pixels + remainder_x_left),
+                               array + (y * target_width), target_width * 4);
+                    }
+                }
+
+                return target_array;
+            }
+        }
     } else if (format == RGBA) {
         // Write the data into a byte array like this:
         // R   R   R
@@ -64,11 +118,10 @@ void *GeoRaster::get_as_array() {
             GDALRasterBand *band = data->GetRasterBand(band_number);
 
             // Read into the array with 4 bytes between the pixels
-            error =
-                band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
-                               clamped_source_window_size_pixels, clamped_source_window_size_pixels,
-                               array + (band_number - 1), destination_window_size_pixels,
-                               destination_window_size_pixels, GDT_Byte, 4, 0, &rasterio_args);
+            error = band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
+                                   usable_width, usable_height, array + (band_number - 1),
+                                   destination_window_size_pixels, destination_window_size_pixels,
+                                   GDT_Byte, 4, 0, &rasterio_args);
         }
 
         if (error < CE_Failure) { return array; }
@@ -84,11 +137,10 @@ void *GeoRaster::get_as_array() {
             GDALRasterBand *band = data->GetRasterBand(band_number);
 
             // Read into the array with 3 bytes between the pixels
-            error =
-                band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
-                               clamped_source_window_size_pixels, clamped_source_window_size_pixels,
-                               array + (band_number - 1), destination_window_size_pixels,
-                               destination_window_size_pixels, GDT_Byte, 3, 0, &rasterio_args);
+            error = band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
+                                   usable_width, usable_height, array + (band_number - 1),
+                                   destination_window_size_pixels, destination_window_size_pixels,
+                                   GDT_Byte, 3, 0, &rasterio_args);
         }
 
         if (error < CE_Failure) { return array; }
@@ -100,8 +152,7 @@ void *GeoRaster::get_as_array() {
 
         // Read into the array with 4 bytes between the pixels
         error = band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
-                               clamped_source_window_size_pixels, clamped_source_window_size_pixels,
-                               array, destination_window_size_pixels,
+                               usable_width, usable_height, array, destination_window_size_pixels,
                                destination_window_size_pixels, GDT_Byte, 0, 0, &rasterio_args);
 
         if (error < CE_Failure) { return array; }
@@ -110,17 +161,17 @@ void *GeoRaster::get_as_array() {
     return nullptr;
 }
 
-int GeoRaster::get_size_in_bytes() {
-    int pixels = get_pixel_size_x() * get_pixel_size_y();
+int GeoRaster::get_size_in_bytes(int pixel_size) {
+    if (pixel_size == 0) { pixel_size = get_pixel_size_x() * get_pixel_size_y(); }
 
     if (format == BYTE) {
-        return pixels;
+        return pixel_size;
     } else if (format == RF) {
-        return pixels * 4; // 32-bit float
+        return pixel_size * 4; // 32-bit float
     } else if (format == RGBA) {
-        return pixels * 4;
+        return pixel_size * 4;
     } else if (format == RGB) {
-        return pixels * 3;
+        return pixel_size * 3;
     } else {
         // Invalid format!
         return 0;

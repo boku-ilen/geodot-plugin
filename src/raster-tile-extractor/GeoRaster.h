@@ -35,7 +35,9 @@ class GeoRaster {
     void *get_as_array();
 
     /// Return the total size of the data in bytes. Useful in conjunction with get_as_array.
-    int get_size_in_bytes();
+    /// An optional pixel_size can be given if it deviates from the standard size saved in the
+    /// object.
+    int get_size_in_bytes(int pixel_size = 0);
 
     /// Return the format of the data of this GeoRaster.
     FORMAT get_format();
