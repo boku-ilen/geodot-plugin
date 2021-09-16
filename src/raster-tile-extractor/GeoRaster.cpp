@@ -107,9 +107,12 @@ void *GeoRaster::get_as_array() {
                 for (int y = 0; y < destination_window_size_pixels; y++) {
                     if (y >= remainder_y_top &&
                         y <= destination_window_size_pixels - remainder_y_bottom) {
+                        // Not sure why we need to subtract 4 from the size, but not doing so
+                        // results in bad values right at the transition from data to nodata.
+                        // TODO: Is this required for the other types too? Doesn't seem so...
                         memcpy(target_array +
                                    (y * destination_window_size_pixels + remainder_x_left),
-                               array + (y * target_width), target_width * 4);
+                               array + (y * target_width), target_width * 4 - 4);
                     }
                 }
 
