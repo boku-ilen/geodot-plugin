@@ -73,7 +73,18 @@ void *GeoRaster::get_as_array() {
 
     // Depending on the image format, we need to structure the resulting array differently and/or
     // read multiple bands.
+    // TODO: Lots of code duplication down there, but due to C++'s lack of reflection and all the
+    // subtle differences, it's tricky to generalize it. A templated factory class might help, but
+    // seems overkill
     if (format == RF) {
+        if (usable_width <= 0 || target_width <= 0) {
+            // Empty results are still valid and should be treated normally, so return an array with
+            // only 0s
+            float *target_array = new float[get_size_in_bytes()];
+            std::fill(target_array, target_array + get_size_in_bytes(), 0.0);
+            return target_array;
+        }
+
         // Write the data directly into a float array.
         GDALRasterBand *band = data->GetRasterBand(1);
         float *array = new float[get_size_in_bytes(target_width * target_height)];
@@ -106,6 +117,14 @@ void *GeoRaster::get_as_array() {
             }
         }
     } else if (format == RGBA) {
+        if (usable_width <= 0 || target_width <= 0) {
+            // Empty results are still valid and should be treated normally, so return an array with
+            // only 0s
+            uint8_t *target_array = new uint8_t[get_size_in_bytes()];
+            std::fill(target_array, target_array + get_size_in_bytes(), 0);
+            return target_array;
+        }
+
         // Write the data into a byte array like this:
         // R   R   R
         //  G   G   G
@@ -147,6 +166,14 @@ void *GeoRaster::get_as_array() {
             }
         }
     } else if (format == RGB) {
+        if (usable_width <= 0 || target_width <= 0) {
+            // Empty results are still valid and should be treated normally, so return an array with
+            // only 0s
+            uint8_t *target_array = new uint8_t[get_size_in_bytes()];
+            std::fill(target_array, target_array + get_size_in_bytes(), 0);
+            return target_array;
+        }
+
         // Write the data into a byte array like this:
         // R  R  R
         //  G  G  G
@@ -187,6 +214,14 @@ void *GeoRaster::get_as_array() {
             }
         }
     } else if (format == BYTE) {
+        if (usable_width <= 0 || target_width <= 0) {
+            // Empty results are still valid and should be treated normally, so return an array with
+            // only 0s
+            uint8_t *target_array = new uint8_t[get_size_in_bytes()];
+            std::fill(target_array, target_array + get_size_in_bytes(), 0);
+            return target_array;
+        }
+
         // Simply write the bytes directly into a byte array.
         uint8_t *array = new uint8_t[get_size_in_bytes()];
 
