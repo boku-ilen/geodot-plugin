@@ -2,6 +2,7 @@
 #include "gdal-includes.h"
 #include <algorithm> // For std::clamp etc
 #include <cstring>
+#include <iostream>
 
 void *GeoRaster::get_as_array() {
     GDALRasterIOExtraArg rasterio_args;
@@ -72,6 +73,8 @@ void *GeoRaster::get_as_array() {
     // subtle differences, it's tricky to generalize it. A templated factory class might help, but
     // seems overkill
     if (format == RF) {
+        std::cout << "left: " << remainder_x_left << ", right: " << remainder_x_right << std::endl;
+
         if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
             // only 0s
@@ -82,40 +85,17 @@ void *GeoRaster::get_as_array() {
 
         // Write the data directly into a float array.
         GDALRasterBand *band = data->GetRasterBand(1);
-        float *array = new float[get_size_in_bytes(target_width * target_height)];
+        float *array = new float[get_size_in_bytes()];
+        std::fill(array, array + get_size_in_bytes(), 0.0);
 
-        error = band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
-                               usable_width, usable_height, array, target_width, target_height,
-                               GDT_Float32, 0, 0, &rasterio_args);
+        error = band->RasterIO(
+            GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width, usable_height,
+            array + remainder_y_top * destination_window_size_pixels + remainder_x_left,
+            target_width, target_height, GDT_Float32, 0, destination_window_size_pixels * 4,
+            &rasterio_args);
 
-        if (error < CE_Failure) {
-            // If we got a full result, we can return right away
-            if (target_width == destination_window_size_pixels &&
-                target_height == destination_window_size_pixels) {
-                return array;
-            } else {
-                // Otherwise, we need to pad the available data
-                float *target_array = new float[get_size_in_bytes()];
-                std::fill(target_array, target_array + get_size_in_bytes(), 0.0);
+        if (error < CE_Failure) { return array; }
 
-                // Write the available data into the large result array at the appropriate positions
-                for (int y = 0; y < destination_window_size_pixels; y++) {
-                    // FIXME: Why - 4? Removing it causes odd behavior at the edges...
-                    if (y >= remainder_y_top &&
-                        y < destination_window_size_pixels - remainder_y_bottom - 4) {
-                        // Not sure why we need to subtract 4 from the size, but not doing so
-                        // results in bad values right at the transition from data to nodata.
-                        // TODO: Is this required for the other types too? Doesn't seem so...
-                        memcpy(target_array +
-                                   (y * destination_window_size_pixels + remainder_x_left),
-                               array + ((y - remainder_y_top + 1) * target_width) + 1,
-                               target_width * 4 - 8);
-                    }
-                }
-
-                return target_array;
-            }
-        }
     } else if (format == RGBA) {
         if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
@@ -131,41 +111,24 @@ void *GeoRaster::get_as_array() {
         //   B   B   B
         //    A   A   A
         // So that the result is RGBARGBARGBA.
-        uint8_t *array = new uint8_t[get_size_in_bytes(target_width * target_height)];
+        uint8_t *array = new uint8_t[get_size_in_bytes()];
+        std::fill(array, array + get_size_in_bytes(), 0);
 
         for (int band_number = 1; band_number < 5; band_number++) {
             GDALRasterBand *band = data->GetRasterBand(band_number);
 
             // Read into the array with 4 bytes between the pixels
-            error = band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
-                                   usable_width, usable_height, array + (band_number - 1),
-                                   target_width, target_height, GDT_Byte, 4, 0, &rasterio_args);
+            error = band->RasterIO(
+                GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width,
+                usable_height,
+                array + (remainder_y_top * destination_window_size_pixels + remainder_x_left) * 4 +
+                    (band_number - 1),
+                target_width, target_height, GDT_Byte, 4, destination_window_size_pixels * 4,
+                &rasterio_args);
         }
 
-        if (error < CE_Failure) {
-            // If we got a full result, we can return right away
-            if (target_width == destination_window_size_pixels &&
-                target_height == destination_window_size_pixels) {
-                return array;
-            } else {
-                // Otherwise, we need to pad the available data
-                uint8_t *target_array = new uint8_t[get_size_in_bytes()];
-                std::fill(target_array, target_array + get_size_in_bytes(), 0);
+        if (error < CE_Failure) { return array; }
 
-                // Write the available data into the large result array at the appropriate positions
-                for (int y = 0; y < destination_window_size_pixels; y++) {
-                    if (y >= remainder_y_top &&
-                        y <= destination_window_size_pixels - remainder_y_bottom) {
-                        memcpy(target_array +
-                                   (y * destination_window_size_pixels + remainder_x_left) * 4,
-                               array + ((y - remainder_y_top) * target_width) * 4,
-                               target_width * 4);
-                    }
-                }
-
-                return target_array;
-            }
-        }
     } else if (format == RGB) {
         if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
@@ -180,41 +143,24 @@ void *GeoRaster::get_as_array() {
         //  G  G  G
         //   B  B  B
         // So that the result is RGBRGBRGB.
-        uint8_t *array = new uint8_t[get_size_in_bytes(target_width * target_height)];
+        uint8_t *array = new uint8_t[get_size_in_bytes()];
+        std::fill(array, array + get_size_in_bytes(), 0);
 
         for (int band_number = 1; band_number < 4; band_number++) {
             GDALRasterBand *band = data->GetRasterBand(band_number);
 
-            // Read into the array with 3 bytes between the pixels
-            error = band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
-                                   usable_width, usable_height, array + (band_number - 1),
-                                   target_width, target_height, GDT_Byte, 3, 0, &rasterio_args);
+            // Read into the array with 4 bytes between the pixels
+            error = band->RasterIO(
+                GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width,
+                usable_height,
+                array + (remainder_y_top * destination_window_size_pixels + remainder_x_left) * 3 +
+                    (band_number - 1),
+                target_width, target_height, GDT_Byte, 3, destination_window_size_pixels * 3,
+                &rasterio_args);
         }
 
-        if (error < CE_Failure) {
-            // If we got a full result, we can return right away
-            if (target_width == destination_window_size_pixels &&
-                target_height == destination_window_size_pixels) {
-                return array;
-            } else {
-                // Otherwise, we need to pad the available data
-                uint8_t *target_array = new uint8_t[get_size_in_bytes()];
-                std::fill(target_array, target_array + get_size_in_bytes(), 0);
+        if (error < CE_Failure) { return array; }
 
-                // Write the available data into the large result array at the appropriate positions
-                for (int y = 0; y < destination_window_size_pixels; y++) {
-                    if (y >= remainder_y_top &&
-                        y <= destination_window_size_pixels - remainder_y_bottom) {
-                        memcpy(target_array +
-                                   (y * destination_window_size_pixels + remainder_x_left) * 3,
-                               array + ((y - remainder_y_top) * target_width) * 3,
-                               target_width * 3);
-                    }
-                }
-
-                return target_array;
-            }
-        }
     } else if (format == BYTE) {
         if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
@@ -224,39 +170,17 @@ void *GeoRaster::get_as_array() {
             return target_array;
         }
 
-        // Simply write the bytes directly into a byte array.
-        uint8_t *array = new uint8_t[get_size_in_bytes()];
-
         GDALRasterBand *band = data->GetRasterBand(1);
+        uint8_t *array = new uint8_t[get_size_in_bytes()];
+        std::fill(array, array + get_size_in_bytes(), 0);
 
-        // Read into the array with 4 bytes between the pixels
-        error = band->RasterIO(GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y,
-                               usable_width, usable_height, array, target_width, target_height,
-                               GDT_Byte, 0, 0, &rasterio_args);
+        error = band->RasterIO(
+            GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width, usable_height,
+            array + remainder_y_top * destination_window_size_pixels + remainder_x_left,
+            target_width, target_height, GDT_Byte, 0, destination_window_size_pixels,
+            &rasterio_args);
 
-        if (error < CE_Failure) {
-            // If we got a full result, we can return right away
-            if (target_width == destination_window_size_pixels &&
-                target_height == destination_window_size_pixels) {
-                return array;
-            } else {
-                // Otherwise, we need to pad the available data
-                uint8_t *target_array = new uint8_t[get_size_in_bytes()];
-                std::fill(target_array, target_array + get_size_in_bytes(), 0);
-
-                // Write the available data into the large result array at the appropriate positions
-                for (int y = 0; y < destination_window_size_pixels; y++) {
-                    if (y >= remainder_y_top &&
-                        y <= destination_window_size_pixels - remainder_y_bottom) {
-                        memcpy(target_array +
-                                   (y * destination_window_size_pixels + remainder_x_left),
-                               array + ((y - remainder_y_top) * target_width), target_width);
-                    }
-                }
-
-                return target_array;
-            }
-        }
+        if (error < CE_Failure) { return array; }
     }
 
     return nullptr;
