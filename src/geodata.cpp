@@ -203,6 +203,8 @@ void GeoRasterLayer::_register_methods() {
     register_method("get_value_at_position", &GeoRasterLayer::get_value_at_position);
     register_method("get_extent", &GeoRasterLayer::get_extent);
     register_method("get_center", &GeoRasterLayer::get_center);
+    register_method("get_min", &GeoRasterLayer::get_min);
+    register_method("get_max", &GeoRasterLayer::get_max);
     register_method("clone", &GeoRasterLayer::clone);
 }
 
@@ -256,6 +258,14 @@ Rect2 GeoRasterLayer::get_extent() {
 Vector3 GeoRasterLayer::get_center() {
     return Vector3(extent_data.left + (extent_data.right - extent_data.left) / 2.0, 0.0,
                    extent_data.top + (extent_data.down - extent_data.top) / 2.0);
+}
+
+float GeoRasterLayer::get_min() {
+    return RasterTileExtractor::get_min(dataset->dataset);
+}
+
+float GeoRasterLayer::get_max() {
+    return RasterTileExtractor::get_max(dataset->dataset);
 }
 
 bool PyramidGeoRasterLayer::is_valid() {

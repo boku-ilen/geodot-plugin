@@ -36,6 +36,9 @@ class RasterTileExtractor {
 
     static ExtentData get_extent_data(GDALDataset *dataset);
 
+    static float get_min(GDALDataset *dataset);
+    static float get_max(GDALDataset *dataset);
+
   private:
     /// Return a GeoRaster containing the area in the given dataset starting at top_left_x,
     /// top_left_y with a given size (in meters). The resulting image has the resolution

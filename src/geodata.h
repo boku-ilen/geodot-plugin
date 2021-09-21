@@ -105,6 +105,14 @@ class EXPORT GeoRasterLayer : public Resource {
     /// The y-component is 0.0.
     Vector3 get_center();
 
+    /// Returns the smallest value found in the first raster band of the dataset.
+    /// Note that this requires the dataset to have pre-computed statistics!
+    float get_min();
+
+    /// Returns the largest value found in the first raster band of the dataset.
+    /// Note that this requires the dataset to have pre-computed statistics!
+    float get_max();
+
     /// Load a raster dataset file such as a GeoTIFF into this object.
     /// Not exposed to Godot since Godot should create datasets and layers from
     /// the Geodot singleton (the factory).

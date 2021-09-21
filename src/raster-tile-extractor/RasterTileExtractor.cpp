@@ -85,6 +85,14 @@ RasterTileExtractor::ExtentData RasterTileExtractor::get_extent_data(GDALDataset
     return extent_data;
 }
 
+float RasterTileExtractor::get_min(GDALDataset *dataset) {
+    return dataset->GetRasterBand(1)->GetMinimum();
+}
+
+float RasterTileExtractor::get_max(GDALDataset *dataset) {
+    return dataset->GetRasterBand(1)->GetMaximum();
+}
+
 #define WEBMERCATOR_MAX 20037508.0
 #define PI 3.14159265358979323846
 #define CIRCUMEFERENCE 40075016.686
