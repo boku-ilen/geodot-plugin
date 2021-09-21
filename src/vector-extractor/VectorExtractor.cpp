@@ -22,8 +22,8 @@ std::vector<double> VectorExtractor::transform_coordinates(double input_x, doubl
                                                            std::string from, std::string to) {
     OGRSpatialReference source_reference, target_reference;
 
-    source_reference.SetWellKnownGeogCS(from.c_str());
-    target_reference.SetWellKnownGeogCS(to.c_str());
+    source_reference.importFromWkt(from.c_str());
+    target_reference.importFromWkt(to.c_str());
 
     OGRCoordinateTransformation *transformation =
         OGRCreateCoordinateTransformation(&source_reference, &target_reference);
