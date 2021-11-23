@@ -86,8 +86,8 @@ void *GeoRaster::get_as_array() {
 
         // Write the data directly into a float array.
         GDALRasterBand *band = data->GetRasterBand(1);
-        float *array = new float[get_size_in_bytes()];
-        std::fill(array, array + get_size_in_bytes(), 0.0);
+        float *array = new float[get_pixel_size_x() * get_pixel_size_y()];
+        std::fill(array, array + get_pixel_size_x() * get_pixel_size_y(), 0.0);
 
         error = band->RasterIO(
             GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width, usable_height,
