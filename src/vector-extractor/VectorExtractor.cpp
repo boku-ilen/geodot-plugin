@@ -37,6 +37,12 @@ std::vector<double> VectorExtractor::transform_coordinates(double input_x, doubl
 }
 
 std::list<Feature *> NativeLayer::get_feature_for_fid(OGRFeature *feature) {
+    std::list<Feature *> list = std::list<Feature *>();
+
+    // FIXME: This can prevent crashes in specific datasets with seemingly no side effects, but it
+    // shouldn't be required!
+    if (feature == nullptr) { return list; }
+
     if (feature_cache.count(feature->GetFID())) {
         // The feature is already cached, return that one
         return feature_cache[feature->GetFID()];
@@ -44,7 +50,6 @@ std::list<Feature *> NativeLayer::get_feature_for_fid(OGRFeature *feature) {
 
     // The feature is not cached; create a new one and cache that.
     // To do that, check which specific class we need to instance:
-    std::list<Feature *> list = std::list<Feature *>();
 
     const OGRGeometry *geometry_ref = feature->GetGeometryRef();
 
