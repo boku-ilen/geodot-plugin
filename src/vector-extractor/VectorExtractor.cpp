@@ -105,7 +105,8 @@ std::list<Feature *> NativeLayer::get_feature_by_id(int id) {
 std::list<Feature *> NativeLayer::get_features() {
     auto list = std::list<Feature *>();
 
-    layer->ResetReading();
+    layer->ResetReading();            // Reset the reading cursor
+    layer->SetSpatialFilter(nullptr); // Reset the spatial filter
     OGRFeature *current_feature = layer->GetNextFeature();
 
     while (current_feature != nullptr) {
@@ -117,6 +118,8 @@ std::list<Feature *> NativeLayer::get_features() {
 
     // Same as above but for in-RAM data
     // TODO: Remove code duplication
+    ram_layer->ResetReading();            // Reset the reading cursor
+    ram_layer->SetSpatialFilter(nullptr); // Reset the spatial filter
     current_feature = ram_layer->GetNextFeature();
 
     while (current_feature != nullptr) {
@@ -326,6 +329,9 @@ NativeLayer::NativeLayer(OGRLayer *layer) : layer(layer) {
     GDALDataset *intersection_dataset = out_driver->Create("", 0, 0, 0, GDT_Unknown, nullptr);
     ram_layer = intersection_dataset->CreateLayer(layer->GetName(), layer->GetSpatialRef(),
                                                   layer->GetGeomType());
+
+    disk_feature_count = layer->GetFeatureCount();
+    ram_feature_count = 0;
 }
 
 bool NativeLayer::is_valid() const {
@@ -355,10 +361,10 @@ Feature *NativeLayer::create_feature() {
         feature = new Feature(new_feature);
     }
 
-    // FIXME: Generate a new ID based on the highest ID within the original data plus the highest
-    // added ID
-    GUIntBig id = 123;
+    // Generate a new ID based on the highest ID within the original data plus the highest added ID
+    GUIntBig id = disk_feature_count + ram_feature_count;
     new_feature->SetFID(id);
+    ram_feature_count++;
 
     // Create the feature on the in-RAM layer. Calling layer->CreateFeature would attempt to write
     // to disk! Note that CreateFeature only copies the current data, it must be kept up-to-date

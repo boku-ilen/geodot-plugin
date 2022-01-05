@@ -93,6 +93,9 @@ class NativeLayer {
     /// where one OGRFeature corresponds to multiple of our Features. Usually though, each list has
     /// only one element.
     std::map<GUIntBig, std::list<Feature *>> feature_cache;
+
+    int disk_feature_count;
+    int ram_feature_count;
 };
 
 class VectorExtractor {
