@@ -93,23 +93,6 @@ bool GeoFeatureLayer::is_valid() {
     return layer && layer->is_valid();
 }
 
-Array GeoFeatureLayer::get_all_features() {
-    Array geofeatures = Array();
-
-    std::list<Feature *> gdal_features = layer->get_features();
-
-    for (Feature *gdal_feature : gdal_features) {
-        Ref<GeoFeature> geofeature;
-        geofeature.instance();
-
-        geofeature->set_gdal_feature(gdal_feature);
-
-        geofeatures.push_back(geofeature);
-    }
-
-    return geofeatures;
-}
-
 // Utility function for converting a Processing Library Feature to the appropriate GeoFeature
 Ref<GeoFeature> get_specialized_feature(Feature *raw_feature) {
     // Check which geometry this feature has, and cast it to the according
@@ -150,6 +133,19 @@ Ref<GeoFeature> get_specialized_feature(Feature *raw_feature) {
 
         return feature;
     }
+}
+
+Array GeoFeatureLayer::get_all_features() {
+    Array geofeatures = Array();
+
+    std::list<Feature *> gdal_features = layer->get_features();
+    Array features = Array();
+
+    for (Feature *raw_feature : gdal_features) {
+        features.push_back(get_specialized_feature(raw_feature));
+    }
+
+    return features;
 }
 
 Ref<GeoFeature> GeoFeatureLayer::create_feature() {

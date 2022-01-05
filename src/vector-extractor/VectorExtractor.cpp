@@ -99,6 +99,7 @@ std::list<Feature *> NativeLayer::get_feature_for_fid(OGRFeature *feature) {
 std::list<Feature *> NativeLayer::get_features() {
     auto list = std::list<Feature *>();
 
+    layer->ResetReading();
     OGRFeature *current_feature = layer->GetNextFeature();
 
     while (current_feature != nullptr) {
