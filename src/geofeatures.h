@@ -24,10 +24,12 @@ class EXPORT GeoFeature : public Resource {
     void _init() {} // Must be here as Godot always calls this for Objects
     static void _register_methods();
 
-    String get_attribute(String name);
+    String get_attribute(String name) const;
     void set_attribute(String name, String value);
 
-    Dictionary get_attributes();
+    int get_id() const;
+
+    Dictionary get_attributes() const;
 
     void set_gdal_feature(Feature *gdal_feature);
 

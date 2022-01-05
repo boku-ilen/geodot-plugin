@@ -31,6 +31,8 @@ class Feature {
 
     void set_attribute(const char *name, const char *value);
 
+    int get_id() const;
+
     GeometryType geometry_type = NONE;
 
   protected:

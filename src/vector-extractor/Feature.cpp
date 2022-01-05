@@ -20,3 +20,7 @@ const char *Feature::get_attribute(const char *name) {
 void Feature::set_attribute(const char *name, const char *value) {
     feature->SetField(name, value);
 }
+
+int Feature::get_id() const {
+    return feature->GetFID();
+}

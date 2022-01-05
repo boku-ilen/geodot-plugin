@@ -15,9 +15,10 @@ void GeoFeature::_register_methods() {
     register_method("get_attribute", &GeoFeature::get_attribute);
     register_method("set_attribute", &GeoFeature::set_attribute);
     register_method("get_attributes", &GeoFeature::get_attributes);
+    register_method("get_id", &GeoFeature::get_id);
 }
 
-String GeoFeature::get_attribute(String name) {
+String GeoFeature::get_attribute(String name) const {
     return gdal_feature->get_attribute(name.utf8().get_data());
 }
 
@@ -25,7 +26,11 @@ void GeoFeature::set_attribute(String name, String value) {
     gdal_feature->set_attribute(name.utf8().get_data(), value.utf8().get_data());
 }
 
-Dictionary GeoFeature::get_attributes() {
+int GeoFeature::get_id() const {
+    return gdal_feature->get_id();
+}
+
+Dictionary GeoFeature::get_attributes() const {
     Dictionary attributes = Dictionary();
 
     std::map<std::string, std::string> attribute_map = gdal_feature->get_attributes();
