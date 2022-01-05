@@ -36,7 +36,7 @@ std::vector<double> VectorExtractor::transform_coordinates(double input_x, doubl
     return std::vector{output_x, output_z};
 }
 
-std::list<Feature *> NativeLayer::get_feature_for_fid(OGRFeature *feature) {
+std::list<Feature *> NativeLayer::get_feature_for_ogrfeature(OGRFeature *feature) {
     std::list<Feature *> list = std::list<Feature *>();
 
     // FIXME: This can prevent crashes in specific datasets with seemingly no side effects, but it
@@ -96,6 +96,12 @@ std::list<Feature *> NativeLayer::get_feature_for_fid(OGRFeature *feature) {
     return list;
 }
 
+std::list<Feature *> NativeLayer::get_feature_by_id(int id) {
+    OGRFeature *feature = layer->GetFeature(id);
+
+    return get_feature_for_ogrfeature(feature);
+}
+
 std::list<Feature *> NativeLayer::get_features() {
     auto list = std::list<Feature *>();
 
@@ -104,7 +110,7 @@ std::list<Feature *> NativeLayer::get_features() {
 
     while (current_feature != nullptr) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
-        list.splice(list.end(), get_feature_for_fid(current_feature));
+        list.splice(list.end(), get_feature_for_ogrfeature(current_feature));
 
         current_feature = layer->GetNextFeature();
     }
@@ -115,7 +121,7 @@ std::list<Feature *> NativeLayer::get_features() {
 
     while (current_feature != nullptr) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
-        list.splice(list.end(), get_feature_for_fid(current_feature));
+        list.splice(list.end(), get_feature_for_ogrfeature(current_feature));
 
         current_feature = ram_layer->GetNextFeature();
     }
@@ -146,7 +152,7 @@ std::list<Feature *> NativeLayer::get_features_near_position(double pos_x, doubl
 
     for (int i = 0; i < iterations; i++) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
-        list.splice(list.end(), get_feature_for_fid(layer->GetNextFeature()));
+        list.splice(list.end(), get_feature_for_ogrfeature(layer->GetNextFeature()));
     }
 
     // Also check the RAM layer
@@ -161,7 +167,7 @@ std::list<Feature *> NativeLayer::get_features_near_position(double pos_x, doubl
 
     for (int i = 0; i < ram_layer->GetFeatureCount(); i++) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
-        list.splice(list.end(), get_feature_for_fid(ram_layer->GetNextFeature()));
+        list.splice(list.end(), get_feature_for_ogrfeature(ram_layer->GetNextFeature()));
     }
 
     return list;

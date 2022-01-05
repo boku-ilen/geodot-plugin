@@ -76,7 +76,10 @@ class NativeLayer {
 
     /// Returns the feature corresponding to the given OGRFeature: Either the cached one, or if
     /// there is none, a new one (then placed within the cache).
-    std::list<Feature *> get_feature_for_fid(OGRFeature *feature);
+    std::list<Feature *> get_feature_for_ogrfeature(OGRFeature *feature);
+
+    /// Returns the feature corresponding to the given ID
+    std::list<Feature *> get_feature_by_id(int id);
 
     OGRLayer *layer;
     OGRLayer *ram_layer;

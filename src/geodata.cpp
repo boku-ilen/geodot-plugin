@@ -77,6 +77,7 @@ void GeoDataset::set_native_dataset(NativeDataset *new_dataset) {
 
 void GeoFeatureLayer::_register_methods() {
     register_method("is_valid", &GeoFeatureLayer::is_valid);
+    register_method("get_feature_by_id", &GeoFeatureLayer::get_feature_by_id);
     register_method("get_all_features", &GeoFeatureLayer::get_all_features);
     register_method("get_features_near_position", &GeoFeatureLayer::get_features_near_position);
     register_method("create_feature", &GeoFeatureLayer::create_feature);
@@ -133,6 +134,16 @@ Ref<GeoFeature> get_specialized_feature(Feature *raw_feature) {
 
         return feature;
     }
+}
+
+Ref<GeoFeature> GeoFeatureLayer::get_feature_by_id(int id) {
+    std::list<Feature *> features = layer->get_feature_by_id(id);
+    if (features.empty()) return nullptr;
+
+    // TODO: How to deal with MultiFeatures? Currently we just use the first one
+    Ref<GeoFeature> feature = get_specialized_feature(features.front());
+
+    return feature;
 }
 
 Array GeoFeatureLayer::get_all_features() {

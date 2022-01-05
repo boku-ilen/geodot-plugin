@@ -30,6 +30,9 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
 
+    /// Returns the one feature that corresponds to the given ID.
+    Ref<GeoFeature> get_feature_by_id(int id);
+
     /// Returns all features, regardless of the geometry, within this layer.
     Array get_all_features();
 
@@ -88,8 +91,8 @@ class EXPORT GeoRasterLayer : public Resource {
     Ref<GeoRasterLayer> clone();
 
     /// Returns a GeoImage corresponding to the given position and size.
-    /// The requested section is read from this GeoRasterLayer into that GeoImage, so this operation
-    /// is costly for large images. (Consider multithreading.)
+    /// The requested section is read from this GeoRasterLayer into that GeoImage, so this
+    /// operation is costly for large images. (Consider multithreading.)
     Ref<GeoImage> get_image(double top_left_x, double top_left_y, double size_meters, int img_size,
                             int interpolation_type);
 
