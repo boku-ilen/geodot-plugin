@@ -13,10 +13,11 @@ GeoImage::~GeoImage() {
 void GeoImage::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_image"), &GeoImage::get_image);
     ClassDB::bind_method(D_METHOD("get_image_texture"), &GeoImage::get_image_texture);
-    ClassDB::bind_method(D_METHOD("get_most_common"), &GeoImage::get_most_common);
-    ClassDB::bind_method(D_METHOD("get_normalmap_for_heightmap"),
+    ClassDB::bind_method(D_METHOD("get_most_common", "number_of_entries"),
+                         &GeoImage::get_most_common);
+    ClassDB::bind_method(D_METHOD("get_normalmap_for_heightmap", "scale"),
                          &GeoImage::get_normalmap_for_heightmap);
-    ClassDB::bind_method(D_METHOD("get_normalmap_texture_for_heightmap"),
+    ClassDB::bind_method(D_METHOD("get_normalmap_texture_for_heightmap", "scale"),
                          &GeoImage::get_normalmap_texture_for_heightmap);
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoImage::is_valid);
 }

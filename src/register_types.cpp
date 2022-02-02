@@ -23,7 +23,7 @@ void register_geodot_types() {
     ClassDB::register_class<Geodot>();
 }
 
-void unregister_example_types() {}
+void unregister_geodot_types() {}
 
 extern "C" {
 

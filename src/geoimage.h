@@ -45,9 +45,6 @@ class EXPORT GeoImage : public Resource {
     GeoImage() = default;
     ~GeoImage();
 
-    /// Automatically called by Godot
-    void _init() {} // Must be here as Godot always calls this for Objects
-
     bool is_valid();
 
     /// Import a GeoRaster and prepare the Godot Image

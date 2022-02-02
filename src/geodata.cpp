@@ -16,8 +16,8 @@ void GeoDataset::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoDataset::is_valid);
     ClassDB::bind_method(D_METHOD("get_raster_layers"), &GeoDataset::get_raster_layers);
     ClassDB::bind_method(D_METHOD("get_feature_layers"), &GeoDataset::get_feature_layers);
-    ClassDB::bind_method(D_METHOD("get_raster_layer"), &GeoDataset::get_raster_layer);
-    ClassDB::bind_method(D_METHOD("get_feature_layer"), &GeoDataset::get_feature_layer);
+    ClassDB::bind_method(D_METHOD("get_raster_layer", "name"), &GeoDataset::get_raster_layer);
+    ClassDB::bind_method(D_METHOD("get_feature_layer", "name"), &GeoDataset::get_feature_layer);
 }
 
 bool GeoDataset::is_valid() {
