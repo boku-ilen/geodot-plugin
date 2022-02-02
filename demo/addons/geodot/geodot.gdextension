@@ -1,0 +1,9 @@
+[configuration]
+
+entry_symbol = "geodot_library_init"
+
+[libraries]
+
+linux.64="x11/libgeodot.so"
+windows.64="win64/libgeodot.dll"
+osx.64="osx/libgeodot.dylib"
