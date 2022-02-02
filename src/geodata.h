@@ -1,8 +1,6 @@
 #ifndef __GEODATA_H__
 #define __GEODATA_H__
 
-#include <Godot.hpp>
-
 #include "RasterTileExtractor.h"
 #include "VectorExtractor.h"
 #include "defines.h"
@@ -16,16 +14,15 @@ namespace godot {
 /// vector geometry. This layer provides access to these features through
 /// various filters. Corresponds to OGRLayer.
 class EXPORT GeoFeatureLayer : public Resource {
-    GODOT_CLASS(GeoFeatureLayer, Resource)
+    GDCLASS(GeoFeatureLayer, Resource)
+
+  protected:
+    static void _bind_methods();
 
   public:
     GeoFeatureLayer() = default;
     virtual ~GeoFeatureLayer() = default; // No need to delete anything here - OGRLayers are part of
                                           // the dataset and deleted with it.
-
-    /// Automatically called by Godot
-    void _init() {} // Must be here as Godot always calls this for Objects
-    static void _register_methods();
 
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
@@ -72,15 +69,14 @@ class EXPORT GeoFeatureLayer : public Resource {
 /// A layer which contains raster data.
 /// Corresponds to a Raster GDALDataset or Subdataset.
 class EXPORT GeoRasterLayer : public Resource {
-    GODOT_CLASS(GeoRasterLayer, Resource)
+    GDCLASS(GeoRasterLayer, Resource)
+
+  protected:
+    static void _bind_methods();
 
   public:
     GeoRasterLayer() = default;
     virtual ~GeoRasterLayer();
-
-    /// Automatically called by Godot
-    void _init() {} // Must be here as Godot always calls this for Objects
-    static void _register_methods();
 
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
@@ -136,15 +132,14 @@ class EXPORT GeoRasterLayer : public Resource {
 /// Requires a separate class as it does not wrap a GDALDataset and thus handles its data
 /// differently.
 class EXPORT PyramidGeoRasterLayer : public GeoRasterLayer {
-    GODOT_SUBCLASS(PyramidGeoRasterLayer, GeoRasterLayer)
+    GDCLASS(PyramidGeoRasterLayer, GeoRasterLayer)
+
+  protected:
+    static void _bind_methods();
 
   public:
     PyramidGeoRasterLayer() = default;
     virtual ~PyramidGeoRasterLayer() = default;
-
-    /// Automatically called by Godot
-    void _init() {} // Must be here as Godot always calls this for Objects
-    static void _register_methods();
 
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
@@ -164,15 +159,14 @@ class EXPORT PyramidGeoRasterLayer : public GeoRasterLayer {
 /// A dataset which contains layers of geodata.
 /// Corresponds to GDALDataset.
 class EXPORT GeoDataset : public Resource {
-    GODOT_CLASS(GeoDataset, Resource)
+    GDCLASS(GeoDataset, Resource)
+
+  protected:
+    static void _bind_methods();
 
   public:
     GeoDataset() = default;
     ~GeoDataset();
-
-    /// Automatically called by Godot
-    void _init() {} // Must be here as Godot always calls this for Objects
-    static void _register_methods();
 
     /// Returns true if the GeoDataset could successfully be loaded.
     bool is_valid();

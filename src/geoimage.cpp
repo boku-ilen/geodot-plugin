@@ -10,14 +10,15 @@ GeoImage::~GeoImage() {
     delete raster;
 }
 
-void GeoImage::_register_methods() {
-    register_method("get_image", &GeoImage::get_image);
-    register_method("get_image_texture", &GeoImage::get_image_texture);
-    register_method("get_most_common", &GeoImage::get_most_common);
-    register_method("get_normalmap_for_heightmap", &GeoImage::get_normalmap_for_heightmap);
-    register_method("get_normalmap_texture_for_heightmap",
-                    &GeoImage::get_normalmap_texture_for_heightmap);
-    register_method("is_valid", &GeoImage::is_valid);
+void GeoImage::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("get_image"), &GeoImage::get_image);
+    ClassDB::bind_method(D_METHOD("get_image_texture"), &GeoImage::get_image_texture);
+    ClassDB::bind_method(D_METHOD("get_most_common"), &GeoImage::get_most_common);
+    ClassDB::bind_method(D_METHOD("get_normalmap_for_heightmap"),
+                         &GeoImage::get_normalmap_for_heightmap);
+    ClassDB::bind_method(D_METHOD("get_normalmap_texture_for_heightmap"),
+                         &GeoImage::get_normalmap_texture_for_heightmap);
+    ClassDB::bind_method(D_METHOD("is_valid"), &GeoImage::is_valid);
 }
 
 bool GeoImage::is_valid() {
@@ -35,7 +36,7 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
 
     int size = raster->get_size_in_bytes();
 
-    PoolByteArray pba;
+    PackedByteArray pba;
 
     // Multiply by 4 since we want to put 32-float values into a byte array
     pba.resize(size);
@@ -44,7 +45,7 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
     int img_size_x = raster->get_pixel_size_x();
     int img_size_y = raster->get_pixel_size_y();
 
-    image.instance();
+    image.instantiate();
 
     // Depending on the data type, the insertion of the raw image into the
     // PoolByteArray is different. The format is dependent on how Godot handles
@@ -160,17 +161,16 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
         // Thus, to be safe, we work on a duplicate of the `image` here.
         Ref<Image> image = this->image->duplicate();
 
-        Image *img = Image::_new();
+        Ref<Image> img;
+        img.instantiate();
 
-        PoolByteArray heightmap_data = image->get_data();
+        PackedByteArray heightmap_data = image->get_data();
 
-        PoolByteArray normalmap_data;
+        PackedByteArray normalmap_data;
 
         int width = image->get_width();
         int height = image->get_height();
         normalmap_data.resize(width * height * 4); // RGBA
-
-        image->lock();
 
         for (int full_y = 0; full_y < height; full_y++) {
             for (int full_x = 0; full_x < width; full_x++) {
@@ -212,8 +212,6 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
             }
         }
 
-        image->unlock();
-
         img->create_from_data(width, height, false, Image::Format::FORMAT_RGBA8, normalmap_data);
 
         normalmap = Ref<Image>(img);
@@ -227,12 +225,19 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
 Ref<ImageTexture> GeoImage::get_normalmap_texture_for_heightmap(float scale) {
     Ref<Image> heightmap_image = get_normalmap_for_heightmap(scale);
 
+    // By default, the returned image has the FILTER flag. Only if the interpolation method is
+    // nearest neighbor or one of the modal types, it is disabled, since we most likely want crisp
+    // textures then.
+    int flag = Image::INTERPOLATE_BILINEAR;
+    if (interpolation == INTERPOLATION::NEAREST || interpolation > 5) {
+        flag = Image::INTERPOLATE_NEAREST;
+    }
+
     // Create an ImageTexture wrapping the Image
     Ref<ImageTexture> imgTex;
-    imgTex.instance();
+    imgTex.instantiate();
 
-    imgTex->set_storage(ImageTexture::STORAGE_RAW);
-    imgTex->create_from_image(heightmap_image, ImageTexture::FLAG_FILTER);
+    imgTex->create_from_image(heightmap_image);
 
     return Ref<ImageTexture>(imgTex);
 }
@@ -240,18 +245,9 @@ Ref<ImageTexture> GeoImage::get_normalmap_texture_for_heightmap(float scale) {
 Ref<ImageTexture> GeoImage::get_image_texture() {
     // Create an ImageTexture wrapping the Image
     Ref<ImageTexture> imgTex;
-    imgTex.instance();
+    imgTex.instantiate();
 
-    imgTex->set_storage(ImageTexture::STORAGE_RAW);
-
-    // By default, the returned texture has the FILTER flag. Only if the
-    // interpolation method
-    //  is nearest neighbor or one of the modal types, it is disabled, since we
-    //  most likely want crisp textures then.
-    int flag = ImageTexture::FLAG_FILTER;
-    if (interpolation == INTERPOLATION::NEAREST || interpolation > 5) { flag = 0; }
-
-    imgTex->create_from_image(Ref<Image>(image), flag);
+    imgTex->create_from_image(Ref<Image>(image));
 
     return Ref<ImageTexture>(imgTex);
 }

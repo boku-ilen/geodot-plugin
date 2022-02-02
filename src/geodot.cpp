@@ -6,21 +6,22 @@
 
 using namespace godot;
 
-void Geodot::_init() {
+Geodot::Geodot() {
     RasterTileExtractor::initialize();
     VectorExtractor::initialize();
 }
 
-void Geodot::_register_methods() {
-    register_method("get_dataset", &Geodot::get_dataset);
-    register_method("get_raster_layer", &Geodot::get_raster_layer);
-    register_method("get_raster_layer_for_pyramid", &Geodot::get_raster_layer_for_pyramid);
-    register_method("transform_coordinates", &Geodot::transform_coordinates);
+void Geodot::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("get_dataset"), &Geodot::get_dataset);
+    ClassDB::bind_method(D_METHOD("get_raster_layer"), &Geodot::get_raster_layer);
+    ClassDB::bind_method(D_METHOD("get_raster_layer_for_pyramid"),
+                         &Geodot::get_raster_layer_for_pyramid);
+    ClassDB::bind_method(D_METHOD("transform_coordinates"), &Geodot::transform_coordinates);
 }
 
 Ref<GeoDataset> Geodot::get_dataset(String path) {
     Ref<GeoDataset> dataset;
-    dataset.instance();
+    dataset.instantiate();
 
     dataset->load_from_file(path);
 
@@ -29,7 +30,7 @@ Ref<GeoDataset> Geodot::get_dataset(String path) {
 
 Ref<GeoRasterLayer> Geodot::get_raster_layer(String path) {
     Ref<GeoRasterLayer> layer;
-    layer.instance();
+    layer.instantiate();
 
     layer->load_from_file(path);
 
@@ -37,7 +38,8 @@ Ref<GeoRasterLayer> Geodot::get_raster_layer(String path) {
 }
 
 Ref<GeoRasterLayer> Geodot::get_raster_layer_for_pyramid(String root_folder, String image_ending) {
-    Ref<PyramidGeoRasterLayer> layer = Ref<PyramidGeoRasterLayer>(PyramidGeoRasterLayer::_new());
+    Ref<PyramidGeoRasterLayer> layer = Ref<PyramidGeoRasterLayer>();
+    layer.instantiate();
 
     layer->set_pyramid_base(root_folder);
     layer->set_file_ending(image_ending);

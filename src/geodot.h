@@ -1,10 +1,10 @@
 #ifndef GEODOT_H
 #define GEODOT_H
 
-#include <Array.hpp>
-#include <Godot.hpp>
-#include <Mutex.hpp>
-#include <Node.hpp>
+#include <godot_cpp/classes/global_constants.hpp>
+#include <godot_cpp/classes/node.hpp>
+
+#include <godot_cpp/core/binder_common.hpp>
 
 #include "defines.h"
 #include "geodata.h"
@@ -12,13 +12,12 @@
 namespace godot {
 
 class EXPORT Geodot : public Node {
-    GODOT_CLASS(Geodot, Node)
+    GDCLASS(Geodot, Node)
+
+  protected:
+    static void _bind_methods();
 
   public:
-    /// Automatically called by Godot
-    void _init();
-    static void _register_methods();
-
     /// Return a GeoDataset wrapping the georeferenced dataset at the given
     /// path.
     Ref<GeoDataset> get_dataset(String path);
@@ -41,7 +40,7 @@ class EXPORT Geodot : public Node {
 
     Vector3 transform_coordinates(Vector3 coordinates, String from, String to);
 
-    Geodot() = default;
+    Geodot();
     ~Geodot() = default;
 };
 

@@ -1,10 +1,12 @@
 #ifndef __RASTER_H__
 #define __RASTER_H__
 
-#include <Godot.hpp>
-#include <Image.hpp>
-#include <ImageTexture.hpp>
-#include <Mutex.hpp>
+#include <godot_cpp/classes/global_constants.hpp>
+#include <godot_cpp/classes/image.hpp>
+#include <godot_cpp/classes/image_texture.hpp>
+#include <godot_cpp/classes/mutex.hpp>
+
+#include <godot_cpp/core/binder_common.hpp>
 
 #include "GeoRaster.h"
 #include "defines.h"
@@ -34,7 +36,10 @@ enum INTERPOLATION {
 // not be created manually from Godot. It is only used as the return type of
 // Geodot functions such as Geodot::get_image.
 class EXPORT GeoImage : public Resource {
-    GODOT_CLASS(GeoImage, Resource)
+    GDCLASS(GeoImage, Resource)
+
+  protected:
+    static void _bind_methods();
 
   public:
     GeoImage() = default;
@@ -42,7 +47,6 @@ class EXPORT GeoImage : public Resource {
 
     /// Automatically called by Godot
     void _init() {} // Must be here as Godot always calls this for Objects
-    static void _register_methods();
 
     bool is_valid();
 

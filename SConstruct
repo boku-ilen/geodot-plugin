@@ -143,8 +143,7 @@ else:
 cpp_library += '.' + str(bits)
 
 # make sure our binding library is properly includes
-env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/',
-                    cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/', rte_cpp_path, vector_cpp_path])
+env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'gen/include/', rte_cpp_path, vector_cpp_path])
 env.Append(LIBPATH=[cpp_bindings_path + 'bin/', rte_libpath, vector_libpath, os.path.join(env['osgeo_path'], "lib")])
 env.Append(LIBS=[cpp_library, rte_library, vector_library, gdal_lib_name])
 

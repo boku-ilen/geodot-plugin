@@ -1,5 +1,4 @@
 #include "geofeatures.h"
-#include "Godot.hpp"
 
 using namespace godot;
 
@@ -11,11 +10,11 @@ GeoFeature::~GeoFeature() {
     // FIXME: Decrease the GDAL feature's reference count?
 }
 
-void GeoFeature::_register_methods() {
-    register_method("get_attribute", &GeoFeature::get_attribute);
-    register_method("set_attribute", &GeoFeature::set_attribute);
-    register_method("get_attributes", &GeoFeature::get_attributes);
-    register_method("get_id", &GeoFeature::get_id);
+void GeoFeature::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("get_attribute"), &GeoFeature::get_attribute);
+    ClassDB::bind_method(D_METHOD("set_attribute"), &GeoFeature::set_attribute);
+    ClassDB::bind_method(D_METHOD("get_attributes"), &GeoFeature::get_attributes);
+    ClassDB::bind_method(D_METHOD("get_id"), &GeoFeature::get_id);
 }
 
 String GeoFeature::get_attribute(String name) const {
@@ -48,13 +47,13 @@ void GeoFeature::set_gdal_feature(Feature *gdal_feature) {
 
 // GeoPoint
 
-void GeoPoint::_register_methods() {
-    register_method("get_vector3", &GeoPoint::get_vector3);
-    register_method("get_offset_vector3", &GeoPoint::get_offset_vector3);
-    register_method("set_vector3", &GeoPoint::set_vector3);
-    register_method("set_offset_vector3", &GeoPoint::set_offset_vector3);
+void GeoPoint::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("get_vector3"), &GeoPoint::get_vector3);
+    ClassDB::bind_method(D_METHOD("get_offset_vector3"), &GeoPoint::get_offset_vector3);
+    ClassDB::bind_method(D_METHOD("set_vector3"), &GeoPoint::set_vector3);
+    ClassDB::bind_method(D_METHOD("set_offset_vector3"), &GeoPoint::set_offset_vector3);
 
-    register_signal<GeoPoint>((char *)"point_changed", Dictionary());
+    ADD_SIGNAL(MethodInfo("point_changed"));
 }
 
 Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
@@ -84,21 +83,21 @@ void GeoPoint::set_vector3(Vector3 vector) {
 
 // GeoLine
 
-void GeoLine::_register_methods() {
-    register_method("get_curve3d", &GeoLine::get_curve3d);
-    register_method("get_offset_curve3d", &GeoLine::get_offset_curve3d);
-    register_method("set_curve3d", &GeoLine::set_curve3d);
-    register_method("set_offset_curve3d", &GeoLine::set_offset_curve3d);
-    register_method("add_point", &GeoLine::add_point);
+void GeoLine::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("get_curve3d"), &GeoLine::get_curve3d);
+    ClassDB::bind_method(D_METHOD("get_offset_curve3d"), &GeoLine::get_offset_curve3d);
+    ClassDB::bind_method(D_METHOD("set_curve3d"), &GeoLine::set_curve3d);
+    ClassDB::bind_method(D_METHOD("set_offset_curve3d"), &GeoLine::set_offset_curve3d);
+    ClassDB::bind_method(D_METHOD("add_point"), &GeoLine::add_point);
 
-    register_signal<GeoLine>((char *)"line_changed", Dictionary());
+    ADD_SIGNAL(MethodInfo("line_changed"));
 }
 
 Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
     LineFeature *line = (LineFeature *)gdal_feature;
 
     Ref<Curve3D> curve;
-    curve.instance();
+    curve.instantiate();
 
     int point_count = line->get_point_count();
 
@@ -153,15 +152,15 @@ void GeoLine::add_point(Vector3 point) {
 
 // GeoPolygon
 
-void GeoPolygon::_register_methods() {
-    register_method("get_outer_vertices", &GeoPolygon::get_outer_vertices);
-    register_method("set_outer_vertices", &GeoPolygon::set_outer_vertices);
-    register_method("get_holes", &GeoPolygon::get_holes);
-    register_method("add_hole", &GeoPolygon::add_hole);
+void GeoPolygon::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("get_outer_vertices"), &GeoPolygon::get_outer_vertices);
+    ClassDB::bind_method(D_METHOD("set_outer_vertices"), &GeoPolygon::set_outer_vertices);
+    ClassDB::bind_method(D_METHOD("get_holes"), &GeoPolygon::get_holes);
+    ClassDB::bind_method(D_METHOD("add_hole"), &GeoPolygon::add_hole);
 }
 
-PoolVector2Array GeoPolygon::get_outer_vertices() {
-    PoolVector2Array vertices = PoolVector2Array();
+PackedVector2Array GeoPolygon::get_outer_vertices() {
+    PackedVector2Array vertices = PackedVector2Array();
     PolygonFeature *polygon = (PolygonFeature *)gdal_feature;
 
     std::list<std::vector<double>> raw_outer_vertices = polygon->get_outer_vertices();
@@ -173,7 +172,7 @@ PoolVector2Array GeoPolygon::get_outer_vertices() {
     return vertices;
 }
 
-void GeoPolygon::set_outer_vertices(PoolVector2Array vertices) {
+void GeoPolygon::set_outer_vertices(PackedVector2Array vertices) {
     // TODO: Implement
 }
 
@@ -184,7 +183,7 @@ Array GeoPolygon::get_holes() {
     std::list<std::list<std::vector<double>>> raw_holes = polygon->get_holes();
 
     for (const std::list<std::vector<double>> raw_hole_vertices : raw_holes) {
-        PoolVector2Array hole_vertices = PoolVector2Array();
+        PackedVector2Array hole_vertices = PackedVector2Array();
 
         for (const std::vector<double> vertex : raw_hole_vertices) {
             hole_vertices.push_back(Vector2(vertex[0], vertex[1]));
@@ -196,6 +195,6 @@ Array GeoPolygon::get_holes() {
     return holes;
 }
 
-void GeoPolygon::add_hole(PoolVector2Array hole) {
+void GeoPolygon::add_hole(PackedVector2Array hole) {
     // TODO: Implement
 }

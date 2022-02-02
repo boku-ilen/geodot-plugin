@@ -1,8 +1,10 @@
 #ifndef __FEATURES_H__
 #define __FEATURES_H__
 
-#include <Curve3D.hpp>
-#include <Godot.hpp>
+#include <godot_cpp/classes/curve3d.hpp>
+#include <godot_cpp/classes/global_constants.hpp>
+
+#include <godot_cpp/core/binder_common.hpp>
 
 #include "Feature.h"
 #include "LineFeature.h"
@@ -14,15 +16,14 @@ namespace godot {
 
 // Wrapper for any georeferenced feature from GDAL.
 class EXPORT GeoFeature : public Resource {
-    GODOT_CLASS(GeoFeature, Resource)
+    GDCLASS(GeoFeature, Resource)
+
+  protected:
+    static void _bind_methods();
 
   public:
     GeoFeature();
     virtual ~GeoFeature();
-
-    /// Automatically called by Godot
-    void _init() {} // Must be here as Godot always calls this for Objects
-    static void _register_methods();
 
     String get_attribute(String name) const;
     void set_attribute(String name, String value);
@@ -39,15 +40,14 @@ class EXPORT GeoFeature : public Resource {
 
 // Wrapper for a PointFeature from the VectorExtractor.
 class EXPORT GeoPoint : public GeoFeature {
-    GODOT_SUBCLASS(GeoPoint, GeoFeature)
+    GDCLASS(GeoPoint, GeoFeature)
+
+  protected:
+    static void _bind_methods();
 
   public:
     GeoPoint() = default;
     ~GeoPoint() = default;
-
-    /// Automatically called by Godot
-    void _init() {} // Must be here as Godot always calls this for Objects
-    static void _register_methods();
 
     Vector3 get_offset_vector3(int offset_x, int offset_y, int offset_z);
     void set_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z);
@@ -58,15 +58,14 @@ class EXPORT GeoPoint : public GeoFeature {
 
 // Wrapper for a LineFeature from the VectorExtractor.
 class EXPORT GeoLine : public GeoFeature {
-    GODOT_SUBCLASS(GeoLine, GeoFeature)
+    GDCLASS(GeoLine, GeoFeature)
+
+  protected:
+    static void _bind_methods();
 
   public:
     GeoLine() = default;
     ~GeoLine() = default;
-
-    /// Automatically called by Godot
-    void _init() {} // Must be here as Godot always calls this for Objects
-    static void _register_methods();
 
     Ref<Curve3D> get_offset_curve3d(int offset_x, int offset_y, int offset_z);
     void set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y, int offset_z);
@@ -79,25 +78,24 @@ class EXPORT GeoLine : public GeoFeature {
 
 // Wrapper for a PolygonFeature from the VectorExtractor.
 class EXPORT GeoPolygon : public GeoFeature {
-    GODOT_SUBCLASS(GeoPolygon, GeoFeature)
+    GDCLASS(GeoPolygon, GeoFeature)
+
+  protected:
+    static void _bind_methods();
 
   public:
     GeoPolygon() = default;
     ~GeoPolygon() = default;
 
-    /// Automatically called by Godot
-    void _init() {} // Must be here as Godot always calls this for Objects
-    static void _register_methods();
-
     /// Return the vertices making up the base polygon in a PoolVector2Array.
-    PoolVector2Array get_outer_vertices();
-    void set_outer_vertices(PoolVector2Array vertices);
+    PackedVector2Array get_outer_vertices();
+    void set_outer_vertices(PackedVector2Array vertices);
 
     /// Return a list with any number of PoolVector2Arrays. These represent
     /// polygons that
     ///  should be cut out of the base polygon retreived by get_outer_vertices.
     Array get_holes();
-    void add_hole(PoolVector2Array hole);
+    void add_hole(PackedVector2Array hole);
 };
 
 } // namespace godot
