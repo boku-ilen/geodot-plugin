@@ -7,7 +7,7 @@ using namespace godot;
 // Geodot::GeoImage
 
 GeoImage::~GeoImage() {
-    delete raster;
+    // delete raster;
 }
 
 void GeoImage::_bind_methods() {

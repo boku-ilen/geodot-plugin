@@ -9,7 +9,7 @@
 namespace godot {
 
 GeoDataset::~GeoDataset() {
-    delete dataset;
+    // delete dataset;
 }
 
 void GeoDataset::_bind_methods() {
@@ -201,7 +201,7 @@ void GeoFeatureLayer::set_native_layer(NativeLayer *new_layer) {
 }
 
 GeoRasterLayer::~GeoRasterLayer() {
-    delete dataset;
+    // delete dataset;
 }
 
 void GeoRasterLayer::_bind_methods() {

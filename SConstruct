@@ -86,6 +86,9 @@ subprocess.call(
 
 env.Append(CXXFLAGS=['-std=c++17'])
 
+if env["target"] == "debug":
+    env.Append(CPPDEFINES=["DEBUG_ENABLED", "DEBUG_METHODS_ENABLED"])
+
 # Check our platform specifics
 if env['platform'] == "osx":
     env['target_path'] += 'osx/'

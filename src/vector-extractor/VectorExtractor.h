@@ -17,7 +17,7 @@ class GDALDataset;
 class NativeDataset {
   public:
     NativeDataset(const char *path);
-    ~NativeDataset();
+    ~NativeDataset() = default;
 
     /// Return the names of all feature layers as std::strings.
     std::vector<std::string> get_feature_layer_names();
@@ -31,7 +31,7 @@ class NativeDataset {
 
     bool is_valid() const;
 
-    std::string path;
+    const char *path;
 
     GDALDataset *dataset;
 };
