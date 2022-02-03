@@ -1,17 +1,30 @@
-extends Spatial
+extends Node3D
 
-export(float) var start_position_x = -2000
-export(float) var start_position_y = 344800
-export(float) var tile_size_meters = 1000
-export(int) var tile_size_pixels = 1000
+@export
+var start_position_x := -2000.0
 
-export(String) var heightmap_data_path
-export(String) var ortho_data_path
+@export
+var start_position_y := 344800.0
+
+@export
+var tile_size_meters := 1000.0
+
+@export
+var tile_size_pixels := 1000
+
+@export
+var heightmap_data_path: String
+
+@export
+var ortho_data_path: String
 
 
 func _ready():
-	var heightmap_data = Geodot.get_raster_layer(heightmap_data_path)
-	var ortho_data = Geodot.get_raster_layer(ortho_data_path)
+	# FIXME: How to make Geodot either static or a Singleton?
+	var geodot = Geodot.new()
+	
+	var heightmap_data = geodot.get_raster_layer(heightmap_data_path)
+	var ortho_data = geodot.get_raster_layer(ortho_data_path)
 	
 	var img = heightmap_data.get_image(
 		start_position_x,

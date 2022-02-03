@@ -40,7 +40,7 @@ class EXPORT Geodot : public Node {
 
     Vector3 transform_coordinates(Vector3 coordinates, String from, String to);
 
-    Geodot();
+    Geodot() = default;
     ~Geodot() = default;
 };
 

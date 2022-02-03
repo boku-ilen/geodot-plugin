@@ -1,4 +1,4 @@
-extends Camera
+extends Camera3D
 
 # Basic mouse and keyboard movement
 
@@ -13,13 +13,13 @@ func _ready():
 
 func _process(delta):
 	# Move the camera based on the key pressed
-	if Input.is_action_pressed("ui_left"):
+	if Input.is_action_pressed("left"):
 		translate(Vector3.LEFT * delta * MOVE_SPEED)
-	if Input.is_action_pressed("ui_right"):
+	if Input.is_action_pressed("right"):
 		translate(Vector3.RIGHT * delta * MOVE_SPEED)
-	if Input.is_action_pressed("ui_up"):
+	if Input.is_action_pressed("forward"):
 		translate(Vector3.FORWARD * delta * MOVE_SPEED)
-	if Input.is_action_pressed("ui_down"):
+	if Input.is_action_pressed("backward"):
 		translate(-Vector3.FORWARD * delta * MOVE_SPEED)
 
 

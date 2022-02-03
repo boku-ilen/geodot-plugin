@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=2 format=3 uid="uid://o6yhgmy8pbib"]
 
-[ext_resource path="res://GeopackageDemo.gd" type="Script" id=1]
+[ext_resource type="Script" path="res://GeopackageDemo.gd" id="1"]
 
 [node name="GeopackageDemo" type="Node"]
-script = ExtResource( 1 )
+script = ExtResource( "1" )
 path = "geodata/geopackage_sample.gpkg"
 layer_name = "geopackage_sample"

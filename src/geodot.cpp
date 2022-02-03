@@ -6,11 +6,6 @@
 
 using namespace godot;
 
-Geodot::Geodot() {
-    RasterTileExtractor::initialize();
-    VectorExtractor::initialize();
-}
-
 void Geodot::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_dataset"), &Geodot::get_dataset);
     ClassDB::bind_method(D_METHOD("get_raster_layer"), &Geodot::get_raster_layer);
