@@ -173,4 +173,4 @@ Godot + Geodot -> Processing Library -> External Libraries
 
 The provided Linux build ships with libgdal.so, a build of the GDAL library. All credits for this library go to [OSGeo/gdal](https://github.com/OSGeo/gdal/) ([license](https://raw.githubusercontent.com/OSGeo/gdal/master/gdal/LICENSE.TXT)).
 
-The RasterDemo ships with a small sample of [Viennese test data](https://data.wien.gv.at/) (CC BY 4.0).
+The RasterDemo ships with a small sample of [Viennese test data](https://data.wien.gv.at/) (CC BY 4.0); the VectorDemo uses a sample of edges from the [GIP dataset](http://www.gip.gv.at/#ogd) (CC BY 4.0).

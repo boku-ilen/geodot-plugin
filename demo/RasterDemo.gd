@@ -20,11 +20,8 @@ var ortho_data_path: String
 
 
 func _ready():
-	# FIXME: How to make Geodot either static or a Singleton?
-	var geodot = Geodot.new()
-	
-	var heightmap_data = geodot.get_raster_layer(heightmap_data_path)
-	var ortho_data = geodot.get_raster_layer(ortho_data_path)
+	var heightmap_data = Geodot.get_raster_layer(heightmap_data_path)
+	var ortho_data = Geodot.get_raster_layer(ortho_data_path)
 	
 	var img = heightmap_data.get_image(
 		start_position_x,

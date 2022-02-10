@@ -5,7 +5,9 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
 
-#include "geodot.h"
+#include "geodata.h"
+#include "geoimage.h"
+#include "geoutil.h"
 
 using namespace godot;
 
@@ -19,7 +21,7 @@ void register_geodot_types() {
     ClassDB::register_class<GeoFeatureLayer>();
     ClassDB::register_class<GeoRasterLayer>();
     ClassDB::register_class<PyramidGeoRasterLayer>();
-    ClassDB::register_class<Geodot>();
+    ClassDB::register_class<GeoUtil>();
 }
 
 void unregister_geodot_types() {}

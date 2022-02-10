@@ -1,17 +1,18 @@
-[gd_scene format=2]
+[gd_scene format=3 uid="uid://cjcyr3e552314"]
 
-[node name="Street" type="Path"]
-curve = null
+[node name="Street" type="Path3D"]
 
-[node name="PathFollow" type="PathFollow" parent="."]
+[node name="PathFollow" type="PathFollow3D" parent="."]
 
-[node name="CSGPolygon" type="CSGPolygon" parent="PathFollow"]
-invert_faces = true
-polygon = PoolVector2Array( -7, 0, -7, 1, 0, 1, 7, 1, 7, 0 )
+[node name="CSGPolygon" type="CSGPolygon3D" parent="PathFollow"]
+polygon = PackedVector2Array(-7, 0, -7, 1, 0, 1, 7, 1, 7, 0)
 mode = 2
 path_node = NodePath("../..")
-path_interval = 1.0
+path_interval_type = 0
+path_interval = 5.0
+path_simplify_angle = 0.0
 path_rotation = 2
 path_local = false
 path_continuous_u = false
+path_u_distance = 1.0
 path_joined = false

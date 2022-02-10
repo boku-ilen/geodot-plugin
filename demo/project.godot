@@ -8,15 +8,20 @@
 
 config_version=5
 
-_global_script_classes=[]
-_global_script_class_icons={}
-
 [application]
 
 config/name="Demo"
 run/main_scene="res://RasterDemo.tscn"
 config/icon="res://icon.png"
 config/features=PackedStringArray("4.0")
+
+[autoload]
+
+Geodot="*res://addons/geodot/geodot.gd"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/geodot/plugin.cfg")
 
 [input]
 

@@ -113,8 +113,6 @@ class EXPORT GeoRasterLayer : public Resource {
     float get_max();
 
     /// Load a raster dataset file such as a GeoTIFF into this object.
-    /// Not exposed to Godot since Godot should create datasets and layers from
-    /// the Geodot singleton (the factory).
     void load_from_file(String file_path);
 
     /// Set the GDALDataset object for this layer. Must be a valid raster
@@ -188,8 +186,7 @@ class EXPORT GeoDataset : public Resource {
     Ref<GeoFeatureLayer> get_feature_layer(String name);
 
     /// Load a dataset file such as a Geopackage or a Shapefile into this
-    /// object. Not exposed to Godot since Godot should create datasets and
-    /// layers from the Geodot singleton (the factory).
+    /// object.
     void load_from_file(String file_path);
 
     /// Set the GDALDataset object directly.

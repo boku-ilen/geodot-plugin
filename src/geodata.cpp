@@ -18,6 +18,7 @@ void GeoDataset::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_feature_layers"), &GeoDataset::get_feature_layers);
     ClassDB::bind_method(D_METHOD("get_raster_layer", "name"), &GeoDataset::get_raster_layer);
     ClassDB::bind_method(D_METHOD("get_feature_layer", "name"), &GeoDataset::get_feature_layer);
+    ClassDB::bind_method(D_METHOD("load_from_file", "file_path"), &GeoDataset::load_from_file);
 }
 
 bool GeoDataset::is_valid() {
@@ -213,6 +214,7 @@ void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_min"), &GeoRasterLayer::get_min);
     ClassDB::bind_method(D_METHOD("get_max"), &GeoRasterLayer::get_max);
     ClassDB::bind_method(D_METHOD("clone"), &GeoRasterLayer::clone);
+    ClassDB::bind_method(D_METHOD("load_from_file", "file_path"), &GeoRasterLayer::load_from_file);
 }
 
 bool GeoRasterLayer::is_valid() {

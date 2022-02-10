@@ -5,7 +5,9 @@ extends Camera3D
 var rot_x:float = 0
 var rot_y:float = 0
 
-const MOVE_SPEED:float = 2.0
+@export
+var move_speed:float = 2.0
+
 const LOOKAROUND_SPEED:float = 0.005
 
 func _ready():
@@ -14,13 +16,13 @@ func _ready():
 func _process(delta):
 	# Move the camera based on the key pressed
 	if Input.is_action_pressed("left"):
-		translate(Vector3.LEFT * delta * MOVE_SPEED)
+		translate(Vector3.LEFT * delta * move_speed)
 	if Input.is_action_pressed("right"):
-		translate(Vector3.RIGHT * delta * MOVE_SPEED)
+		translate(Vector3.RIGHT * delta * move_speed)
 	if Input.is_action_pressed("forward"):
-		translate(Vector3.FORWARD * delta * MOVE_SPEED)
+		translate(Vector3.FORWARD * delta * move_speed)
 	if Input.is_action_pressed("backward"):
-		translate(-Vector3.FORWARD * delta * MOVE_SPEED)
+		translate(-Vector3.FORWARD * delta * move_speed)
 
 
 func _input(event):
