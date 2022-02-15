@@ -2,7 +2,7 @@
 
 <img align="right" width="256" height="256" src="https://github.com/boku-ilen/geodot-plugin/blob/master/demo/icon.png">
 
-A Godot plugin for loading geospatial data. Written in GDNative with C++ and GDAL.
+A Godot plugin for loading geospatial data. Written as a GDExtension with C++ and GDAL.
 
 Various types of Raster and Vector data can be loaded from georeferenced files and used in Godot. One might load a heightmap from a GeoTIFF, building footprints from a Shapefile, or an entire database of data from a GeoPackage. Thanks to efficient filtering and cropping, data can be loaded in real-time.
 
@@ -43,7 +43,7 @@ __You will need some sort of geodata to use this plugin.__ A good starting point
 
 # Building
 
-For building this project we need to install [Scons](https://scons.org) by following one of the [User Guide](https://scons.org/documentation.html) *Installing Scons* which is both used for Godot GDNative and this project and we need the GDAL library which has different installation instruction listed below.
+For building this project we need to install [Scons](https://scons.org) by following one of the [User Guide](https://scons.org/documentation.html) *Installing Scons* which is both used for Godot GDExtension and this project and we need the GDAL library which has different installation instruction listed below.
 
 - [Linux](#building-on-linux)
 - [Windows](#building-on-windows)
@@ -54,11 +54,11 @@ For building this project we need to install [Scons](https://scons.org) by follo
 
 1. Install GDAL. (With apt: `sudo apt install libgdal-dev`)
 2. Initialize all git submodules: `git submodule update --init --recursive`
-3. Generate the GDNative C++ bindings: `cd godot-cpp; scons platform=linux generate_bindings=yes`
+3. Generate the GDExtension C++ bindings: `cd godot-cpp; scons platform=linux generate_bindings=yes`
 
 ### Compiling
 
-Everything is built via SConstruct. Running `scons platform=linux` in the root directory will compile everything: First the processing libraries, then the finished GDNative plugin.
+Everything is built via SConstruct. Running `scons platform=linux` in the root directory will compile everything: First the processing libraries, then the finished GDExtension plugin.
 
 If you're working on a processing library, you can also only compile this library with the same `scons platform=linux` command in that library's directory (e.g. in `src/raster-tile-extractor`).
 
@@ -82,13 +82,13 @@ For building a self-contained plugin for use in other projects, it is recommende
     - MSBuild
     - C++/CLI support for v142 build tools
 5. In `geodot-plugin`, initialize all git submodules: `git submodule update --init --recursive`
-6. In `geodot-plugin/godot-cpp`, generate the GDNative C++ bindings: `scons platform=windows generate_bindings=yes bits=64 target=release`
+6. In `geodot-plugin/godot-cpp`, generate the GDExtension C++ bindings: `scons platform=windows generate_bindings=yes bits=64 target=release`
 
 ### Compiling
 
 We got the best results with the "x64 Native Tools Command Prompt for VS 2019" command line.
 
-Everything is built via SConstruct. Running `scons platform=windows osgeo_path=C:/path/to/osgeo target=release` in the root directory will compile everything: First the processing libraries, then the finished GDNative plugin. (Building for debug caused crashes for us, which is why `target=release` is recommended on Windows.)
+Everything is built via SConstruct. Running `scons platform=windows osgeo_path=C:/path/to/osgeo target=release` in the root directory will compile everything: First the processing libraries, then the finished GDExtension plugin. (Building for debug caused crashes for us, which is why `target=release` is recommended on Windows.)
 
 If you're working on a processing library, you can also only compile this library with the same `scons platform=windows osgeo_path=C:/path/to/osgeo` command in that library's directory (e.g. in `src/raster-tile-extractor`).
 
@@ -112,7 +112,7 @@ NOTES
   1. Use `brew info gdal | grep '/usr/local' | cut -d ' ' -f 1` or `which gdalinfo` to find the GDAL install location.
   1. Make a note of this path like `/usr/local/Cellar/gdal/3.2.1` and use that below for `osgeo_path=...`
 1. Initialize all git submodules: `git submodule update --init --recursive`
-1. Generate the GDNative C++ bindings:
+1. Generate the GDExtension C++ bindings:
 ```
 cd godot-cpp
 scons generate_bindings=yes target=release --jobs=$(sysctl -n hw.logicalcpu)
@@ -138,11 +138,11 @@ A minimal Godot project which the plugin is compiled into by default. Used to te
 
 ## godot-cpp
 
-Git submodule with everything that's required for building a GDNative plugin with C++.
+Git submodule with everything that's required for building a GDExtension plugin with C++.
 
 ## Geodot
 
-`geodot.h`, `geodata.h`, etc. - the GDNative C++ code for the actual plugin. It mainly acts as an interface from Godot-compatible types to custom libraries and classes - it is kept as simple as possible so that adapting it to changes in Godot is easy.
+`geodot.h`, `geodata.h`, etc. - the GDExtension C++ code for the actual plugin. It mainly acts as an interface from Godot-compatible types to custom libraries and classes - it is kept as simple as possible so that adapting it to changes in Godot is easy.
 
 ## Processing Libraries
 
