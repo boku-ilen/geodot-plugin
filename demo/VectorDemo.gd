@@ -22,14 +22,15 @@ func _ready() -> void:
 		var street = street_scene.instantiate()
 		var curve = line.get_offset_curve3d(int(-center_x), 0, int(-center_y))
 		
-		street.curve = curve
-#
-#		var width = 5.0
-#
-#		street.get_node("PathFollow/CSGPolygon").polygon[0] = Vector2(-width, 0)
-#		street.get_node("PathFollow/CSGPolygon").polygon[1] = Vector2(-width, 3)
-#		street.get_node("PathFollow/CSGPolygon").polygon[2] = Vector2(0, 3)
-#		street.get_node("PathFollow/CSGPolygon").polygon[3] = Vector2(width, 3)
-#		street.get_node("PathFollow/CSGPolygon").polygon[4] = Vector2(width, 0)
-
 		add_child(street)
+		
+		# Note that this needs to happen after add_child!
+		street.curve = curve
+
+		var width = 5.0
+
+		street.get_node("PathFollow/CSGPolygon").polygon[0] = Vector2(-width, 0)
+		street.get_node("PathFollow/CSGPolygon").polygon[1] = Vector2(-width, 3)
+		street.get_node("PathFollow/CSGPolygon").polygon[2] = Vector2(0, 3)
+		street.get_node("PathFollow/CSGPolygon").polygon[3] = Vector2(width, 3)
+		street.get_node("PathFollow/CSGPolygon").polygon[4] = Vector2(width, 0)
