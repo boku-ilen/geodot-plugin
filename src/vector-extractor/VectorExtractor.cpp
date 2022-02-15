@@ -363,6 +363,13 @@ Feature *NativeLayer::create_feature() {
 
     // Generate a new ID based on the highest ID within the original data plus the highest added ID
     GUIntBig id = disk_feature_count + ram_feature_count;
+
+    // Ensure that this ID is unused - can be relevant if there are gaps in the original data
+    while (layer->GetFeature(id) != nullptr) {
+        disk_feature_count++;
+        id++;
+    }
+
     new_feature->SetFID(id);
     ram_feature_count++;
 
