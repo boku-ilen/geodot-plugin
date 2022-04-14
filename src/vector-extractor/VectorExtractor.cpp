@@ -4,6 +4,7 @@
 #include "gdal-includes.h"
 
 #include <algorithm>
+#include <iostream>
 
 void VectorExtractor::initialize() {
     GDALAllRegister();
