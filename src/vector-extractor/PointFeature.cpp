@@ -27,4 +27,5 @@ void PointFeature::set_vector(double x, double y, double z) {
     point->setX(x);
     point->setY(y);
     point->setZ(z);
+    feature->SetGeometry(point);
 }

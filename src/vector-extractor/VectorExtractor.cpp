@@ -4,7 +4,6 @@
 #include "gdal-includes.h"
 
 #include <algorithm>
-#include <iostream>
 
 void VectorExtractor::initialize() {
     GDALAllRegister();
@@ -39,8 +38,7 @@ std::vector<double> VectorExtractor::transform_coordinates(double input_x, doubl
 std::list<Feature *> NativeLayer::get_feature_for_ogrfeature(OGRFeature *feature) {
     std::list<Feature *> list = std::list<Feature *>();
 
-    // FIXME: This can prevent crashes in specific datasets with seemingly no side effects, but it
-    // shouldn't be required!
+    // FIXME: This should never happen - would be better to throw an error towards Godot here
     if (feature == nullptr) { return list; }
 
     if (feature_cache.count(feature->GetFID())) {
@@ -146,6 +144,7 @@ std::list<Feature *> NativeLayer::get_features_near_position(double pos_x, doubl
     OGRGeometry *circle_buffer = circle->Buffer(radius);
 
     layer->SetSpatialFilter(circle_buffer);
+    layer->ResetReading();
 
     // Put the resulting features into the returned list. We add as many features as were returned
     // unless they're more
@@ -161,7 +160,8 @@ std::list<Feature *> NativeLayer::get_features_near_position(double pos_x, doubl
     // Also check the RAM layer
     // FIXME: Take care of max_amount here too
     // TODO: Code duplication (similar as in `get_features`)
-    ram_layer->SetSpatialFilter(circle_buffer);
+    ram_layer->SetSpatialFilter(nullptr);
+    ram_layer->ResetReading();
 
     // FIXME: In this case, we need to copy the cached features into the RAM dataset with
     // layer->CreateFeature because otherwise, the spatial filter doesn't return them! So we should
@@ -362,7 +362,8 @@ Feature *NativeLayer::create_feature() {
     }
 
     // Generate a new ID based on the highest ID within the original data plus the highest added ID
-    GUIntBig id = disk_feature_count + ram_feature_count;
+    // Add 1 because feature IDs start at 1, not 0
+    GUIntBig id = disk_feature_count + ram_feature_count + 1;
     new_feature->SetFID(id);
     ram_feature_count++;
 
