@@ -25,9 +25,8 @@ class EXPORT Geodot : public Node {
 
     /// Return a GeoRasterLayer wrapping the georeferenced image at the given
     /// path. To be used only for individual images -- for datasets such as
-    /// GeoPackages which
-    ///  contain raster data, use `get_dataset(path).get_raster_layer(name)`
-    ///  instead.
+    /// GeoPackages which contain raster data, use `get_dataset(path).get_raster_layer(name)`
+    /// instead.
     Ref<GeoRasterLayer> get_raster_layer(String path);
 
     /// Return a GeoRasterLayer (with no parent GeoDataset) wrapping the slippy

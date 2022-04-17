@@ -32,6 +32,7 @@ Ref<GeoRasterLayer> Geodot::get_raster_layer(String path) {
     layer.instance();
 
     layer->load_from_file(path);
+    layer->set_name(path);
 
     return layer;
 }

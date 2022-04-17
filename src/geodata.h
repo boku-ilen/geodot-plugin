@@ -11,10 +11,14 @@
 
 namespace godot {
 
+// Forward decaration
+class EXPORT GeoDataset;
+
 /// A layer which contains any number of features.
 /// These features consist of attributes and usually (but not necessarily)
 /// vector geometry. This layer provides access to these features through
 /// various filters. Corresponds to OGRLayer.
+/// Its `name` property corresponds to the layer name.
 class EXPORT GeoFeatureLayer : public Resource {
     GODOT_CLASS(GeoFeatureLayer, Resource)
 
@@ -29,6 +33,9 @@ class EXPORT GeoFeatureLayer : public Resource {
 
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
+
+    /// Returns the dataset which this layer was opened from.
+    Ref<GeoDataset> get_dataset();
 
     /// Returns the one feature that corresponds to the given ID.
     Ref<GeoFeature> get_feature_by_id(int id);
@@ -65,17 +72,24 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// is only for internal use.
     void set_native_layer(NativeLayer *new_layer);
 
+    /// Sets the dataset which this layer was opened from.
+    /// Not exposed to Godot since it should never construct GeoFeatureLayers by hand.
+    void set_origin_dataset(Ref<GeoDataset> dataset);
+
   private:
     NativeLayer *layer;
+    Ref<GeoDataset> origin_dataset;
 };
 
 /// A layer which contains raster data.
 /// Corresponds to a Raster GDALDataset or Subdataset.
+/// Its `name` property is either the layer name, or the full path if it wasn't opened from a
+/// dataset (i.e. get_dataset() returns null).
 class EXPORT GeoRasterLayer : public Resource {
     GODOT_CLASS(GeoRasterLayer, Resource)
 
   public:
-    GeoRasterLayer() = default;
+    GeoRasterLayer() : origin_dataset(nullptr) {}
     virtual ~GeoRasterLayer();
 
     /// Automatically called by Godot
@@ -84,6 +98,10 @@ class EXPORT GeoRasterLayer : public Resource {
 
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
+
+    /// Returns the dataset which this layer was opened from or null if it was opened directly, e.g.
+    /// from a GeoTIFF.
+    Ref<GeoDataset> get_dataset();
 
     /// Returns a clone of this layer which points to the same file, but uses a
     /// different object to access it. This is required when using the same
@@ -126,7 +144,12 @@ class EXPORT GeoRasterLayer : public Resource {
     /// GDALDatasets - this is only for internal use.
     void set_native_dataset(NativeDataset *new_dataset);
 
+    /// Sets the dataset which this layer was opened from.
+    /// Not exposed to Godot since it should never construct GeoFeatureLayers by hand.
+    void set_origin_dataset(Ref<GeoDataset> dataset);
+
   private:
+    Ref<GeoDataset> origin_dataset;
     NativeDataset *dataset;
     RasterTileExtractor::ExtentData extent_data;
 };

@@ -52,6 +52,7 @@ Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
 
     raster_layer->set_native_dataset(dataset->get_subdataset(name.utf8().get_data()));
     raster_layer->set_name(name);
+    raster_layer->set_origin_dataset(this);
 
     return raster_layer;
 }
@@ -60,14 +61,15 @@ Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
     Ref<GeoFeatureLayer> feature_layer;
     feature_layer.instance();
 
-    feature_layer->set_native_layer(
-        VectorExtractor::get_layer_from_dataset(dataset->dataset, name.utf8().get_data()));
+    feature_layer->set_native_layer(dataset->get_layer(name.utf8().get_data()));
     feature_layer->set_name(name);
+    feature_layer->set_origin_dataset(this);
 
     return feature_layer;
 }
 
 void GeoDataset::load_from_file(String file_path) {
+    set_path(file_path);
     dataset = VectorExtractor::open_dataset(file_path.utf8().get_data());
 }
 
@@ -77,6 +79,7 @@ void GeoDataset::set_native_dataset(NativeDataset *new_dataset) {
 
 void GeoFeatureLayer::_register_methods() {
     register_method("is_valid", &GeoFeatureLayer::is_valid);
+    register_method("get_dataset", &GeoFeatureLayer::get_dataset);
     register_method("get_feature_by_id", &GeoFeatureLayer::get_feature_by_id);
     register_method("get_all_features", &GeoFeatureLayer::get_all_features);
     register_method("get_features_near_position", &GeoFeatureLayer::get_features_near_position);
@@ -92,6 +95,10 @@ void GeoFeatureLayer::_register_methods() {
 
 bool GeoFeatureLayer::is_valid() {
     return layer && layer->is_valid();
+}
+
+Ref<GeoDataset> GeoFeatureLayer::get_dataset() {
+    return origin_dataset;
 }
 
 // Utility function for converting a Processing Library Feature to the appropriate GeoFeature
@@ -200,12 +207,17 @@ void GeoFeatureLayer::set_native_layer(NativeLayer *new_layer) {
     layer = new_layer;
 }
 
+void GeoFeatureLayer::set_origin_dataset(Ref<GeoDataset> dataset) {
+    this->origin_dataset = dataset;
+}
+
 GeoRasterLayer::~GeoRasterLayer() {
     delete dataset;
 }
 
 void GeoRasterLayer::_register_methods() {
     register_method("is_valid", &GeoRasterLayer::is_valid);
+    register_method("get_dataset", &GeoRasterLayer::get_dataset);
     register_method("get_image", &GeoRasterLayer::get_image);
     register_method("get_value_at_position", &GeoRasterLayer::get_value_at_position);
     register_method("get_extent", &GeoRasterLayer::get_extent);
@@ -217,6 +229,10 @@ void GeoRasterLayer::_register_methods() {
 
 bool GeoRasterLayer::is_valid() {
     return dataset && dataset->is_valid();
+}
+
+Ref<GeoDataset> GeoRasterLayer::get_dataset() {
+    return origin_dataset;
 }
 
 Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,
@@ -275,6 +291,10 @@ float GeoRasterLayer::get_max() {
     return RasterTileExtractor::get_max(dataset->dataset);
 }
 
+void GeoRasterLayer::set_origin_dataset(Ref<GeoDataset> dataset) {
+    this->origin_dataset = dataset;
+}
+
 bool PyramidGeoRasterLayer::is_valid() {
     // TODO
     return true;
@@ -285,6 +305,7 @@ Ref<GeoRasterLayer> GeoRasterLayer::clone() {
     layer_clone.instance();
 
     layer_clone->set_native_dataset(dataset->clone());
+    layer_clone->set_origin_dataset(origin_dataset);
 
     return layer_clone;
 }

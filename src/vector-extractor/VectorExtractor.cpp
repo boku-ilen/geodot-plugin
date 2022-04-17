@@ -14,10 +14,6 @@ NativeDataset *VectorExtractor::open_dataset(const char *path) {
     return new NativeDataset(path);
 }
 
-NativeLayer *VectorExtractor::get_layer_from_dataset(GDALDataset *dataset, const char *name) {
-    return new NativeLayer(dataset->GetLayerByName(name));
-}
-
 std::vector<double> VectorExtractor::transform_coordinates(double input_x, double input_z,
                                                            std::string from, std::string to) {
     OGRSpatialReference source_reference, target_reference;
@@ -215,6 +211,10 @@ std::vector<std::string> NativeDataset::get_raster_layer_names() {
     }
 
     return names;
+}
+
+NativeLayer *NativeDataset::get_layer(const char *name) {
+    return new NativeLayer(dataset->GetLayerByName(name));
 }
 
 std::list<LineFeature *> NativeLayer::crop_lines_to_square(const char *path, double top_left_x,
