@@ -306,6 +306,7 @@ Ref<GeoRasterLayer> GeoRasterLayer::clone() {
 
     layer_clone->set_native_dataset(dataset->clone());
     layer_clone->set_origin_dataset(origin_dataset);
+    layer_clone->set_name(get_name());
 
     return layer_clone;
 }
