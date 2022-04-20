@@ -1,5 +1,6 @@
 #include "geodot.h"
 #include "RasterTileExtractor.h"
+#include <ResourceLoader.hpp>
 
 #include <algorithm>  // For std::clamp
 #include <functional> // For std::hash
@@ -19,12 +20,18 @@ void Geodot::_register_methods() {
 }
 
 Ref<GeoDataset> Geodot::get_dataset(String path) {
-    Ref<GeoDataset> dataset;
-    dataset.instance();
+    // Because we set the path of the GeoDataset with the Resource's `set_path` function, we can
+    // make use of Godot's Resource caching, but for this we need to access the cache here
+    if (ResourceLoader::get_singleton()->exists(path)) {
+        return ResourceLoader::get_singleton()->load(path);
+    } else {
+        Ref<GeoDataset> dataset;
+        dataset.instance();
 
-    dataset->load_from_file(path);
+        dataset->load_from_file(path);
 
-    return dataset;
+        return dataset;
+    }
 }
 
 Ref<GeoRasterLayer> Geodot::get_raster_layer(String path) {
