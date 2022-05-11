@@ -46,6 +46,10 @@ void GeoFeature::set_gdal_feature(Feature *gdal_feature) {
     this->gdal_feature = gdal_feature;
 }
 
+void GeoFeature::set_deleted(bool is_deleted) {
+    this->gdal_feature->is_deleted = is_deleted;
+}
+
 // GeoPoint
 
 void GeoPoint::_register_methods() {

@@ -33,6 +33,8 @@ class EXPORT GeoFeature : public Resource {
 
     void set_gdal_feature(Feature *gdal_feature);
 
+    void set_deleted(bool is_deleted);
+
   protected:
     Feature *gdal_feature;
 };

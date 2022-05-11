@@ -39,8 +39,13 @@ std::list<Feature *> NativeLayer::get_feature_for_ogrfeature(OGRFeature *feature
     if (feature == nullptr) { return list; }
 
     if (feature_cache.count(feature->GetFID())) {
-        // The feature is already cached, return that one
-        return feature_cache[feature->GetFID()];
+        // The feature is already cached, return that
+        std::list<Feature *> cached_feature = feature_cache[feature->GetFID()];
+
+        // Remove deleted features from the list
+        cached_feature.remove_if([](const Feature *feature) { return feature->is_deleted; });
+
+        return cached_feature;
     }
 
     // The feature is not cached; create a new one and cache that.

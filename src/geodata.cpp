@@ -177,8 +177,7 @@ Ref<GeoFeature> GeoFeatureLayer::create_feature() {
 
 void GeoFeatureLayer::remove_feature(Ref<GeoFeature> feature) {
     // Mark the feature for deletion
-
-    // TODO: Implement
+    feature->set_deleted(true);
 
     emit_signal("feature_removed", feature);
 }

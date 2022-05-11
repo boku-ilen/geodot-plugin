@@ -35,6 +35,8 @@ class Feature {
 
     GeometryType geometry_type = NONE;
 
+    bool is_deleted = false;
+
   protected:
     OGRFeature *feature;
 };
