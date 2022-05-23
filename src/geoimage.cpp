@@ -24,11 +24,6 @@ bool GeoImage::is_valid() {
     return validity;
 }
 
-union {
-    float fval;
-    int8_t bval[4];
-} floatAsBytes;
-
 void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
     this->raster = raster;
     this->interpolation = interpolation;
@@ -117,6 +112,11 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
 
         // Convert the float into 4 bytes and add those to the array
         // Format of the PoolByteArray: (F1F2F3F4)(F1F2F3F4)(F1F2F3F4)...
+        union {
+            float fval;
+            int8_t bval[4];
+        } floatAsBytes;
+
         for (int y = 0; y < img_size_y; y++) {
             for (int x = 0; x < img_size_x; x++) {
                 floatAsBytes.fval = data[y * img_size_x + x];
