@@ -119,6 +119,13 @@ class EXPORT GeoRasterLayer : public Resource {
     /// get_image and read the pixels from there.
     float get_value_at_position(double pos_x, double pos_y);
 
+    /// Returns the value in the GeoRasterLayer at exactly the given position, at the given
+    /// resolution. This is useful for getting heights which match up with the heights of a lower
+    /// resolution image which was fetched using `get_image`, rather than being as detailed as
+    /// possible.
+    float get_value_at_position_with_resolution(double pos_x, double pos_y,
+                                                double pixel_size_meters);
+
     /// Returns the extent of the layer in projected meters (assuming it is rectangular).
     Rect2 get_extent();
 

@@ -3,6 +3,7 @@
 #include "raster-tile-extractor/RasterTileExtractor.h"
 #include "vector-extractor/Feature.h"
 #include "vector-extractor/VectorExtractor.h"
+#include <cmath>
 
 namespace godot {
 
@@ -219,6 +220,8 @@ void GeoRasterLayer::_register_methods() {
     register_method("get_dataset", &GeoRasterLayer::get_dataset);
     register_method("get_image", &GeoRasterLayer::get_image);
     register_method("get_value_at_position", &GeoRasterLayer::get_value_at_position);
+    register_method("get_value_at_position_with_resolution",
+                    &GeoRasterLayer::get_value_at_position_with_resolution);
     register_method("get_extent", &GeoRasterLayer::get_extent);
     register_method("get_center", &GeoRasterLayer::get_center);
     register_method("get_min", &GeoRasterLayer::get_min);
@@ -236,6 +239,7 @@ Ref<GeoDataset> GeoRasterLayer::get_dataset() {
 
 Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,
                                         int img_size, int interpolation_type) {
+
     Ref<GeoImage> image;
     image.instance();
 
@@ -255,10 +259,19 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
 }
 
 float GeoRasterLayer::get_value_at_position(double pos_x, double pos_y) {
-    // Get the GeoRaster for this position with a resolution of 1x1px.
     // 0.0001 meters are used for the size because it can't be 0, but should be a pinpoint value.
-    GeoRaster *raster =
-        RasterTileExtractor::get_tile_from_dataset(dataset->dataset, pos_x, pos_y, 0.0001, 1, 1);
+    return get_value_at_position_with_resolution(pos_x, pos_y, 0.0001);
+}
+
+float GeoRasterLayer::get_value_at_position_with_resolution(double pos_x, double pos_y,
+                                                            double pixel_size_meters) {
+
+    pos_x -= std::fmod(pos_x, pixel_size_meters);
+    pos_y -= std::fmod(pos_y, pixel_size_meters);
+
+    // Get the GeoRaster for this position with a resolution of 1x1px.
+    GeoRaster *raster = RasterTileExtractor::get_tile_from_dataset(dataset->dataset, pos_x, pos_y,
+                                                                   pixel_size_meters, 1, 1);
 
     // TODO: Currently only implemented for RF type.
     // For others, we would either need a completely generic return value, or other specific
