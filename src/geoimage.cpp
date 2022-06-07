@@ -263,7 +263,7 @@ Array GeoImage::get_most_common(int number_of_entries) {
     // Translate C-style array to Godot Array
     for (int i = 0; i < number_of_entries; i++) {
         if (most_common[i] == 0)
-            break; // An entry of 0 means that nothing with this index was found, so we're done
+            continue; // An entry of 0 means that nothing with this index was found, so we're done
 
         ret_array.append(most_common[i]);
     }
