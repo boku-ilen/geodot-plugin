@@ -5,9 +5,9 @@
 #include <gdal_priv.h>
 #include <ogrsf_frmts.h>
 #elif _WIN32
-#include <cpl_error.h>
-#include <gdal_priv.h>
-#include <ogrsf_frmts.h>
+#include <gdal/cpl_error.h>
+#include <gdal/gdal_priv.h>
+#include <gdal/ogrsf_frmts.h>
 #elif __APPLE__
 #include <cpl_error.h>
 #include <cpl_port.h>
