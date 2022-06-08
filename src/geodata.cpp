@@ -265,9 +265,9 @@ float GeoRasterLayer::get_value_at_position(double pos_x, double pos_y) {
 
 float GeoRasterLayer::get_value_at_position_with_resolution(double pos_x, double pos_y,
                                                             double pixel_size_meters) {
-
-    pos_x -= std::fmod(pos_x, pixel_size_meters);
-    pos_y -= std::fmod(pos_y, pixel_size_meters);
+    // TODO: Figure out what exactly we need to clamp to for precise values
+    // pos_x -= std::fmod(pos_x, pixel_size_meters);
+    // pos_y -= std::fmod(pos_y, pixel_size_meters);
 
     // Get the GeoRaster for this position with a resolution of 1x1px.
     GeoRaster *raster = RasterTileExtractor::get_tile_from_dataset(dataset->dataset, pos_x, pos_y,
