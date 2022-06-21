@@ -37,7 +37,7 @@ class EXPORT GeoImage : public Resource {
     GODOT_CLASS(GeoImage, Resource)
 
   public:
-    GeoImage() = default;
+    GeoImage();
     ~GeoImage();
 
     /// Automatically called by Godot

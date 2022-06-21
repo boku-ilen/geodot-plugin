@@ -6,6 +6,10 @@ using namespace godot;
 
 // Geodot::GeoImage
 
+GeoImage::GeoImage() {
+    normalmap_load_mutex.instance();
+}
+
 GeoImage::~GeoImage() {
     delete raster;
 }
@@ -160,7 +164,8 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
         // Thus, to be safe, we work on a duplicate of the `image` here.
         Ref<Image> image = this->image->duplicate();
 
-        Image *img = Image::_new();
+        Ref<Image> img;
+        img.instance();
 
         PoolByteArray heightmap_data = image->get_data();
 
