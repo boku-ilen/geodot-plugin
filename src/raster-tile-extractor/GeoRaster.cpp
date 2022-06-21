@@ -217,8 +217,6 @@ int GeoRaster::get_pixel_size_y() {
 }
 
 uint64_t *GeoRaster::get_histogram() {
-    // TODO: Make sure this is only called on a GeoRaster with format BYTE
-    //  It doesn't make sense for Float32 and we would need a different method for RGBA
     uint64_t *histogram = new uint64_t[256];
 
     // Initialize array
@@ -228,11 +226,26 @@ uint64_t *GeoRaster::get_histogram() {
 
     uint8_t *array = reinterpret_cast<uint8_t *>(get_as_array());
 
-    for (int y = 0; y < get_pixel_size_y(); y++) {
-        for (int x = 0; x < get_pixel_size_x(); x++) {
-            int index = array[y * get_pixel_size_x() + x];
-            histogram[index]++;
-        }
+    int array_size = 0;
+    int step;
+
+    // In the case of RGB and RGBA arrays, we only check the R value.
+    // This is because the function likely doesn't make sense on real RGB(A) images such as
+    // orthophotos, but BYTE images may present themselves as RGB images, e.g. in the case of
+    // GeoPackage rasters.
+    if (format == BYTE) {
+        array_size = get_pixel_size_x() * get_pixel_size_y();
+        step = 1;
+    } else if (format == RGB) {
+        array_size = get_pixel_size_x() * get_pixel_size_y() * 3;
+        step = 3;
+    } else if (format == RGBA) {
+        array_size = get_pixel_size_x() * get_pixel_size_y() * 4;
+        step = 4;
+    }
+
+    for (int i = 0; i < array_size; i += step) {
+        histogram[array[i]]++;
     }
 
     return histogram;
