@@ -79,15 +79,16 @@ void *GeoRaster::get_as_array() {
         if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
             // only 0s
-            float *target_array = new float[get_size_in_bytes()];
-            std::fill(target_array, target_array + get_size_in_bytes(), 0.0);
+            float *target_array = new float[get_pixel_size_x() * get_pixel_size_y()];
+            std::fill(target_array, target_array + get_pixel_size_x() * get_pixel_size_y(),
+                      -1000.0);
             return target_array;
         }
 
         // Write the data directly into a float array.
         GDALRasterBand *band = data->GetRasterBand(1);
         float *array = new float[get_pixel_size_x() * get_pixel_size_y()];
-        std::fill(array, array + get_pixel_size_x() * get_pixel_size_y(), 0.0);
+        std::fill(array, array + get_pixel_size_x() * get_pixel_size_y(), -1000.0);
 
         error = band->RasterIO(
             GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width, usable_height,
