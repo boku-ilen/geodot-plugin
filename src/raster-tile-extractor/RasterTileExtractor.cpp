@@ -19,9 +19,6 @@ double webmercator_to_latitude(double webm_meters) {
 GeoRaster *RasterTileExtractor::clip_dataset(GDALDataset *dataset, double top_left_x,
                                              double top_left_y, double size_meters, int img_size,
                                              int interpolation_type) {
-    // Save the result in RAM
-    GDALDriver *driver = (GDALDriver *)GDALGetDriverByName("MEM");
-
     // Get the current Transform of the source image
     double transform[6];
     dataset->GetGeoTransform(transform);

@@ -44,26 +44,38 @@ void *GeoRaster::get_as_array() {
     int available_x = data->GetRasterXSize() - padding;
     int available_y = data->GetRasterYSize() - padding;
 
+    int target_width, target_height;
+
     if (pixel_offset_x - padding < 0) {
-        // FIXME: There might be a slight logic error here, as there's a slight border on the wrong
-        // side
         usable_width += pixel_offset_x - padding;
         remainder_x_left = (-pixel_offset_x + padding) * source_destination_ratio;
         clamped_pixel_offset_x = padding;
+
+        target_width = usable_width * source_destination_ratio;
     } else if (pixel_offset_x + source_window_size_pixels > available_x) {
         usable_width -= pixel_offset_x + source_window_size_pixels - available_x;
+
+        target_width = usable_width * source_destination_ratio;
+    } else {
+        // Could be generalized as `target_width = usable_width * source_destination_ratio`, but
+        // this can introduce a slight floating point error in cases where target_width should be
+        // equal to destination_window_size_pixels, so this is set explicitly here
+        target_width = destination_window_size_pixels;
     }
 
     if (pixel_offset_y - padding < 0) {
         usable_height += pixel_offset_y - padding;
         remainder_y_top = (-pixel_offset_y + padding) * source_destination_ratio;
         clamped_pixel_offset_y = padding;
+
+        target_height = usable_height * source_destination_ratio;
     } else if (pixel_offset_y + source_window_size_pixels > available_y) {
         usable_height -= pixel_offset_y + source_window_size_pixels - available_y;
-    }
 
-    int target_width = usable_width * source_destination_ratio;
-    int target_height = usable_height * source_destination_ratio;
+        target_height = usable_height * source_destination_ratio;
+    } else {
+        target_height = destination_window_size_pixels;
+    }
 
     // TODO: We could do more precise error handling by getting the error number using
     // CPLGetLastErrorNo() and returning that to the user somehow - maybe a flag in the
