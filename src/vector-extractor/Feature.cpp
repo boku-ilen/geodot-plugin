@@ -24,3 +24,12 @@ void Feature::set_attribute(const char *name, const char *value) {
 int Feature::get_id() const {
     return feature->GetFID();
 }
+
+bool Feature::intersects_with(Feature *other) const {
+    if (geometry_type == NONE or other->geometry_type == NONE) {
+        // Features without goemetry cannot intersect
+        return false;
+    }
+
+    return feature->GetGeometryRef()->Intersects(other->feature->GetGeometryRef());
+}

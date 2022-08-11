@@ -33,6 +33,8 @@ class Feature {
 
     int get_id() const;
 
+    bool intersects_with(Feature *other) const;
+
     GeometryType geometry_type = NONE;
 
     bool is_deleted = false;

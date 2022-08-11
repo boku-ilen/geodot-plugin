@@ -35,6 +35,8 @@ class EXPORT GeoFeature : public Resource {
 
     void set_deleted(bool is_deleted);
 
+    bool intersects_with(Ref<GeoFeature> other);
+
   protected:
     Feature *gdal_feature;
 };

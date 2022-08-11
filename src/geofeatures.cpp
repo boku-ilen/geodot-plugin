@@ -16,6 +16,7 @@ void GeoFeature::_register_methods() {
     register_method("set_attribute", &GeoFeature::set_attribute);
     register_method("get_attributes", &GeoFeature::get_attributes);
     register_method("get_id", &GeoFeature::get_id);
+    register_method("intersects_with", &GeoFeature::intersects_with);
 }
 
 String GeoFeature::get_attribute(String name) const {
@@ -48,6 +49,10 @@ void GeoFeature::set_gdal_feature(Feature *gdal_feature) {
 
 void GeoFeature::set_deleted(bool is_deleted) {
     this->gdal_feature->is_deleted = is_deleted;
+}
+
+bool GeoFeature::intersects_with(Ref<GeoFeature> other) {
+    return this->gdal_feature->intersects_with(other->gdal_feature);
 }
 
 // GeoPoint
