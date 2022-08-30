@@ -340,6 +340,35 @@ NativeLayer::NativeLayer(OGRLayer *layer) : layer(layer) {
     ram_feature_count = 0;
 }
 
+void NativeLayer::save_modified_layer(std::string path) {
+    GDALDriver *out_driver = (GDALDriver *)GDALGetDriverByName("ESRI Shapefile");
+    GDALDataset *out_dataset = out_driver->Create(path.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
+    OGRLayer *out_layer = out_dataset->CopyLayer(layer, layer->GetName());
+
+    // Write cached features to RAM layer
+    for (auto feature_list : feature_cache) {
+        OGRErr error = ram_layer->SetFeature(feature_list.second.front()->feature);
+    }
+
+    // Write changes from RAM layer into the layer copied from the original
+    ram_layer->ResetReading();            // Reset the reading cursor
+    ram_layer->SetSpatialFilter(nullptr); // Reset the spatial filter
+    OGRFeature *current_feature = ram_layer->GetNextFeature();
+
+    while (current_feature != nullptr) {
+        if (current_feature->GetFID() <= out_layer->GetFeatureCount()) {
+            OGRErr error = out_layer->SetFeature(current_feature);
+        } else {
+            OGRErr error = out_layer->CreateFeature(current_feature);
+        }
+
+        current_feature = ram_layer->GetNextFeature();
+    }
+
+    out_layer->SyncToDisk();
+    delete out_dataset;
+}
+
 bool NativeLayer::is_valid() const {
     if (layer == nullptr) { return false; }
 

@@ -39,7 +39,6 @@ class Feature {
 
     bool is_deleted = false;
 
-  protected:
     OGRFeature *feature;
 };
 

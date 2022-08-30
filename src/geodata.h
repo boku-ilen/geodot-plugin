@@ -51,6 +51,10 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// This change has no effect on the dataset on disk unless TODO is called.
     void remove_feature(Ref<GeoFeature> feature);
 
+    /// Applies all changes made to the layer to a copy of the original layer which is created at
+    /// the given path. Will be created as a Shapefile.
+    void save_modified_layer(String file_path);
+
     /// Returns all features, regardless of the geometry, near the given
     /// position (within the given radius).
     Array get_features_near_position(double pos_x, double pos_y, double radius, int max_features);

@@ -49,6 +49,8 @@ class NativeLayer {
 
     bool is_valid() const;
 
+    void save_modified_layer(std::string path);
+
     /// Create a new feature on the in-RAM layer corresponding to the actual disk layer. No changes
     /// are made on the original layer, so that layer can be opened as read-only.
     /// The exact type of the returned feature corresponds to the layer's geometry type.

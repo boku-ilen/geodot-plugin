@@ -86,6 +86,7 @@ void GeoFeatureLayer::_register_methods() {
     register_method("get_features_near_position", &GeoFeatureLayer::get_features_near_position);
     register_method("create_feature", &GeoFeatureLayer::create_feature);
     register_method("remove_feature", &GeoFeatureLayer::remove_feature);
+    register_method("save_modified_layer", &GeoFeatureLayer::save_modified_layer);
 
     register_signal<GeoFeatureLayer>((char *)"feature_added", "new_feature",
                                      GODOT_VARIANT_TYPE_OBJECT);
@@ -181,6 +182,10 @@ void GeoFeatureLayer::remove_feature(Ref<GeoFeature> feature) {
     feature->set_deleted(true);
 
     emit_signal("feature_removed", feature);
+}
+
+void GeoFeatureLayer::save_modified_layer(String file_path) {
+    layer->save_modified_layer(file_path.utf8().get_data());
 }
 
 Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, double radius,
