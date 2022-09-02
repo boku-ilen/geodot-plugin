@@ -347,7 +347,9 @@ void NativeLayer::save_modified_layer(std::string path) {
 
     // Write cached features to RAM layer
     for (auto feature_list : feature_cache) {
-        OGRErr error = ram_layer->SetFeature(feature_list.second.front()->feature);
+        if (!feature_list.second.front()->is_deleted) {
+            OGRErr error = ram_layer->SetFeature(feature_list.second.front()->feature);
+        }
     }
 
     // Write changes from RAM layer into the layer copied from the original
