@@ -6,7 +6,7 @@
 [sub_resource type="Shader" id="1"]
 code = "shader_type spatial;
 
-uniform sampler2D ortho: hint_albedo;
+uniform sampler2D ortho: source_color;
 uniform sampler2D heightmap;
 
 void vertex() {
@@ -19,10 +19,10 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id="2"]
 render_priority = 0
-shader = SubResource( "1" )
+shader = SubResource("1")
 
 [sub_resource type="PlaneMesh" id="3"]
-material = SubResource( "2" )
+material = SubResource("2")
 size = Vector2(40, 40)
 subdivide_width = 500
 subdivide_depth = 500
@@ -30,35 +30,31 @@ subdivide_depth = 500
 [sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_bvdyo"]
 
 [sub_resource type="Sky" id="Sky_f54ne"]
-sky_material = SubResource( "PhysicalSkyMaterial_bvdyo" )
+sky_material = SubResource("PhysicalSkyMaterial_bvdyo")
 
 [sub_resource type="Environment" id="Environment_fry7n"]
 background_mode = 2
-sky = SubResource( "Sky_f54ne" )
+sky = SubResource("Sky_f54ne")
 ssil_enabled = true
 sdfgi_enabled = true
 sdfgi_use_occlusion = true
-sdfgi_read_sky_light = true
 glow_enabled = true
 
 [node name="RasterDemo" type="Node3D"]
-script = ExtResource( "1" )
-start_position_x = -1990.0
-start_position_y = 344790.0
-tile_size_meters = 900.0
+script = ExtResource("1")
 heightmap_data_path = "geodata/vienna-test-dsm.tif"
 ortho_data_path = "geodata/vienna-test-ortho.jpg"
 
-[node name="MeshInstance" type="MeshInstance3D" parent="."]
-mesh = SubResource( "3" )
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("3")
 
-[node name="Camera" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0154812, 5.6217, 3.60627)
 far = 10000.0
-script = ExtResource( "3" )
+script = ExtResource("3")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource( "Environment_fry7n" )
+environment = SubResource("Environment_fry7n")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
 transform = Transform3D(1, 0, 0, 0, 0.721313, 0.692609, 0, -0.692609, 0.721313, 0, 7, 0)

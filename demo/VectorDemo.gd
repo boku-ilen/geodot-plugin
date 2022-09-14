@@ -29,8 +29,8 @@ func _ready() -> void:
 
 		var width = 5.0
 
-		street.get_node("PathFollow/CSGPolygon").polygon[0] = Vector2(-width, 0)
-		street.get_node("PathFollow/CSGPolygon").polygon[1] = Vector2(-width, 3)
-		street.get_node("PathFollow/CSGPolygon").polygon[2] = Vector2(0, 3)
-		street.get_node("PathFollow/CSGPolygon").polygon[3] = Vector2(width, 3)
-		street.get_node("PathFollow/CSGPolygon").polygon[4] = Vector2(width, 0)
+		street.get_node("PathFollow3D/CSGPolygon3D").polygon[0] = Vector2(-width, 0)
+		street.get_node("PathFollow3D/CSGPolygon3D").polygon[1] = Vector2(-width, 3)
+		street.get_node("PathFollow3D/CSGPolygon3D").polygon[2] = Vector2(0, 3)
+		street.get_node("PathFollow3D/CSGPolygon3D").polygon[3] = Vector2(width, 3)
+		street.get_node("PathFollow3D/CSGPolygon3D").polygon[4] = Vector2(width, 0)

@@ -38,5 +38,5 @@ func _ready():
 		1
 	)
 	
-	get_node("MeshInstance").mesh.surface_get_material(0).set_shader_param("heightmap", img.get_image_texture())
-	get_node("MeshInstance").mesh.surface_get_material(0).set_shader_param("ortho", ortho.get_image_texture())
+	get_node("MeshInstance3D").mesh.surface_get_material(0).set_shader_parameter("heightmap", img.get_image_texture())
+	get_node("MeshInstance3D").mesh.surface_get_material(0).set_shader_parameter("ortho", ortho.get_image_texture())

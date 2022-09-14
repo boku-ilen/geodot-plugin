@@ -2,9 +2,9 @@
 
 [node name="Street" type="Path3D"]
 
-[node name="PathFollow" type="PathFollow3D" parent="."]
+[node name="PathFollow3D" type="PathFollow3D" parent="."]
 
-[node name="CSGPolygon" type="CSGPolygon3D" parent="PathFollow"]
+[node name="CSGPolygon3D" type="CSGPolygon3D" parent="PathFollow3D"]
 polygon = PackedVector2Array(-7, 0, -7, 1, 0, 1, 7, 1, 7, 0)
 mode = 2
 path_node = NodePath("../..")

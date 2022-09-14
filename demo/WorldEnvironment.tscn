@@ -13,5 +13,5 @@ sky = SubResource( "1" )
 [node name="WorldEnvironment" type="WorldEnvironment"]
 environment = SubResource( "2" )
 
-[node name="DirectionalLight" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.815906, 0.500723, 0.289093, 0, -0.5, 0.866025, 0.578185, -0.706595, -0.407953, 0, 0, 0)
