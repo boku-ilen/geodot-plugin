@@ -28,17 +28,22 @@ subdivide_width = 500
 subdivide_depth = 500
 
 [sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_bvdyo"]
+ground_color = Color(1, 1, 1, 1)
 
 [sub_resource type="Sky" id="Sky_f54ne"]
 sky_material = SubResource("PhysicalSkyMaterial_bvdyo")
 
 [sub_resource type="Environment" id="Environment_fry7n"]
 background_mode = 2
+background_energy_multiplier = 2.0
 sky = SubResource("Sky_f54ne")
-ssil_enabled = true
 sdfgi_enabled = true
 sdfgi_use_occlusion = true
 glow_enabled = true
+fog_enabled = true
+fog_density = 0.08
+fog_aerial_perspective = 1.0
+volumetric_fog_sky_affect = 0.0
 
 [node name="RasterDemo" type="Node3D"]
 script = ExtResource("1")
@@ -57,4 +62,6 @@ script = ExtResource("3")
 environment = SubResource("Environment_fry7n")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
-transform = Transform3D(1, 0, 0, 0, 0.721313, 0.692609, 0, -0.692609, 0.721313, 0, 7, 0)
+transform = Transform3D(1, 0, 0, 0, 0.299257, 0.954172, 0, -0.954172, 0.299257, 0, 7, 0)
+light_energy = 2.0
+shadow_enabled = true
