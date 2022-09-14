@@ -11,7 +11,8 @@
 
 using namespace godot;
 
-void register_geodot_types() {
+void register_geodot_types(ModuleInitializationLevel p_level) {
+    if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) { return; }
     ClassDB::register_class<GeoImage>();
     ClassDB::register_class<GeoFeature>();
     ClassDB::register_class<GeoLine>();
@@ -24,7 +25,9 @@ void register_geodot_types() {
     ClassDB::register_class<GeoUtil>();
 }
 
-void unregister_geodot_types() {}
+void unregister_geodot_types(ModuleInitializationLevel p_level) {
+    if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) { return; }
+}
 
 extern "C" {
 
@@ -37,8 +40,9 @@ GDNativeBool GDN_EXPORT geodot_library_init(const GDNativeInterface *p_interface
     RasterTileExtractor::initialize();
     VectorExtractor::initialize();
 
-    init_obj.register_scene_initializer(register_geodot_types);
-    init_obj.register_scene_terminator(unregister_geodot_types);
+    init_obj.register_initializer(register_geodot_types);
+    init_obj.register_terminator(unregister_geodot_types);
+    init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
 
     return init_obj.init();
 }
