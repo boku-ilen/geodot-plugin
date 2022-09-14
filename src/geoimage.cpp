@@ -244,13 +244,7 @@ Ref<ImageTexture> GeoImage::get_normalmap_texture_for_heightmap(float scale) {
 }
 
 Ref<ImageTexture> GeoImage::get_image_texture() {
-    // Create an ImageTexture wrapping the Image
-    Ref<ImageTexture> imgTex;
-    imgTex.instantiate();
-
-    imgTex->create_from_image(Ref<Image>(image));
-
-    return Ref<ImageTexture>(imgTex);
+    return ImageTexture::create_from_image(image);
 }
 
 Array GeoImage::get_most_common(int number_of_entries) {
