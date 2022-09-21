@@ -42,7 +42,7 @@ class EXPORT GeoImage : public Resource {
     static void _bind_methods();
 
   public:
-    GeoImage() = default;
+    GeoImage();
     ~GeoImage();
 
     bool is_valid();

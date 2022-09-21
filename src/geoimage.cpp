@@ -6,6 +6,10 @@ using namespace godot;
 
 // Geodot::GeoImage
 
+GeoImage::GeoImage() {
+    normalmap_load_mutex.instantiate();
+}
+
 GeoImage::~GeoImage() {
     // delete raster;
 }
