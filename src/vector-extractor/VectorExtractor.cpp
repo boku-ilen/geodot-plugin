@@ -300,9 +300,9 @@ std::list<LineFeature *> NativeLayer::crop_lines_to_square(const char *path, dou
     return list;
 }
 
-NativeDataset *NativeDataset::get_subdataset(const char *name) {
+NativeDataset *NativeDataset::get_subdataset(const char *name) const {
     // TODO: Hardcoded for the way GeoPackages work - do we want to support others too?
-    return new NativeDataset(("GPKG:" + std::string(path) + ":" + std::string(name)).c_str());
+    return new NativeDataset(("GPKG:" + path + std::string(":") + std::string(name)).c_str());
 }
 
 NativeDataset *NativeDataset::clone() {
@@ -382,6 +382,6 @@ Feature *NativeLayer::create_feature() {
     return feature;
 }
 
-NativeDataset::NativeDataset(const char *path) : path(path) {
-    dataset = (GDALDataset *)GDALOpenEx(path, 0, nullptr, nullptr, nullptr);
+NativeDataset::NativeDataset(std::string path) : path(path) {
+    dataset = (GDALDataset *)GDALOpenEx(path.c_str(), 0, nullptr, nullptr, nullptr);
 }
