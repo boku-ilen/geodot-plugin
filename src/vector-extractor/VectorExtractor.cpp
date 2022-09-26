@@ -14,10 +14,6 @@ NativeDataset *VectorExtractor::open_dataset(const char *path) {
     return new NativeDataset(path);
 }
 
-NativeLayer *VectorExtractor::get_layer_from_dataset(GDALDataset *dataset, const char *name) {
-    return new NativeLayer(dataset->GetLayerByName(name));
-}
-
 std::vector<double> VectorExtractor::transform_coordinates(double input_x, double input_z,
                                                            std::string from, std::string to) {
     OGRSpatialReference source_reference, target_reference;
@@ -39,13 +35,17 @@ std::vector<double> VectorExtractor::transform_coordinates(double input_x, doubl
 std::list<Feature *> NativeLayer::get_feature_for_ogrfeature(OGRFeature *feature) {
     std::list<Feature *> list = std::list<Feature *>();
 
-    // FIXME: This can prevent crashes in specific datasets with seemingly no side effects, but it
-    // shouldn't be required!
+    // FIXME: This should never happen - would be better to throw an error towards Godot here
     if (feature == nullptr) { return list; }
 
     if (feature_cache.count(feature->GetFID())) {
-        // The feature is already cached, return that one
-        return feature_cache[feature->GetFID()];
+        // The feature is already cached, return that
+        std::list<Feature *> cached_feature = feature_cache[feature->GetFID()];
+
+        // Remove deleted features from the list
+        cached_feature.remove_if([](const Feature *feature) { return feature->is_deleted; });
+
+        return cached_feature;
     }
 
     // The feature is not cached; create a new one and cache that.
@@ -146,6 +146,7 @@ std::list<Feature *> NativeLayer::get_features_near_position(double pos_x, doubl
     OGRGeometry *circle_buffer = circle->Buffer(radius);
 
     layer->SetSpatialFilter(circle_buffer);
+    layer->ResetReading();
 
     // Put the resulting features into the returned list. We add as many features as were returned
     // unless they're more
@@ -161,7 +162,8 @@ std::list<Feature *> NativeLayer::get_features_near_position(double pos_x, doubl
     // Also check the RAM layer
     // FIXME: Take care of max_amount here too
     // TODO: Code duplication (similar as in `get_features`)
-    ram_layer->SetSpatialFilter(circle_buffer);
+    ram_layer->SetSpatialFilter(nullptr);
+    ram_layer->ResetReading();
 
     // FIXME: In this case, we need to copy the cached features into the RAM dataset with
     // layer->CreateFeature because otherwise, the spatial filter doesn't return them! So we should
@@ -214,6 +216,10 @@ std::vector<std::string> NativeDataset::get_raster_layer_names() {
     }
 
     return names;
+}
+
+NativeLayer *NativeDataset::get_layer(const char *name) const {
+    return new NativeLayer(dataset->GetLayerByName(name));
 }
 
 std::list<LineFeature *> NativeLayer::crop_lines_to_square(const char *path, double top_left_x,
@@ -330,6 +336,37 @@ NativeLayer::NativeLayer(OGRLayer *layer) : layer(layer) {
 
     disk_feature_count = layer->GetFeatureCount();
     ram_feature_count = 0;
+}
+
+void NativeLayer::save_modified_layer(std::string path) {
+    GDALDriver *out_driver = (GDALDriver *)GDALGetDriverByName("ESRI Shapefile");
+    GDALDataset *out_dataset = out_driver->Create(path.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
+    OGRLayer *out_layer = out_dataset->CopyLayer(layer, layer->GetName());
+
+    // Write cached features to RAM layer
+    for (auto feature_list : feature_cache) {
+        if (!feature_list.second.front()->is_deleted) {
+            OGRErr error = ram_layer->SetFeature(feature_list.second.front()->feature);
+        }
+    }
+
+    // Write changes from RAM layer into the layer copied from the original
+    ram_layer->ResetReading();            // Reset the reading cursor
+    ram_layer->SetSpatialFilter(nullptr); // Reset the spatial filter
+    OGRFeature *current_feature = ram_layer->GetNextFeature();
+
+    while (current_feature != nullptr) {
+        if (current_feature->GetFID() <= out_layer->GetFeatureCount()) {
+            OGRErr error = out_layer->SetFeature(current_feature);
+        } else {
+            OGRErr error = out_layer->CreateFeature(current_feature);
+        }
+
+        current_feature = ram_layer->GetNextFeature();
+    }
+
+    out_layer->SyncToDisk();
+    delete out_dataset;
 }
 
 bool NativeLayer::is_valid() const {

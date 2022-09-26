@@ -3,6 +3,7 @@
 #include "raster-tile-extractor/RasterTileExtractor.h"
 #include "vector-extractor/Feature.h"
 #include "vector-extractor/VectorExtractor.h"
+#include <cmath>
 
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -55,6 +56,7 @@ Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
 
     raster_layer->set_native_dataset(dataset->get_subdataset(name.utf8().get_data()));
     raster_layer->set_name(name);
+    raster_layer->set_origin_dataset(this);
 
     return raster_layer;
 }
@@ -63,14 +65,15 @@ Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
     Ref<GeoFeatureLayer> feature_layer;
     feature_layer.instantiate();
 
-    feature_layer->set_native_layer(
-        VectorExtractor::get_layer_from_dataset(dataset->dataset, name.utf8().get_data()));
+    feature_layer->set_native_layer(dataset->get_layer(name.utf8().get_data()));
     feature_layer->set_name(name);
+    feature_layer->set_origin_dataset(this);
 
     return feature_layer;
 }
 
 void GeoDataset::load_from_file(String file_path) {
+    set_path(file_path);
     dataset = VectorExtractor::open_dataset(file_path.utf8().get_data());
 }
 
@@ -80,12 +83,14 @@ void GeoDataset::set_native_dataset(NativeDataset *new_dataset) {
 
 void GeoFeatureLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoFeatureLayer::is_valid);
+    ClassDB::bind_method(D_METHOD("get_dataset"), &GeoFeatureLayer::get_dataset);
     ClassDB::bind_method(D_METHOD("get_feature_by_id"), &GeoFeatureLayer::get_feature_by_id);
     ClassDB::bind_method(D_METHOD("get_all_features"), &GeoFeatureLayer::get_all_features);
     ClassDB::bind_method(D_METHOD("get_features_near_position"),
                          &GeoFeatureLayer::get_features_near_position);
     ClassDB::bind_method(D_METHOD("create_feature"), &GeoFeatureLayer::create_feature);
     ClassDB::bind_method(D_METHOD("remove_feature"), &GeoFeatureLayer::remove_feature);
+    ClassDB::bind_method(D_METHOD("save_modified_layer"), &GeoFeatureLayer::save_modified_layer);
 
     ADD_SIGNAL(MethodInfo("feature_added", PropertyInfo(Variant::OBJECT, "new_feature")));
     ADD_SIGNAL(MethodInfo("feature_removed", PropertyInfo(Variant::OBJECT, "removed_feature")));
@@ -93,6 +98,10 @@ void GeoFeatureLayer::_bind_methods() {
 
 bool GeoFeatureLayer::is_valid() {
     return layer && layer->is_valid();
+}
+
+Ref<GeoDataset> GeoFeatureLayer::get_dataset() {
+    return origin_dataset;
 }
 
 // Utility function for converting a Processing Library Feature to the appropriate GeoFeature
@@ -171,10 +180,13 @@ Ref<GeoFeature> GeoFeatureLayer::create_feature() {
 
 void GeoFeatureLayer::remove_feature(Ref<GeoFeature> feature) {
     // Mark the feature for deletion
-
-    // TODO: Implement
+    feature->set_deleted(true);
 
     emit_signal("feature_removed", feature);
+}
+
+void GeoFeatureLayer::save_modified_layer(String file_path) {
+    layer->save_modified_layer(file_path.utf8().get_data());
 }
 
 Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, double radius,
@@ -201,14 +213,21 @@ void GeoFeatureLayer::set_native_layer(NativeLayer *new_layer) {
     layer = new_layer;
 }
 
+void GeoFeatureLayer::set_origin_dataset(Ref<GeoDataset> dataset) {
+    this->origin_dataset = dataset;
+}
+
 GeoRasterLayer::~GeoRasterLayer() {
     // delete dataset;
 }
 
 void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoRasterLayer::is_valid);
+    ClassDB::bind_method(D_METHOD("get_dataset"), &GeoRasterLayer::get_dataset);
     ClassDB::bind_method(D_METHOD("get_image"), &GeoRasterLayer::get_image);
     ClassDB::bind_method(D_METHOD("get_value_at_position"), &GeoRasterLayer::get_value_at_position);
+    ClassDB::bind_method(D_METHOD("get_value_at_position_with_resolution"),
+                         &GeoRasterLayer::get_value_at_position_with_resolution);
     ClassDB::bind_method(D_METHOD("get_extent"), &GeoRasterLayer::get_extent);
     ClassDB::bind_method(D_METHOD("get_center"), &GeoRasterLayer::get_center);
     ClassDB::bind_method(D_METHOD("get_min"), &GeoRasterLayer::get_min);
@@ -221,8 +240,13 @@ bool GeoRasterLayer::is_valid() {
     return dataset && dataset->is_valid();
 }
 
+Ref<GeoDataset> GeoRasterLayer::get_dataset() {
+    return origin_dataset;
+}
+
 Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,
                                         int img_size, int interpolation_type) {
+
     Ref<GeoImage> image;
     image.instantiate();
 
@@ -242,10 +266,19 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
 }
 
 float GeoRasterLayer::get_value_at_position(double pos_x, double pos_y) {
-    // Get the GeoRaster for this position with a resolution of 1x1px.
     // 0.0001 meters are used for the size because it can't be 0, but should be a pinpoint value.
-    GeoRaster *raster =
-        RasterTileExtractor::get_tile_from_dataset(dataset->dataset, pos_x, pos_y, 0.0001, 1, 1);
+    return get_value_at_position_with_resolution(pos_x, pos_y, 0.0001);
+}
+
+float GeoRasterLayer::get_value_at_position_with_resolution(double pos_x, double pos_y,
+                                                            double pixel_size_meters) {
+    // TODO: Figure out what exactly we need to clamp to for precise values
+    // pos_x -= std::fmod(pos_x, pixel_size_meters);
+    // pos_y -= std::fmod(pos_y, pixel_size_meters);
+
+    // Get the GeoRaster for this position with a resolution of 1x1px.
+    GeoRaster *raster = RasterTileExtractor::get_tile_from_dataset(dataset->dataset, pos_x, pos_y,
+                                                                   pixel_size_meters, 1, 1);
 
     // TODO: Currently only implemented for RF type.
     // For others, we would either need a completely generic return value, or other specific
@@ -277,6 +310,10 @@ float GeoRasterLayer::get_max() {
     return RasterTileExtractor::get_max(dataset->dataset);
 }
 
+void GeoRasterLayer::set_origin_dataset(Ref<GeoDataset> dataset) {
+    this->origin_dataset = dataset;
+}
+
 bool PyramidGeoRasterLayer::is_valid() {
     // TODO
     return true;
@@ -287,6 +324,8 @@ Ref<GeoRasterLayer> GeoRasterLayer::clone() {
     layer_clone.instantiate();
 
     layer_clone->set_native_dataset(dataset->clone());
+    layer_clone->set_origin_dataset(origin_dataset);
+    layer_clone->set_name(get_name());
 
     return layer_clone;
 }

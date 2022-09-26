@@ -9,10 +9,14 @@
 
 namespace godot {
 
+// Forward decaration
+class EXPORT GeoDataset;
+
 /// A layer which contains any number of features.
 /// These features consist of attributes and usually (but not necessarily)
 /// vector geometry. This layer provides access to these features through
 /// various filters. Corresponds to OGRLayer.
+/// Its `name` property corresponds to the layer name.
 class EXPORT GeoFeatureLayer : public Resource {
     GDCLASS(GeoFeatureLayer, Resource)
 
@@ -27,6 +31,9 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
 
+    /// Returns the dataset which this layer was opened from.
+    Ref<GeoDataset> get_dataset();
+
     /// Returns the one feature that corresponds to the given ID.
     Ref<GeoFeature> get_feature_by_id(int id);
 
@@ -40,6 +47,10 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// Removes the given feature from the layer.
     /// This change has no effect on the dataset on disk unless TODO is called.
     void remove_feature(Ref<GeoFeature> feature);
+
+    /// Applies all changes made to the layer to a copy of the original layer which is created at
+    /// the given path. Will be created as a Shapefile.
+    void save_modified_layer(String file_path);
 
     /// Returns all features, regardless of the geometry, near the given
     /// position (within the given radius).
@@ -62,12 +73,19 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// is only for internal use.
     void set_native_layer(NativeLayer *new_layer);
 
+    /// Sets the dataset which this layer was opened from.
+    /// Not exposed to Godot since it should never construct GeoFeatureLayers by hand.
+    void set_origin_dataset(Ref<GeoDataset> dataset);
+
   private:
     NativeLayer *layer;
+    Ref<GeoDataset> origin_dataset;
 };
 
 /// A layer which contains raster data.
 /// Corresponds to a Raster GDALDataset or Subdataset.
+/// Its `name` property is either the layer name, or the full path if it wasn't opened from a
+/// dataset (i.e. get_dataset() returns null).
 class EXPORT GeoRasterLayer : public Resource {
     GDCLASS(GeoRasterLayer, Resource)
 
@@ -75,11 +93,15 @@ class EXPORT GeoRasterLayer : public Resource {
     static void _bind_methods();
 
   public:
-    GeoRasterLayer() = default;
+    GeoRasterLayer() : origin_dataset(nullptr) {}
     virtual ~GeoRasterLayer();
 
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
+
+    /// Returns the dataset which this layer was opened from or null if it was opened directly, e.g.
+    /// from a GeoTIFF.
+    Ref<GeoDataset> get_dataset();
 
     /// Returns a clone of this layer which points to the same file, but uses a
     /// different object to access it. This is required when using the same
@@ -96,6 +118,13 @@ class EXPORT GeoRasterLayer : public Resource {
     /// Note that when reading many values from a confined area, it is more efficient to call
     /// get_image and read the pixels from there.
     float get_value_at_position(double pos_x, double pos_y);
+
+    /// Returns the value in the GeoRasterLayer at exactly the given position, at the given
+    /// resolution. This is useful for getting heights which match up with the heights of a lower
+    /// resolution image which was fetched using `get_image`, rather than being as detailed as
+    /// possible.
+    float get_value_at_position_with_resolution(double pos_x, double pos_y,
+                                                double pixel_size_meters);
 
     /// Returns the extent of the layer in projected meters (assuming it is rectangular).
     Rect2 get_extent();
@@ -120,7 +149,12 @@ class EXPORT GeoRasterLayer : public Resource {
     /// GDALDatasets - this is only for internal use.
     void set_native_dataset(NativeDataset *new_dataset);
 
+    /// Sets the dataset which this layer was opened from.
+    /// Not exposed to Godot since it should never construct GeoFeatureLayers by hand.
+    void set_origin_dataset(Ref<GeoDataset> dataset);
+
   private:
+    Ref<GeoDataset> origin_dataset;
     NativeDataset *dataset;
     RasterTileExtractor::ExtentData extent_data;
 };

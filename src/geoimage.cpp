@@ -30,11 +30,6 @@ bool GeoImage::is_valid() {
     return validity;
 }
 
-union {
-    float fval;
-    int8_t bval[4];
-} floatAsBytes;
-
 void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
     this->raster = raster;
     this->interpolation = interpolation;
@@ -123,6 +118,11 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
 
         // Convert the float into 4 bytes and add those to the array
         // Format of the PoolByteArray: (F1F2F3F4)(F1F2F3F4)(F1F2F3F4)...
+        union {
+            float fval;
+            int8_t bval[4];
+        } floatAsBytes;
+
         for (int y = 0; y < img_size_y; y++) {
             for (int x = 0; x < img_size_x; x++) {
                 floatAsBytes.fval = data[y * img_size_x + x];
@@ -258,7 +258,7 @@ Array GeoImage::get_most_common(int number_of_entries) {
     // Translate C-style array to Godot Array
     for (int i = 0; i < number_of_entries; i++) {
         if (most_common[i] == 0)
-            break; // An entry of 0 means that nothing with this index was found, so we're done
+            continue; // An entry of 0 means that nothing with this index was found, so we're done
 
         ret_array.append(most_common[i]);
     }

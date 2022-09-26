@@ -15,6 +15,7 @@ void GeoFeature::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_attribute"), &GeoFeature::set_attribute);
     ClassDB::bind_method(D_METHOD("get_attributes"), &GeoFeature::get_attributes);
     ClassDB::bind_method(D_METHOD("get_id"), &GeoFeature::get_id);
+    ClassDB::bind_method(D_METHOD("intersects_with"), &GeoFeature::intersects_with);
 }
 
 String GeoFeature::get_attribute(String name) const {
@@ -43,6 +44,14 @@ Dictionary GeoFeature::get_attributes() const {
 
 void GeoFeature::set_gdal_feature(Feature *gdal_feature) {
     this->gdal_feature = gdal_feature;
+}
+
+void GeoFeature::set_deleted(bool is_deleted) {
+    this->gdal_feature->is_deleted = is_deleted;
+}
+
+bool GeoFeature::intersects_with(Ref<GeoFeature> other) {
+    return this->gdal_feature->intersects_with(other->gdal_feature);
 }
 
 // GeoPoint

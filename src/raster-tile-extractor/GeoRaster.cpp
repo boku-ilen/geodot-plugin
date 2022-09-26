@@ -44,26 +44,38 @@ void *GeoRaster::get_as_array() {
     int available_x = data->GetRasterXSize() - padding;
     int available_y = data->GetRasterYSize() - padding;
 
+    int target_width, target_height;
+
     if (pixel_offset_x - padding < 0) {
-        // FIXME: There might be a slight logic error here, as there's a slight border on the wrong
-        // side
         usable_width += pixel_offset_x - padding;
         remainder_x_left = (-pixel_offset_x + padding) * source_destination_ratio;
         clamped_pixel_offset_x = padding;
+
+        target_width = usable_width * source_destination_ratio;
     } else if (pixel_offset_x + source_window_size_pixels > available_x) {
         usable_width -= pixel_offset_x + source_window_size_pixels - available_x;
+
+        target_width = usable_width * source_destination_ratio;
+    } else {
+        // Could be generalized as `target_width = usable_width * source_destination_ratio`, but
+        // this can introduce a slight floating point error in cases where target_width should be
+        // equal to destination_window_size_pixels, so this is set explicitly here
+        target_width = destination_window_size_pixels;
     }
 
     if (pixel_offset_y - padding < 0) {
         usable_height += pixel_offset_y - padding;
         remainder_y_top = (-pixel_offset_y + padding) * source_destination_ratio;
         clamped_pixel_offset_y = padding;
+
+        target_height = usable_height * source_destination_ratio;
     } else if (pixel_offset_y + source_window_size_pixels > available_y) {
         usable_height -= pixel_offset_y + source_window_size_pixels - available_y;
-    }
 
-    int target_width = usable_width * source_destination_ratio;
-    int target_height = usable_height * source_destination_ratio;
+        target_height = usable_height * source_destination_ratio;
+    } else {
+        target_height = destination_window_size_pixels;
+    }
 
     // TODO: We could do more precise error handling by getting the error number using
     // CPLGetLastErrorNo() and returning that to the user somehow - maybe a flag in the
@@ -79,15 +91,16 @@ void *GeoRaster::get_as_array() {
         if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
             // only 0s
-            float *target_array = new float[get_size_in_bytes()];
-            std::fill(target_array, target_array + get_size_in_bytes(), 0.0);
+            float *target_array = new float[get_pixel_size_x() * get_pixel_size_y()];
+            std::fill(target_array, target_array + get_pixel_size_x() * get_pixel_size_y(),
+                      -1000.0);
             return target_array;
         }
 
         // Write the data directly into a float array.
         GDALRasterBand *band = data->GetRasterBand(1);
         float *array = new float[get_pixel_size_x() * get_pixel_size_y()];
-        std::fill(array, array + get_pixel_size_x() * get_pixel_size_y(), 0.0);
+        std::fill(array, array + get_pixel_size_x() * get_pixel_size_y(), -1000.0);
 
         error = band->RasterIO(
             GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width, usable_height,
@@ -217,8 +230,6 @@ int GeoRaster::get_pixel_size_y() {
 }
 
 uint64_t *GeoRaster::get_histogram() {
-    // TODO: Make sure this is only called on a GeoRaster with format BYTE
-    //  It doesn't make sense for Float32 and we would need a different method for RGBA
     uint64_t *histogram = new uint64_t[256];
 
     // Initialize array
@@ -228,11 +239,26 @@ uint64_t *GeoRaster::get_histogram() {
 
     uint8_t *array = reinterpret_cast<uint8_t *>(get_as_array());
 
-    for (int y = 0; y < get_pixel_size_y(); y++) {
-        for (int x = 0; x < get_pixel_size_x(); x++) {
-            int index = array[y * get_pixel_size_x() + x];
-            histogram[index]++;
-        }
+    int array_size = 0;
+    int step;
+
+    // In the case of RGB and RGBA arrays, we only check the R value.
+    // This is because the function likely doesn't make sense on real RGB(A) images such as
+    // orthophotos, but BYTE images may present themselves as RGB images, e.g. in the case of
+    // GeoPackage rasters.
+    if (format == BYTE) {
+        array_size = get_pixel_size_x() * get_pixel_size_y();
+        step = 1;
+    } else if (format == RGB) {
+        array_size = get_pixel_size_x() * get_pixel_size_y() * 3;
+        step = 3;
+    } else if (format == RGBA) {
+        array_size = get_pixel_size_x() * get_pixel_size_y() * 4;
+        step = 4;
+    }
+
+    for (int i = 0; i < array_size; i += step) {
+        histogram[array[i]]++;
     }
 
     return histogram;

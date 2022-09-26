@@ -13,6 +13,7 @@
 // Forward declarations
 class OGRLayer;
 class GDALDataset;
+class NativeLayer;
 
 class NativeDataset {
   public:
@@ -24,6 +25,10 @@ class NativeDataset {
 
     /// Return the names of all raster layers as std::strings.
     std::vector<std::string> get_raster_layer_names();
+
+    /// Returns the layer from this dataset with the given name, or null if there is no layer
+    /// with that name.
+    NativeLayer *get_layer(const char *name) const;
 
     NativeDataset *get_subdataset(const char *name) const;
 
@@ -43,6 +48,8 @@ class NativeLayer {
     ~NativeLayer() = default;
 
     bool is_valid() const;
+
+    void save_modified_layer(std::string path);
 
     /// Create a new feature on the in-RAM layer corresponding to the actual disk layer. No changes
     /// are made on the original layer, so that layer can be opened as read-only.
@@ -106,10 +113,6 @@ class VectorExtractor {
     /// Returns the GDALDataset at the given path, or null.
     /// TODO: This could also be in the RasterExtractor, it's not raster- or vector-specific...
     static NativeDataset *open_dataset(const char *path);
-
-    /// Returns the layer from the given dataset with the given name, or null if there is no layer
-    /// with that name.
-    static NativeLayer *get_layer_from_dataset(GDALDataset *dataset, const char *name);
 
     static std::vector<double> transform_coordinates(double input_x, double input_z,
                                                      std::string from, std::string to);
