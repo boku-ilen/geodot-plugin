@@ -160,14 +160,14 @@ int xy_to_index(int x, int y, int width, int height) {
 Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
     normalmap_load_mutex->lock();
 
+    Ref<Image> img;
+    img.instantiate();
+
     if (normalmap == nullptr) {
         // As described in https://github.com/godotengine/godot/issues/35539,
         // locking the image is not thread-safe in the way one would expect.
         // Thus, to be safe, we work on a duplicate of the `image` here.
         Ref<Image> image = this->image->duplicate();
-
-        Ref<Image> img;
-        img.instantiate();
 
         PackedByteArray heightmap_data = image->get_data();
 
@@ -218,33 +218,15 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
         }
 
         img->create_from_data(width, height, false, Image::Format::FORMAT_RGBA8, normalmap_data);
-
-        normalmap = Ref<Image>(img);
     }
 
     normalmap_load_mutex->unlock();
 
-    return normalmap;
+    return img;
 }
 
 Ref<ImageTexture> GeoImage::get_normalmap_texture_for_heightmap(float scale) {
-    Ref<Image> heightmap_image = get_normalmap_for_heightmap(scale);
-
-    // By default, the returned image has the FILTER flag. Only if the interpolation method is
-    // nearest neighbor or one of the modal types, it is disabled, since we most likely want crisp
-    // textures then.
-    int flag = Image::INTERPOLATE_BILINEAR;
-    if (interpolation == INTERPOLATION::NEAREST || interpolation > 5) {
-        flag = Image::INTERPOLATE_NEAREST;
-    }
-
-    // Create an ImageTexture wrapping the Image
-    Ref<ImageTexture> imgTex;
-    imgTex.instantiate();
-
-    imgTex->create_from_image(heightmap_image);
-
-    return Ref<ImageTexture>(imgTex);
+    return ImageTexture::create_from_image(get_normalmap_for_heightmap(scale));
 }
 
 Ref<ImageTexture> GeoImage::get_image_texture() {
