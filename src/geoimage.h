@@ -2,6 +2,7 @@
 #define __RASTER_H__
 
 #include <godot_cpp/classes/global_constants.hpp>
+#include <godot_cpp/classes/height_map_shape3d.hpp>
 #include <godot_cpp/classes/image.hpp>
 #include <godot_cpp/classes/image_texture.hpp>
 #include <godot_cpp/classes/mutex.hpp>
@@ -62,6 +63,13 @@ class EXPORT GeoImage : public Resource {
     /// to that heightmap. Somewhat costly because the generated heightmap has a
     /// higher precision than Godot's Image::bumpmap_to_normalmap.
     Ref<Image> get_normalmap_for_heightmap(float scale);
+
+    /// Returns a HeightMapShape3D which can be used for colliding with terrain created from a
+    /// heightmap image. In order to perfectly match the terrain, the rows and columns of vertices
+    /// in the terrain mesh must match the GeoImage width and height exactly, and the terrain mesh
+    /// must be constructed out of _regular quads_ since the HeightMapShape3D is implemented this
+    /// way internally. Only returns something useful when the GeoImage is of type Float.
+    Ref<HeightMapShape3D> get_shape_for_heightmap();
 
     /// Wrapper for get_normalmap_for_heightmap which directly provides an
     /// ImageTexture with the image.

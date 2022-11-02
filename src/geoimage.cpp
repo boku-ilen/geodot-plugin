@@ -23,6 +23,7 @@ void GeoImage::_bind_methods() {
                          &GeoImage::get_normalmap_for_heightmap);
     ClassDB::bind_method(D_METHOD("get_normalmap_texture_for_heightmap", "scale"),
                          &GeoImage::get_normalmap_texture_for_heightmap);
+    ClassDB::bind_method(D_METHOD("get_shape_for_heightmap"), &GeoImage::get_shape_for_heightmap);
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoImage::is_valid);
 }
 
@@ -223,6 +224,29 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
     normalmap_load_mutex->unlock();
 
     return img;
+}
+
+Ref<HeightMapShape3D> GeoImage::get_shape_for_heightmap() {
+    Ref<HeightMapShape3D> shape;
+    shape.instantiate();
+
+    if (raster->get_format() == GeoRaster::RF) {
+        float *data = (float *)raster->get_as_array();
+
+        if (data == nullptr) return shape;
+
+        PackedFloat32Array array;
+        array.resize(raster->get_pixel_size_x() * raster->get_pixel_size_y());
+
+        // Copy all bytes from the raw raster array into the PackedFloat32Array
+        memcpy(array.ptrw(), data, raster->get_pixel_size_x() * raster->get_pixel_size_y() * 4);
+
+        shape->set_map_width(raster->get_pixel_size_x());
+        shape->set_map_depth(raster->get_pixel_size_y());
+        shape->set_map_data(array);
+    }
+
+    return shape;
 }
 
 Ref<ImageTexture> GeoImage::get_normalmap_texture_for_heightmap(float scale) {
