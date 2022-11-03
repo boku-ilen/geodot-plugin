@@ -48,9 +48,13 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// This change has no effect on the dataset on disk unless TODO is called.
     void remove_feature(Ref<GeoFeature> feature);
 
+    /// Applies all changes made to the layer to this layer, overriding the previous data
+    /// permanently.
+    void save_override();
+
     /// Applies all changes made to the layer to a copy of the original layer which is created at
     /// the given path. Will be created as a Shapefile.
-    void save_modified_layer(String file_path);
+    void save_new(String file_path);
 
     /// Returns all features, regardless of the geometry, near the given
     /// position (within the given radius).
@@ -61,12 +65,6 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// TODO: Can this be made generic like 'get_features_near_position'?
     Array crop_lines_to_square(double top_left_x, double top_left_y, double size_meters,
                                int max_lines);
-
-    /// Load the first layer of the dataset at the given path into this object.
-    /// Useful e.g. for simple shapefiles with only one layer.
-    /// Not exposed to Godot since Godot should create datasets and layers from
-    /// the Geodot singleton (the factory).
-    void load_from_file(String file_path);
 
     /// Set the OGRLayer object directly.
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this
@@ -142,7 +140,7 @@ class EXPORT GeoRasterLayer : public Resource {
     float get_max();
 
     /// Load a raster dataset file such as a GeoTIFF into this object.
-    void load_from_file(String file_path);
+    void load_from_file(String file_path, bool write_access);
 
     /// Set the GDALDataset object for this layer. Must be a valid raster
     /// dataset. Not exposed to Godot since Godot doesn't know about
@@ -152,6 +150,8 @@ class EXPORT GeoRasterLayer : public Resource {
     /// Sets the dataset which this layer was opened from.
     /// Not exposed to Godot since it should never construct GeoFeatureLayers by hand.
     void set_origin_dataset(Ref<GeoDataset> dataset);
+
+    bool write_access;
 
   private:
     Ref<GeoDataset> origin_dataset;
@@ -221,12 +221,14 @@ class EXPORT GeoDataset : public Resource {
 
     /// Load a dataset file such as a Geopackage or a Shapefile into this
     /// object.
-    void load_from_file(String file_path);
+    void load_from_file(String file_path, bool write_access);
 
     /// Set the GDALDataset object directly.
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this
     /// is only for internal use.
     void set_native_dataset(NativeDataset *new_dataset);
+
+    bool write_access;
 
   private:
     NativeDataset *dataset;

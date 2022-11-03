@@ -17,7 +17,7 @@ class NativeLayer;
 
 class NativeDataset {
   public:
-    NativeDataset(std::string path);
+    NativeDataset(std::string path, bool write_access);
     ~NativeDataset() = default;
 
     /// Return the names of all feature layers as std::strings.
@@ -38,6 +38,8 @@ class NativeDataset {
 
     std::string path;
 
+    bool write_access;
+
     GDALDataset *dataset;
 };
 
@@ -48,6 +50,8 @@ class NativeLayer {
     ~NativeLayer() = default;
 
     bool is_valid() const;
+
+    void save_override();
 
     void save_modified_layer(std::string path);
 
@@ -112,7 +116,7 @@ class VectorExtractor {
 
     /// Returns the GDALDataset at the given path, or null.
     /// TODO: This could also be in the RasterExtractor, it's not raster- or vector-specific...
-    static NativeDataset *open_dataset(const char *path);
+    static NativeDataset *open_dataset(const char *path, bool write_access);
 
     static std::vector<double> transform_coordinates(double input_x, double input_z,
                                                      std::string from, std::string to);

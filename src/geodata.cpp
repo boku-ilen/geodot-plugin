@@ -1,5 +1,6 @@
 #include "geodata.h"
 #include "geofeatures.h"
+#include "godot_cpp/core/error_macros.hpp"
 #include "raster-tile-extractor/RasterTileExtractor.h"
 #include "vector-extractor/Feature.h"
 #include "vector-extractor/VectorExtractor.h"
@@ -72,9 +73,11 @@ Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
     return feature_layer;
 }
 
-void GeoDataset::load_from_file(String file_path) {
+void GeoDataset::load_from_file(String file_path, bool write_access) {
+    this->write_access = write_access;
+
     set_path(file_path);
-    dataset = VectorExtractor::open_dataset(file_path.utf8().get_data());
+    dataset = VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access);
 }
 
 void GeoDataset::set_native_dataset(NativeDataset *new_dataset) {
@@ -90,7 +93,8 @@ void GeoFeatureLayer::_bind_methods() {
                          &GeoFeatureLayer::get_features_near_position);
     ClassDB::bind_method(D_METHOD("create_feature"), &GeoFeatureLayer::create_feature);
     ClassDB::bind_method(D_METHOD("remove_feature"), &GeoFeatureLayer::remove_feature);
-    ClassDB::bind_method(D_METHOD("save_modified_layer"), &GeoFeatureLayer::save_modified_layer);
+    ClassDB::bind_method(D_METHOD("save_override"), &GeoFeatureLayer::save_override);
+    ClassDB::bind_method(D_METHOD("save_new"), &GeoFeatureLayer::save_new);
 
     ADD_SIGNAL(MethodInfo("feature_added", PropertyInfo(Variant::OBJECT, "new_feature")));
     ADD_SIGNAL(MethodInfo("feature_removed", PropertyInfo(Variant::OBJECT, "removed_feature")));
@@ -185,7 +189,13 @@ void GeoFeatureLayer::remove_feature(Ref<GeoFeature> feature) {
     emit_signal("feature_removed", feature);
 }
 
-void GeoFeatureLayer::save_modified_layer(String file_path) {
+void GeoFeatureLayer::save_override() {
+    ERR_FAIL_COND_MSG(!origin_dataset->write_access,
+                      "Cannot override a layer whose dataset was not opened with write access!");
+    layer->save_override();
+}
+
+void GeoFeatureLayer::save_new(String file_path) {
     layer->save_modified_layer(file_path.utf8().get_data());
 }
 
@@ -352,8 +362,14 @@ Ref<GeoImage> PyramidGeoRasterLayer::get_image(double top_left_x, double top_lef
     return image;
 }
 
-void GeoRasterLayer::load_from_file(String file_path) {
-    dataset = VectorExtractor::open_dataset(file_path.utf8().get_data());
+void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
+    this->write_access = write_access;
+
+    dataset = VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access);
+
+    // Not quite working as intended due to https://github.com/godotengine/godot-cpp/issues/521
+    CRASH_COND_MSG(!dataset->is_valid(),
+                   "Could not load GeoRasterLayer from path '" + file_path + "'!");
 }
 
 void GeoRasterLayer::set_native_dataset(NativeDataset *new_dataset) {

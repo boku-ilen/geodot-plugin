@@ -10,8 +10,8 @@ void VectorExtractor::initialize() {
     GDALAllRegister();
 }
 
-NativeDataset *VectorExtractor::open_dataset(const char *path) {
-    return new NativeDataset(path);
+NativeDataset *VectorExtractor::open_dataset(const char *path, bool write_access) {
+    return new NativeDataset(path, write_access);
 }
 
 std::vector<double> VectorExtractor::transform_coordinates(double input_x, double input_z,
@@ -308,19 +308,17 @@ std::list<LineFeature *> NativeLayer::crop_lines_to_square(const char *path, dou
 
 NativeDataset *NativeDataset::get_subdataset(const char *name) const {
     // TODO: Hardcoded for the way GeoPackages work - do we want to support others too?
-    return new NativeDataset(("GPKG:" + path + std::string(":") + std::string(name)).c_str());
+    return new NativeDataset(("GPKG:" + path + std::string(":") + std::string(name)).c_str(),
+                             write_access);
 }
 
 NativeDataset *NativeDataset::clone() {
-    return new NativeDataset(path);
+    return new NativeDataset(path, write_access);
 }
 
 bool NativeDataset::is_valid() const {
     // No dataset at all?
     if (dataset == nullptr) { return false; }
-
-    // No vector or raster layers?
-    if (dataset->GetRasterCount() == 0 && dataset->GetLayerCount() == 0) { return false; }
 
     return true;
 }
@@ -336,6 +334,32 @@ NativeLayer::NativeLayer(OGRLayer *layer) : layer(layer) {
 
     disk_feature_count = layer->GetFeatureCount();
     ram_feature_count = 0;
+}
+
+void NativeLayer::save_override() {
+    // Write cached features to RAM layer
+    for (auto feature_list : feature_cache) {
+        if (!feature_list.second.front()->is_deleted) {
+            OGRErr error = ram_layer->SetFeature(feature_list.second.front()->feature);
+        }
+    }
+
+    // Write changes from RAM layer into this layer
+    ram_layer->ResetReading();            // Reset the reading cursor
+    ram_layer->SetSpatialFilter(nullptr); // Reset the spatial filter
+    OGRFeature *current_feature = ram_layer->GetNextFeature();
+
+    while (current_feature != nullptr) {
+        if (current_feature->GetFID() <= layer->GetFeatureCount()) {
+            OGRErr error = layer->SetFeature(current_feature);
+        } else {
+            OGRErr error = layer->CreateFeature(current_feature);
+        }
+
+        current_feature = ram_layer->GetNextFeature();
+    }
+
+    layer->SyncToDisk();
 }
 
 void NativeLayer::save_modified_layer(std::string path) {
@@ -419,6 +443,9 @@ Feature *NativeLayer::create_feature() {
     return feature;
 }
 
-NativeDataset::NativeDataset(std::string path) : path(path) {
-    dataset = (GDALDataset *)GDALOpenEx(path.c_str(), 0, nullptr, nullptr, nullptr);
+NativeDataset::NativeDataset(std::string path, bool write_access)
+    : path(path), write_access(write_access) {
+    unsigned int open_access = write_access ? GDAL_OF_UPDATE : GDAL_OF_READONLY;
+
+    dataset = (GDALDataset *)GDALOpenEx(path.c_str(), open_access, nullptr, nullptr, nullptr);
 }
