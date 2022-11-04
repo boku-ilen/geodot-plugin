@@ -6,6 +6,7 @@
 #include "defines.h"
 #include "geofeatures.h"
 #include "geoimage.h"
+#include "godot_cpp/variant/variant.hpp"
 
 namespace godot {
 
@@ -123,6 +124,24 @@ class EXPORT GeoRasterLayer : public Resource {
     /// possible.
     float get_value_at_position_with_resolution(double pos_x, double pos_y,
                                                 double pixel_size_meters);
+
+    /// Replaces exactly one pixel at the given position with the given value.
+    /// The value must correspond to this layer's type (e.g. a float for Float32 images and a Color
+    /// for RGB images).
+    /// Useful for modifying datasets on a small scale, e.g. correcting land-use values.
+    void set_value_at_position(double pos_x, double pos_y, Variant value);
+
+    /// Adds the given summand to the previous value at the given position and smoothly cross-fades
+    /// into the original data along the given radius.
+    /// Useful for terraforming terrain, e.g. creating a new hill with smooth slopes.
+    void smooth_add_value_at_position(double pos_x, double pos_y, double summand, double radius);
+
+    /// Adds the given image to the raster dataset at the given position. Fully opaque values are
+    /// replaced; values with alpha between 0 and 1 are interpolated between original and new.
+    /// A scale of 1 assumes that both images have the same resolution per meter; 2 means that one
+    /// pixel in this image corresponds to two pixels in the dataset.
+    /// Useful for drawing into datasets with custom brushes, e.g. a pre-defined land-use pattern.
+    void overlay_image_at_position(double pos_x, double pos_y, Ref<Image> image, double scale);
 
     /// Returns the extent of the layer in projected meters (assuming it is rectangular).
     Rect2 get_extent();

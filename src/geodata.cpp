@@ -238,6 +238,11 @@ void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_value_at_position"), &GeoRasterLayer::get_value_at_position);
     ClassDB::bind_method(D_METHOD("get_value_at_position_with_resolution"),
                          &GeoRasterLayer::get_value_at_position_with_resolution);
+    ClassDB::bind_method(D_METHOD("set_value_at_position"), &GeoRasterLayer::set_value_at_position);
+    ClassDB::bind_method(D_METHOD("smooth_add_value_at_position"),
+                         &GeoRasterLayer::smooth_add_value_at_position);
+    ClassDB::bind_method(D_METHOD("overlay_image_at_position"),
+                         &GeoRasterLayer::overlay_image_at_position);
     ClassDB::bind_method(D_METHOD("get_extent"), &GeoRasterLayer::get_extent);
     ClassDB::bind_method(D_METHOD("get_center"), &GeoRasterLayer::get_center);
     ClassDB::bind_method(D_METHOD("get_min"), &GeoRasterLayer::get_min);
@@ -301,6 +306,14 @@ float GeoRasterLayer::get_value_at_position_with_resolution(double pos_x, double
 
     return -1.0;
 }
+
+void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant value) {}
+
+void GeoRasterLayer::smooth_add_value_at_position(double pos_x, double pos_y, double summand,
+                                                  double radius) {}
+
+void GeoRasterLayer::overlay_image_at_position(double pos_x, double pos_y, Ref<Image> image,
+                                               double scale) {}
 
 Rect2 GeoRasterLayer::get_extent() {
     return Rect2(extent_data.left, extent_data.top, extent_data.right - extent_data.left,
