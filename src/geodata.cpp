@@ -344,11 +344,6 @@ void GeoRasterLayer::set_origin_dataset(Ref<GeoDataset> dataset) {
     this->origin_dataset = dataset;
 }
 
-bool PyramidGeoRasterLayer::is_valid() {
-    // TODO
-    return true;
-}
-
 Ref<GeoRasterLayer> GeoRasterLayer::clone() {
     Ref<GeoRasterLayer> layer_clone;
     layer_clone.instantiate();
@@ -358,28 +353,6 @@ Ref<GeoRasterLayer> GeoRasterLayer::clone() {
     layer_clone->set_name(get_name());
 
     return layer_clone;
-}
-
-Ref<GeoImage> PyramidGeoRasterLayer::get_image(double top_left_x, double top_left_y,
-                                               double size_meters, int img_size,
-                                               int interpolation_type) {
-    Ref<GeoImage> image = Ref<GeoImage>();
-    image.instantiate();
-
-    GeoRaster *raster = RasterTileExtractor::get_raster_from_pyramid(
-        path.utf8().get_data(), ending.utf8().get_data(), top_left_x, top_left_y, size_meters,
-        img_size, interpolation_type);
-
-    if (raster == nullptr) {
-        // TODO: Set validity to false
-        UtilityFunctions::printerr(
-            "No valid data was available for the requested path and position!");
-        return image;
-    }
-
-    image->set_raster(raster, interpolation_type);
-
-    return image;
 }
 
 void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
@@ -397,20 +370,6 @@ void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
 void GeoRasterLayer::set_native_dataset(NativeDataset *new_dataset) {
     dataset = new_dataset;
     extent_data = RasterTileExtractor::get_extent_data(new_dataset->dataset);
-}
-
-void PyramidGeoRasterLayer::_bind_methods() {
-    // The function pointers need to point to the overwritten functions
-    ClassDB::bind_method(D_METHOD("is_valid"), &PyramidGeoRasterLayer::is_valid);
-    ClassDB::bind_method(D_METHOD("get_image"), &PyramidGeoRasterLayer::get_image);
-}
-
-void PyramidGeoRasterLayer::set_pyramid_base(String path) {
-    this->path = path;
-}
-
-void PyramidGeoRasterLayer::set_file_ending(String ending) {
-    this->ending = ending;
 }
 
 } // namespace godot

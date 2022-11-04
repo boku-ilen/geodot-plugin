@@ -21,7 +21,6 @@ void register_geodot_types(ModuleInitializationLevel p_level) {
     ClassDB::register_class<GeoDataset>();
     ClassDB::register_class<GeoFeatureLayer>();
     ClassDB::register_class<GeoRasterLayer>();
-    ClassDB::register_class<PyramidGeoRasterLayer>();
     ClassDB::register_class<GeoUtil>();
 }
 

@@ -178,35 +178,6 @@ class EXPORT GeoRasterLayer : public Resource {
     RasterTileExtractor::ExtentData extent_data;
 };
 
-/// A layer which contains raster data, loaded from a well-defined pyramid folder structure.
-/// (See https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames)
-/// Requires a separate class as it does not wrap a GDALDataset and thus handles its data
-/// differently.
-class EXPORT PyramidGeoRasterLayer : public GeoRasterLayer {
-    GDCLASS(PyramidGeoRasterLayer, GeoRasterLayer)
-
-  protected:
-    static void _bind_methods();
-
-  public:
-    PyramidGeoRasterLayer() = default;
-    virtual ~PyramidGeoRasterLayer() = default;
-
-    /// Returns true if the layer could successfully be loaded.
-    bool is_valid();
-
-    Ref<GeoImage> get_image(double top_left_x, double top_left_y, double size_meters, int img_size,
-                            int interpolation_type);
-
-    void set_pyramid_base(String path);
-
-    void set_file_ending(String ending);
-
-  private:
-    String path;
-    String ending;
-};
-
 /// A dataset which contains layers of geodata.
 /// Corresponds to GDALDataset.
 class EXPORT GeoDataset : public Resource {

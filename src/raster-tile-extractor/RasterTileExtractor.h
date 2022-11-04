@@ -9,13 +9,6 @@ class RasterTileExtractor {
     /// Must be called before any other function to initialize GDAL.
     static void initialize();
 
-    /// Returns a GeoRaster with the data at raster_name and the given parameters.
-    /// raster_name can be the name of a geotiff or the top folder of a pre-tiled raster pyramid.
-    static GeoRaster *get_raster_from_pyramid(const char *raster_name, const char *file_ending,
-                                              double top_left_x, double top_left_y,
-                                              double size_meters, int img_size,
-                                              int interpolation_type);
-
     /// Returns a GeoRaster with the data from the given dataset, in the given area, with the given
     /// resolution and interpolation.
     static GeoRaster *get_tile_from_dataset(GDALDataset *dataset, double top_left_x,
@@ -51,12 +44,6 @@ class RasterTileExtractor {
     /// img_size * img_size (pixels).
     static GeoRaster *clip_dataset(GDALDataset *dataset, double top_left_x, double top_left_y,
                                    double size_meters, int img_size, int interpolation_type);
-
-    /// Get an image from a pre-tiled raster pyramid (named according to the Slippy tilenames).
-    /// __The returned GDALDataset needs to be closed with GDALClose()!__
-    static GDALDataset *get_from_pyramid(const char *infile, const char *file_ending,
-                                         double top_left_x, double top_left_y, double size_meters,
-                                         int img_size, int interpolation_type);
 };
 
 #endif // RASTEREXTRACTOR_RASTERTILEEXTRACTOR_H
