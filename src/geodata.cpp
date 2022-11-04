@@ -265,13 +265,20 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
     Ref<GeoImage> image;
     image.instantiate();
 
+    if (dataset == nullptr || !dataset->is_valid()) {
+        // TODO: Set validity to false
+        UtilityFunctions::push_error("Raster layer '", get_name(),
+                                     "' is invalid, cannot perform get_image!");
+        return image;
+    }
+
     GeoRaster *raster = RasterTileExtractor::get_tile_from_dataset(
         dataset->dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
 
     if (raster == nullptr) {
         // TODO: Set validity to false
-        UtilityFunctions::printerr(
-            "No valid data was available for the requested path and position!");
+        UtilityFunctions::push_error("No valid data was available in the raster layer '",
+                                     get_name(), "' at the requested position position!");
         return image;
     }
 
@@ -380,9 +387,11 @@ void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
 
     dataset = VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access);
 
-    // Not quite working as intended due to https://github.com/godotengine/godot-cpp/issues/521
-    CRASH_COND_MSG(!dataset->is_valid(),
-                   "Could not load GeoRasterLayer from path '" + file_path + "'!");
+    // TODO: Might be better to produce a hard crash here, but CRASH_COND doesn't have the desired
+    // effect - see https://github.com/godotengine/godot-cpp/issues/521
+    if (!dataset->is_valid()) {
+        UtilityFunctions::push_error("Could not load GeoRasterLayer from path '", file_path, "'!");
+    }
 }
 
 void GeoRasterLayer::set_native_dataset(NativeDataset *new_dataset) {
