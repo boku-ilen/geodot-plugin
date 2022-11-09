@@ -1,6 +1,7 @@
 #include "geodata.h"
 #include "geofeatures.h"
 #include "godot_cpp/core/error_macros.hpp"
+#include "godot_cpp/variant/dictionary.hpp"
 #include "raster-tile-extractor/RasterTileExtractor.h"
 #include "vector-extractor/Feature.h"
 #include "vector-extractor/VectorExtractor.h"
@@ -233,6 +234,7 @@ GeoRasterLayer::~GeoRasterLayer() {
 
 void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoRasterLayer::is_valid);
+    ClassDB::bind_method(D_METHOD("get_file_info"), &GeoRasterLayer::get_file_info);
     ClassDB::bind_method(D_METHOD("get_dataset"), &GeoRasterLayer::get_dataset);
     ClassDB::bind_method(D_METHOD("get_image"), &GeoRasterLayer::get_image);
     ClassDB::bind_method(D_METHOD("get_value_at_position"), &GeoRasterLayer::get_value_at_position);
@@ -253,6 +255,24 @@ void GeoRasterLayer::_bind_methods() {
 
 bool GeoRasterLayer::is_valid() {
     return dataset && dataset->is_valid();
+}
+
+Dictionary GeoRasterLayer::get_file_info() {
+    Dictionary info;
+
+    // If this dataset comes from another dataset as a subdataset, the origin_dataset is set.
+    info["is_subdataset"] = origin_dataset != nullptr;
+
+    // If origin_dataset is not set, this means that this layer is not a subdataset; therefore, the
+    // name should only be the file name without the path. Otherwise, if this is a subdataset, the
+    // name is just the name.
+    info["name"] = origin_dataset == nullptr ? get_name().get_file() : get_name();
+
+    // If origin_dataset is not set, the name equals the path. Otherwise, the path comes from the
+    // origin_dataset and is set in the `path` attribute.
+    info["path"] = origin_dataset == nullptr ? get_name() : get_path();
+
+    return info;
 }
 
 Ref<GeoDataset> GeoRasterLayer::get_dataset() {

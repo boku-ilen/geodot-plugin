@@ -6,6 +6,7 @@
 #include "defines.h"
 #include "geofeatures.h"
 #include "geoimage.h"
+#include "godot_cpp/variant/dictionary.hpp"
 #include "godot_cpp/variant/variant.hpp"
 
 namespace godot {
@@ -97,6 +98,9 @@ class EXPORT GeoRasterLayer : public Resource {
 
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
+
+    /// Returns information about this file, e.g. the filename and the path
+    Dictionary get_file_info();
 
     /// Returns the dataset which this layer was opened from or null if it was opened directly, e.g.
     /// from a GeoTIFF.
