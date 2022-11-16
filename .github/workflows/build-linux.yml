@@ -30,7 +30,7 @@ jobs:
           cache-name: godot-cpp-cache
         with:
           path: godot-cpp
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('godot-cpp') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ github.ref_name }}-${{ hashFiles('godot-cpp') }}-linux
 
       - name: Initialize submodules
         if: steps.cache-bindings.outputs.cache-hit != 'true'
