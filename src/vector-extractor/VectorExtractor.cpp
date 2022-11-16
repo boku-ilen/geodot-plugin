@@ -6,7 +6,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <ogr_geometry.h>
 
 void VectorExtractor::initialize() {
     GDALAllRegister();
