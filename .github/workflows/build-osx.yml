@@ -43,7 +43,7 @@ jobs:
       
       - name: Generate Godot-CPP bindings
         if: steps.cache-bindings.outputs.cache-hit != 'true'
-        run: scons platform=osx generate_bindings=yes
+        run: scons platform=macos generate_bindings=yes
         working-directory: godot-cpp
         
       - name: Build Geodot
