@@ -30,7 +30,7 @@ jobs:
           cache-name: godot-cpp-cache
         with:
           path: godot-cpp
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ github.ref_name }}-${{ hashFiles('godot-cpp') }}-osx
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ github.ref_name }}-${{ hashFiles('godot-cpp') }}-macos
 
       - name: Initialize submodules
         if: steps.cache-bindings.outputs.cache-hit != 'true'
@@ -47,7 +47,7 @@ jobs:
         working-directory: godot-cpp
         
       - name: Build Geodot
-        run: scons platform=osx  osgeo_path=$(brew info gdal | grep '/usr/local' | cut -d ' ' -f 1)
+        run: scons platform=macos  osgeo_path=$(brew info gdal | grep '/usr/local' | cut -d ' ' -f 1)
         
       - name: Publish Artifacts
         uses: actions/upload-artifact@v2

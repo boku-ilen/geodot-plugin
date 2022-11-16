@@ -122,9 +122,9 @@ cd ..
 ### Compiling
 
 1. Compile the project itself using the GDAL location like `scons target=release osgeo_path=/usr/local/Cellar/gdal/3.2.1`
-  1. This generates the file `libgeodot.dylib` and 2 more located in `demo/addons/geodot/osx`
-1. Move the files `libRasterTileExtractor.dylib` and `libVectorExtractor.dylib` from `demo/addons/geodot/osx` into `demo/build` directory. See #52
-  1. `mkdir build ; mv demo/addons/geodot/osx/libRasterTileExtractor.dylib demo/addons/geodot/osx/libVectorExtractor.dylib demo/build`
+  1. This generates the file `libgeodot.dylib` and 2 more located in `demo/addons/geodot/macos`
+1. Move the files `libRasterTileExtractor.dylib` and `libVectorExtractor.dylib` from `demo/addons/geodot/macos` into `demo/build` directory. See #52
+  1. `mkdir build ; mv demo/addons/geodot/macos/libRasterTileExtractor.dylib demo/addons/geodot/macos/libVectorExtractor.dylib demo/build`
 
 # Developing
 

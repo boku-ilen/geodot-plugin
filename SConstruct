@@ -33,21 +33,26 @@ demo_path = "demo/addons/geodot/"
 if sys.platform.startswith('linux'):
     host_platform = 'linux'
 elif sys.platform == 'darwin':
-    host_platform = 'osx'
+    host_platform = 'macos'
 elif sys.platform == 'win32' or sys.platform == 'msys':
     host_platform = 'windows'
 else:
     host_platform = "Unknown platform: " + sys.platform
 
 # Define our options
-opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r', 'release']))
+opts.Add(EnumVariable('target', "Compilation target",
+         'debug', ['d', 'debug', 'r', 'release']))
 opts.Add(EnumVariable('platform', 'Compilation platform', host_platform,
-                      allowed_values=('linux', 'osx', 'windows'), ignorecase=2))
+                      allowed_values=('linux', 'macos', 'windows'), ignorecase=2))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
-opts.Add(BoolVariable('compiledb', "Build a Compilation Database, e.g. for live error reporting in VSCodium", 'no'))
-opts.Add(PathVariable('target_path', 'The path where the lib is installed.', demo_path))
-opts.Add(PathVariable('target_name', 'The library name.', 'libgeodot', PathVariable.PathAccept))
-opts.Add(PathVariable('osgeo_path', "(Windows only) path to OSGeo installation", "", PathVariable.PathAccept))
+opts.Add(BoolVariable('compiledb',
+         "Build a Compilation Database, e.g. for live error reporting in VSCodium", 'no'))
+opts.Add(PathVariable('target_path',
+         'The path where the lib is installed.', demo_path))
+opts.Add(PathVariable('target_name', 'The library name.',
+         'libgeodot', PathVariable.PathAccept))
+opts.Add(PathVariable('osgeo_path',
+         "(Windows only) path to OSGeo installation", "", PathVariable.PathAccept))
 
 # only support 64 at this time..
 bits = 64
@@ -70,10 +75,12 @@ if env['platform'] == '':
 
 # Build the extractor libraries
 subprocess.call(
-    "cd " + rte_cpp_path + " && scons platform=" + env['platform'] + " osgeo_path=" + env['osgeo_path'],
+    "cd " + rte_cpp_path + " && scons platform=" +
+    env['platform'] + " osgeo_path=" + env['osgeo_path'],
     shell=True)
 subprocess.call(
-    "cd " + vector_cpp_path + " && scons platform=" + env['platform'] + " osgeo_path=" + env['osgeo_path'],
+    "cd " + vector_cpp_path + " && scons platform=" +
+    env['platform'] + " osgeo_path=" + env['osgeo_path'],
     shell=True)
 
 # For reference:
@@ -90,9 +97,9 @@ if env["target"] == "debug":
     env.Append(CPPDEFINES=["DEBUG_ENABLED", "DEBUG_METHODS_ENABLED"])
 
 # Check our platform specifics
-if env['platform'] == "osx":
-    env['target_path'] += 'osx/'
-    cpp_library += '.osx'
+if env['platform'] == "macos":
+    env['target_path'] += 'macos/'
+    cpp_library += '.macos'
     gdal_lib_name = 'gdal'
 
     env.Append(LINKFLAGS=['-arch', 'x86_64'])
@@ -118,7 +125,7 @@ elif env['platform'] in ('x11', 'linux'):
         env.Append(CCFLAGS=['-fPIC', '-g3', '-Og'])
     else:
         env.Append(CCFLAGS=['-fPIC', '-g', '-O3'])
-    
+
     # Arch needs different includes!
     import distro
     if distro.like() == "arch" or distro.id() == "arch":
@@ -146,8 +153,10 @@ else:
 cpp_library += '.x86_' + str(bits)
 
 # make sure our binding library is properly includes
-env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'gen/include/', rte_cpp_path, vector_cpp_path])
-env.Append(LIBPATH=[cpp_bindings_path + 'bin/', rte_libpath, vector_libpath, os.path.join(env['osgeo_path'], "lib")])
+env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/',
+           cpp_bindings_path + 'gen/include/', rte_cpp_path, vector_cpp_path])
+env.Append(LIBPATH=[cpp_bindings_path + 'bin/', rte_libpath,
+           vector_libpath, os.path.join(env['osgeo_path'], "lib")])
 env.Append(LIBS=[cpp_library, rte_library, vector_library, gdal_lib_name])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
@@ -155,7 +164,8 @@ env.Append(CPPPATH=['src/'])
 env.Append(CPPPATH=['src/global/'])
 sources = Glob('src/*.cpp')
 
-library = env.SharedLibrary(target=env['target_path'] + env['target_name'], source=sources)
+library = env.SharedLibrary(
+    target=env['target_path'] + env['target_name'], source=sources)
 
 # Generates help for the -h scons option.
 Help(opts.GenerateHelpText(env))

@@ -8,10 +8,13 @@ opts = Variables([], ARGUMENTS)
 env = DefaultEnvironment()
 
 # Define our options
-opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r', 'release']))
-opts.Add(EnumVariable('platform', "Compilation platform", '', ['', 'windows', 'x11', 'linux', 'osx']))
+opts.Add(EnumVariable('target', "Compilation target",
+         'debug', ['d', 'debug', 'r', 'release']))
+opts.Add(EnumVariable('platform', "Compilation platform",
+         '', ['', 'windows', 'x11', 'linux', 'macos']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
-opts.Add(PathVariable('osgeo_path', "(Windows and Mac) path to OSGeo installation", "", PathVariable.PathAccept))
+opts.Add(PathVariable('osgeo_path',
+         "(Windows and Mac) path to OSGeo installation", "", PathVariable.PathAccept))
 
 # only support 64 at this time..
 bits = 64
@@ -51,7 +54,7 @@ elif env['platform'] == "windows":
         print("OSGeo paths are invalid!")
         quit()
 
-elif env['platform'] == 'osx':
+elif env['platform'] == 'macos':
     # Include GDAL
     gdal_include_path = os.path.join(env['osgeo_path'], "include")
     gdal_lib_path = os.path.join(env['osgeo_path'], "lib")
@@ -68,4 +71,5 @@ env.Append(CPPPATH=['./'])
 env.Append(CPPPATH=['../global/'])
 sources = Glob('./*.cpp')
 
-library = env.StaticLibrary(target=env['target_path'] + env['target_name'], source=sources)
+library = env.StaticLibrary(
+    target=env['target_path'] + env['target_name'], source=sources)
