@@ -23,7 +23,8 @@ void GeoDataset::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_feature_layers"), &GeoDataset::get_feature_layers);
     ClassDB::bind_method(D_METHOD("get_raster_layer", "name"), &GeoDataset::get_raster_layer);
     ClassDB::bind_method(D_METHOD("get_feature_layer", "name"), &GeoDataset::get_feature_layer);
-    ClassDB::bind_method(D_METHOD("load_from_file", "file_path"), &GeoDataset::load_from_file);
+    ClassDB::bind_method(D_METHOD("load_from_file", "file_path", "write_access"),
+                         &GeoDataset::load_from_file);
 }
 
 bool GeoDataset::is_valid() {
@@ -90,14 +91,14 @@ void GeoDataset::set_native_dataset(NativeDataset *new_dataset) {
 void GeoFeatureLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoFeatureLayer::is_valid);
     ClassDB::bind_method(D_METHOD("get_dataset"), &GeoFeatureLayer::get_dataset);
-    ClassDB::bind_method(D_METHOD("get_feature_by_id"), &GeoFeatureLayer::get_feature_by_id);
+    ClassDB::bind_method(D_METHOD("get_feature_by_id", "id"), &GeoFeatureLayer::get_feature_by_id);
     ClassDB::bind_method(D_METHOD("get_all_features"), &GeoFeatureLayer::get_all_features);
-    ClassDB::bind_method(D_METHOD("get_features_near_position"),
+    ClassDB::bind_method(D_METHOD("get_features_near_position", "pos_x", "pos_y", "radius"),
                          &GeoFeatureLayer::get_features_near_position);
     ClassDB::bind_method(D_METHOD("create_feature"), &GeoFeatureLayer::create_feature);
-    ClassDB::bind_method(D_METHOD("remove_feature"), &GeoFeatureLayer::remove_feature);
+    ClassDB::bind_method(D_METHOD("remove_feature", "feature"), &GeoFeatureLayer::remove_feature);
     ClassDB::bind_method(D_METHOD("save_override"), &GeoFeatureLayer::save_override);
-    ClassDB::bind_method(D_METHOD("save_new"), &GeoFeatureLayer::save_new);
+    ClassDB::bind_method(D_METHOD("save_new", "file_path"), &GeoFeatureLayer::save_new);
 
     ADD_SIGNAL(MethodInfo("feature_added", PropertyInfo(Variant::OBJECT, "new_feature")));
     ADD_SIGNAL(MethodInfo("feature_removed", PropertyInfo(Variant::OBJECT, "removed_feature")));
@@ -238,21 +239,27 @@ void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoRasterLayer::is_valid);
     ClassDB::bind_method(D_METHOD("get_file_info"), &GeoRasterLayer::get_file_info);
     ClassDB::bind_method(D_METHOD("get_dataset"), &GeoRasterLayer::get_dataset);
-    ClassDB::bind_method(D_METHOD("get_image"), &GeoRasterLayer::get_image);
-    ClassDB::bind_method(D_METHOD("get_value_at_position"), &GeoRasterLayer::get_value_at_position);
+    ClassDB::bind_method(D_METHOD("get_image", "top_left_x", "top_left_y", "size_meters",
+                                  "img_size", "interpolation_type"),
+                         &GeoRasterLayer::get_image);
+    ClassDB::bind_method(D_METHOD("get_value_at_position", "pos_x", "pos_y"),
+                         &GeoRasterLayer::get_value_at_position);
     ClassDB::bind_method(D_METHOD("get_value_at_position_with_resolution"),
                          &GeoRasterLayer::get_value_at_position_with_resolution);
-    ClassDB::bind_method(D_METHOD("set_value_at_position"), &GeoRasterLayer::set_value_at_position);
-    ClassDB::bind_method(D_METHOD("smooth_add_value_at_position"),
-                         &GeoRasterLayer::smooth_add_value_at_position);
-    ClassDB::bind_method(D_METHOD("overlay_image_at_position"),
+    ClassDB::bind_method(D_METHOD("set_value_at_position", "pos_x", "pos_y", "value"),
+                         &GeoRasterLayer::set_value_at_position);
+    ClassDB::bind_method(
+        D_METHOD("smooth_add_value_at_position", "pos_x", "pos_y", "summand", "radius"),
+        &GeoRasterLayer::smooth_add_value_at_position);
+    ClassDB::bind_method(D_METHOD("overlay_image_at_position", "pos_x", "pos_y", "image", "scale"),
                          &GeoRasterLayer::overlay_image_at_position);
     ClassDB::bind_method(D_METHOD("get_extent"), &GeoRasterLayer::get_extent);
     ClassDB::bind_method(D_METHOD("get_center"), &GeoRasterLayer::get_center);
     ClassDB::bind_method(D_METHOD("get_min"), &GeoRasterLayer::get_min);
     ClassDB::bind_method(D_METHOD("get_max"), &GeoRasterLayer::get_max);
     ClassDB::bind_method(D_METHOD("clone"), &GeoRasterLayer::clone);
-    ClassDB::bind_method(D_METHOD("load_from_file", "file_path"), &GeoRasterLayer::load_from_file);
+    ClassDB::bind_method(D_METHOD("load_from_file", "file_path", "write_access"),
+                         &GeoRasterLayer::load_from_file);
 }
 
 bool GeoRasterLayer::is_valid() {

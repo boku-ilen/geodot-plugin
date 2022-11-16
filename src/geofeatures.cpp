@@ -11,11 +11,11 @@ GeoFeature::~GeoFeature() {
 }
 
 void GeoFeature::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("get_attribute"), &GeoFeature::get_attribute);
-    ClassDB::bind_method(D_METHOD("set_attribute"), &GeoFeature::set_attribute);
+    ClassDB::bind_method(D_METHOD("get_attribute", "name"), &GeoFeature::get_attribute);
+    ClassDB::bind_method(D_METHOD("set_attribute", "name", "value"), &GeoFeature::set_attribute);
     ClassDB::bind_method(D_METHOD("get_attributes"), &GeoFeature::get_attributes);
     ClassDB::bind_method(D_METHOD("get_id"), &GeoFeature::get_id);
-    ClassDB::bind_method(D_METHOD("intersects_with"), &GeoFeature::intersects_with);
+    ClassDB::bind_method(D_METHOD("intersects_with", "other"), &GeoFeature::intersects_with);
 }
 
 String GeoFeature::get_attribute(String name) const {
@@ -58,9 +58,12 @@ bool GeoFeature::intersects_with(Ref<GeoFeature> other) {
 
 void GeoPoint::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_vector3"), &GeoPoint::get_vector3);
-    ClassDB::bind_method(D_METHOD("get_offset_vector3"), &GeoPoint::get_offset_vector3);
-    ClassDB::bind_method(D_METHOD("set_vector3"), &GeoPoint::set_vector3);
-    ClassDB::bind_method(D_METHOD("set_offset_vector3"), &GeoPoint::set_offset_vector3);
+    ClassDB::bind_method(D_METHOD("get_offset_vector3", "offset_x", "offset_y", "offset_z"),
+                         &GeoPoint::get_offset_vector3);
+    ClassDB::bind_method(D_METHOD("set_vector3", "vector"), &GeoPoint::set_vector3);
+    ClassDB::bind_method(
+        D_METHOD("set_offset_vector3", "vector", "offset_x", "offset_y", "offset_z"),
+        &GeoPoint::set_offset_vector3);
 
     ADD_SIGNAL(MethodInfo("point_changed"));
 }
@@ -94,10 +97,13 @@ void GeoPoint::set_vector3(Vector3 vector) {
 
 void GeoLine::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_curve3d"), &GeoLine::get_curve3d);
-    ClassDB::bind_method(D_METHOD("get_offset_curve3d"), &GeoLine::get_offset_curve3d);
-    ClassDB::bind_method(D_METHOD("set_curve3d"), &GeoLine::set_curve3d);
-    ClassDB::bind_method(D_METHOD("set_offset_curve3d"), &GeoLine::set_offset_curve3d);
-    ClassDB::bind_method(D_METHOD("add_point"), &GeoLine::add_point);
+    ClassDB::bind_method(D_METHOD("get_offset_curve3d", "offset_x", "offset_y", "offset_z"),
+                         &GeoLine::get_offset_curve3d);
+    ClassDB::bind_method(D_METHOD("set_curve3d", "curve"), &GeoLine::set_curve3d);
+    ClassDB::bind_method(
+        D_METHOD("set_offset_curve3d", "curve", "offset_x", "offset_y", "offset_z"),
+        &GeoLine::set_offset_curve3d);
+    ClassDB::bind_method(D_METHOD("add_point", "point"), &GeoLine::add_point);
 
     ADD_SIGNAL(MethodInfo("line_changed"));
 }
@@ -163,9 +169,10 @@ void GeoLine::add_point(Vector3 point) {
 
 void GeoPolygon::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_outer_vertices"), &GeoPolygon::get_outer_vertices);
-    ClassDB::bind_method(D_METHOD("set_outer_vertices"), &GeoPolygon::set_outer_vertices);
+    ClassDB::bind_method(D_METHOD("set_outer_vertices", "vertices"),
+                         &GeoPolygon::set_outer_vertices);
     ClassDB::bind_method(D_METHOD("get_holes"), &GeoPolygon::get_holes);
-    ClassDB::bind_method(D_METHOD("add_hole"), &GeoPolygon::add_hole);
+    ClassDB::bind_method(D_METHOD("add_hole", "hole"), &GeoPolygon::add_hole);
 }
 
 PackedVector2Array GeoPolygon::get_outer_vertices() {
