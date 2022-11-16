@@ -3,6 +3,7 @@
 #include "geofeatures.h"
 #include "godot_cpp/core/error_macros.hpp"
 #include "godot_cpp/variant/dictionary.hpp"
+#include "godot_cpp/variant/variant.hpp"
 #include "raster-tile-extractor/RasterTileExtractor.h"
 #include "vector-extractor/Feature.h"
 #include "vector-extractor/VectorExtractor.h"
@@ -335,7 +336,39 @@ float GeoRasterLayer::get_value_at_position_with_resolution(double pos_x, double
     return -1.0;
 }
 
-void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant value) {}
+void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant value) {
+    if (value.get_type() == Variant::Type::FLOAT) {
+        float godot_float = static_cast<float>(value);
+        float *values = new float[1];
+
+        values[0] = godot_float;
+        RasterTileExtractor::write_into_dataset(dataset->dataset, pos_x, pos_y, values, 1.0, 0);
+
+        delete[] values;
+    } else if (value.get_type() == Variant::Type::COLOR) {
+        Color color = static_cast<Color>(value);
+        float *values = new float[3];
+
+        values[0] = color.r;
+        values[1] = color.g;
+        values[2] = color.b;
+
+        RasterTileExtractor::write_into_dataset(dataset->dataset, pos_x, pos_y, values, 1.0, 0);
+
+        delete[] values;
+
+    } else if (value.get_type() == Variant::Type::INT) {
+        int godot_int = static_cast<int>(value);
+        int *values = new int[1];
+
+        values[0] = godot_int;
+        RasterTileExtractor::write_into_dataset(dataset->dataset, pos_x, pos_y, values, 1.0, 0);
+
+        delete[] values;
+    }
+
+    dataset->dataset->FlushCache();
+}
 
 void GeoRasterLayer::smooth_add_value_at_position(double pos_x, double pos_y, double summand,
                                                   double radius) {}
