@@ -1,4 +1,5 @@
 #include "geodata.h"
+#include "NativeLayer.h"
 #include "geofeatures.h"
 #include "godot_cpp/core/error_macros.hpp"
 #include "godot_cpp/variant/dictionary.hpp"
