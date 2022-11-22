@@ -161,3 +161,15 @@ std::vector<std::string> NativeDataset::get_feature_layer_names() {
 
     return names;
 }
+
+void NativeLayer::add_field(std::string name) {
+    OGRFieldDefn *field_definition = new OGRFieldDefn(name.c_str(), OGRFieldType::OFTString);
+
+    layer->CreateField(field_definition);
+
+    delete field_definition;
+}
+
+void NativeLayer::remove_field(std::string name) {
+    layer->DeleteField(layer->GetLayerDefn()->GetFieldIndex(name.c_str()));
+}

@@ -20,6 +20,10 @@ class NativeLayer {
     /// The exact type of the returned feature corresponds to the layer's geometry type.
     Feature *create_feature();
 
+    void add_field(std::string name);
+
+    void remove_field(std::string name);
+
     // TODO: Add something like `forget_feature(Feature)` so that the cache can be cleared (and the
     // memory freed) by the user
 
