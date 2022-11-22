@@ -46,8 +46,6 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
     int img_size_x = raster->get_pixel_size_x();
     int img_size_y = raster->get_pixel_size_y();
 
-    image.instantiate();
-
     // Depending on the data type, the insertion of the raw image into the
     // PoolByteArray is different. The format is dependent on how Godot handles
     // Image->create_from_data.
@@ -69,7 +67,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGB8, pba);
+        image =
+            Image::create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGB8, pba);
     } else if (format == GeoRaster::RGBA) {
         uint8_t *data = (uint8_t *)raster->get_as_array();
 
@@ -91,7 +90,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGBA8, pba);
+        image = Image::create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RGBA8,
+                                        pba);
     } else if (format == GeoRaster::BYTE) {
         uint8_t *data = (uint8_t *)raster->get_as_array();
 
@@ -111,7 +111,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_R8, pba);
+        image =
+            Image::create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_R8, pba);
     } else if (format == GeoRaster::RF) {
         float *data = (float *)raster->get_as_array();
 
@@ -141,7 +142,8 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
         delete[] data;
 
         // Create an image from the PoolByteArray
-        image->create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RF, pba);
+        image =
+            Image::create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RF, pba);
     }
 
     validity = true;
