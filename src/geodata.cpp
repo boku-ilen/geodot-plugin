@@ -344,6 +344,7 @@ float GeoRasterLayer::get_value_at_position_with_resolution(double pos_x, double
 }
 
 void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant value) {
+    // TODO: Validate against Raster type to see whether the passed Variant is sensible
     if (value.get_type() == Variant::Type::FLOAT) {
         float godot_float = static_cast<float>(value);
         float *values = new float[1];
@@ -354,19 +355,20 @@ void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant v
         delete[] values;
     } else if (value.get_type() == Variant::Type::COLOR) {
         Color color = static_cast<Color>(value);
-        float *values = new float[3];
+        char *values = new char[3];
 
-        values[0] = color.r;
-        values[1] = color.g;
-        values[2] = color.b;
+        values[0] = color.r * 255.0;
+        values[1] = color.g * 255.0;
+        values[2] = color.b * 255.0;
 
         RasterTileExtractor::write_into_dataset(dataset->dataset, pos_x, pos_y, values, 1.0, 0);
 
         delete[] values;
 
     } else if (value.get_type() == Variant::Type::INT) {
-        int godot_int = static_cast<int>(value);
-        int *values = new int[1];
+        // TODO: Should we check for precision loss and emit a warning here?
+        char godot_int = static_cast<int>(value); // Downcast to char, since there are no int images
+        char *values = new char[1];
 
         values[0] = godot_int;
         RasterTileExtractor::write_into_dataset(dataset->dataset, pos_x, pos_y, values, 1.0, 0);

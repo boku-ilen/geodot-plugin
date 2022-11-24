@@ -96,7 +96,26 @@ void RasterTileExtractor::write_into_dataset(GDALDataset *dataset, double center
                                              void *values, double scale, int interpolation_type) {
     DatasetPositionData position_data(dataset, center_x, center_y, 0);
 
-    GDALRasterBand *band = dataset->GetRasterBand(1);
-    CPLErr error = band->RasterIO(GDALRWFlag::GF_Write, position_data.pixels_x,
-                                  position_data.pixels_y, 1, 1, values, 1, 1, GDT_Float32, 0, 1);
+    GDALDataType data_type = dataset->GetRasterBand(1)->GetRasterDataType();
+
+    if (data_type == GDALDataType::GDT_Float32) {
+        // Float32
+        GDALRasterBand *band = dataset->GetRasterBand(1);
+        CPLErr error =
+            band->RasterIO(GDALRWFlag::GF_Write, position_data.pixels_x, position_data.pixels_y, 1,
+                           1, values, 1, 1, GDT_Float32, 0, 1);
+    } else if (data_type == GDALDataType::GDT_Byte) {
+        // Byte, RGB, or RGBA
+        unsigned int band_count = dataset->GetRasterCount();
+
+        for (int i = 1; i <= band_count; i++) {
+            GDALRasterBand *band = dataset->GetRasterBand(i);
+            char value = static_cast<char *>(values)[i - 1];
+            char *value_array = &value;
+
+            CPLErr error =
+                band->RasterIO(GDALRWFlag::GF_Write, position_data.pixels_x, position_data.pixels_y,
+                               1, 1, value_array, 1, 1, GDT_Byte, 0, 1);
+        }
+    }
 }
