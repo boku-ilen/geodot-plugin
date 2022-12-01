@@ -67,6 +67,16 @@ std::list<Feature *> NativeLayer::get_feature_for_ogrfeature(OGRFeature *feature
     return list;
 }
 
+ExtentData NativeLayer::get_extent() {
+    OGREnvelope *envelope = new OGREnvelope();
+    OGRErr error = layer->GetExtent(envelope);
+
+    ExtentData extent(envelope->MinX, envelope->MaxX, envelope->MinY, envelope->MaxY);
+
+    delete envelope;
+    return extent;
+}
+
 std::list<Feature *> NativeLayer::get_feature_by_id(int id) {
     OGRFeature *feature = layer->GetFeature(id);
 

@@ -36,6 +36,10 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// Returns the dataset which this layer was opened from.
     Ref<GeoDataset> get_dataset();
 
+    /// Returns the point in the center of the layer in projected meters.
+    /// The y-component is 0.0.
+    Vector3 get_center();
+
     /// Returns the one feature that corresponds to the given ID.
     Ref<GeoFeature> get_feature_by_id(int id);
 
@@ -80,6 +84,7 @@ class EXPORT GeoFeatureLayer : public Resource {
   private:
     NativeLayer *layer;
     Ref<GeoDataset> origin_dataset;
+    ExtentData extent_data;
 };
 
 /// A layer which contains raster data.
@@ -179,7 +184,7 @@ class EXPORT GeoRasterLayer : public Resource {
   private:
     Ref<GeoDataset> origin_dataset;
     NativeDataset *dataset;
-    RasterTileExtractor::ExtentData extent_data;
+    ExtentData extent_data;
 };
 
 /// A dataset which contains layers of geodata.

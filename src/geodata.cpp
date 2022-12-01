@@ -4,7 +4,6 @@
 #include "godot_cpp/core/error_macros.hpp"
 #include "godot_cpp/variant/dictionary.hpp"
 #include "godot_cpp/variant/variant.hpp"
-#include "raster-tile-extractor/RasterTileExtractor.h"
 #include "vector-extractor/Feature.h"
 #include "vector-extractor/VectorExtractor.h"
 #include <cmath>
@@ -91,6 +90,7 @@ void GeoDataset::set_native_dataset(NativeDataset *new_dataset) {
 void GeoFeatureLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoFeatureLayer::is_valid);
     ClassDB::bind_method(D_METHOD("get_dataset"), &GeoFeatureLayer::get_dataset);
+    ClassDB::bind_method(D_METHOD("get_center"), &GeoFeatureLayer::get_center);
     ClassDB::bind_method(D_METHOD("get_feature_by_id", "id"), &GeoFeatureLayer::get_feature_by_id);
     ClassDB::bind_method(D_METHOD("get_all_features"), &GeoFeatureLayer::get_all_features);
     ClassDB::bind_method(D_METHOD("get_features_near_position", "pos_x", "pos_y", "radius"),
@@ -110,6 +110,11 @@ bool GeoFeatureLayer::is_valid() {
 
 Ref<GeoDataset> GeoFeatureLayer::get_dataset() {
     return origin_dataset;
+}
+
+Vector3 GeoFeatureLayer::get_center() {
+    return Vector3(extent_data.left + (extent_data.right - extent_data.left) / 2.0, 0.0,
+                   extent_data.top + (extent_data.down - extent_data.top) / 2.0);
 }
 
 // Utility function for converting a Processing Library Feature to the appropriate GeoFeature
@@ -225,6 +230,7 @@ Array GeoFeatureLayer::crop_lines_to_square(double top_left_x, double top_left_y
 
 void GeoFeatureLayer::set_native_layer(NativeLayer *new_layer) {
     layer = new_layer;
+    extent_data = layer->get_extent();
 }
 
 void GeoFeatureLayer::set_origin_dataset(Ref<GeoDataset> dataset) {

@@ -1,6 +1,7 @@
 #include "Feature.h"
 #include "LineFeature.h"
 #include "gdal-includes.h"
+#include "util.h"
 #include <list>
 
 class NativeLayer {
@@ -14,6 +15,8 @@ class NativeLayer {
     void save_override();
 
     void save_modified_layer(std::string path);
+
+    ExtentData get_extent();
 
     /// Create a new feature on the in-RAM layer corresponding to the actual disk layer. No changes
     /// are made on the original layer, so that layer can be opened as read-only.

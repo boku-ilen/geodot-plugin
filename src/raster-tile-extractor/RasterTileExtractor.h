@@ -3,6 +3,7 @@
 
 #include "GeoRaster.h"
 #include "defines.h"
+#include "util.h"
 
 class RasterTileExtractor {
   public:
@@ -20,18 +21,6 @@ class RasterTileExtractor {
 
     static void smooth_add_into_dataset(GDALDataset *dataset, double center_x, double center_y,
                                         double summand, double radius);
-
-    struct ExtentData {
-        ExtentData(double left, double right, double top, double down)
-            : left(left), right(right), top(top), down(down) {}
-
-        ExtentData() = default;
-
-        double left;
-        double right;
-        double top;
-        double down;
-    };
 
     static ExtentData get_extent_data(GDALDataset *dataset);
 

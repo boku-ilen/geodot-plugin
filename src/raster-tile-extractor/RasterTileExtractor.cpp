@@ -66,7 +66,7 @@ GeoRaster *RasterTileExtractor::get_tile_from_dataset(GDALDataset *dataset, doub
     return clip_dataset(dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
 }
 
-RasterTileExtractor::ExtentData RasterTileExtractor::get_extent_data(GDALDataset *dataset) {
+ExtentData RasterTileExtractor::get_extent_data(GDALDataset *dataset) {
     // Get the Transform of the image
     double transform[6];
     dataset->GetGeoTransform(transform);
