@@ -164,7 +164,6 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
     normalmap_load_mutex->lock();
 
     Ref<Image> img;
-    img.instantiate();
 
     if (normalmap == nullptr) {
         // As described in https://github.com/godotengine/godot/issues/35539,
@@ -220,7 +219,8 @@ Ref<Image> GeoImage::get_normalmap_for_heightmap(float scale) {
             }
         }
 
-        img->create_from_data(width, height, false, Image::Format::FORMAT_RGBA8, normalmap_data);
+        img = Image::create_from_data(width, height, false, Image::Format::FORMAT_RGBA8,
+                                      normalmap_data);
     }
 
     normalmap_load_mutex->unlock();
