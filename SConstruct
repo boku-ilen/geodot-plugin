@@ -14,7 +14,7 @@ except:
     env = DefaultEnvironment()
 
 # Local dependency paths, adapt them to your setup
-godot_headers_path = "godot-cpp/godot-headers/"
+godot_headers_path = "godot-cpp/gdextension/"
 cpp_bindings_path = "godot-cpp/"
 cpp_library = "libgodot-cpp"
 
