@@ -102,12 +102,12 @@ if env['platform'] == "macos":
     cpp_library += '.macos'
     gdal_lib_name = 'gdal'
 
-    env.Append(LINKFLAGS=['-arch', 'x86_64'])
+    env.Append(LINKFLAGS=['-arch', 'arm64e'])
 
     if env['target'] in ('debug', 'd'):
-        env.Append(CCFLAGS=['-g', '-O2', '-arch', 'x86_64'])
+        env.Append(CCFLAGS=['-g', '-O2', '-arch', 'arm64e'])
     else:
-        env.Append(CCFLAGS=['-g', '-O3', '-arch', 'x86_64'])
+        env.Append(CCFLAGS=['-g', '-O3', '-arch', 'arm64e'])
 
     env.Append(LIBS=['libgdal.dylib'])
     env.Append(LIBPATH=[os.path.join(env['osgeo_path'], "lib")])
