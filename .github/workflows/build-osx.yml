@@ -40,6 +40,7 @@ jobs:
         run: |
           brew install gdal
           brew install scons
+          brew install dylibbundler
       
       - name: Generate Godot-CPP bindings
         if: steps.cache-bindings.outputs.cache-hit != 'true'
@@ -48,6 +49,9 @@ jobs:
         
       - name: Build Geodot
         run: scons platform=macos  osgeo_path=$(brew info gdal | grep '/usr/local' | cut -d ' ' -f 1)
+        
+      - name: Bundle dependencies
+        run: dylibbundler -od -b -x ./addons/geodot/macos/libgeodot.dylib -d ./addons/geodot/macos/ -p @executable_path
         
       - name: Publish Artifacts
         uses: actions/upload-artifact@v2
