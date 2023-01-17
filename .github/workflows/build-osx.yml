@@ -51,7 +51,7 @@ jobs:
         run: scons platform=macos  osgeo_path=$(brew info gdal | grep '/usr/local' | cut -d ' ' -f 1)
         
       - name: Bundle dependencies
-        run: dylibbundler -od -b -x ./addons/geodot/macos/libgeodot.dylib -d ./addons/geodot/macos/ -p @executable_path
+        run: dylibbundler -od -b -x ./demo/addons/geodot/macos/libgeodot.dylib -d ./demo/addons/geodot/macos/ -p @executable_path
         
       - name: Publish Artifacts
         uses: actions/upload-artifact@v2
