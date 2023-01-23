@@ -12,8 +12,6 @@
 #include "GeoRaster.h"
 #include "defines.h"
 
-namespace godot {
-
 // TODO: Not exportable? https://github.com/godotengine/godot/issues/15922
 enum INTERPOLATION {
     NEAREST,
@@ -29,6 +27,8 @@ enum INTERPOLATION {
     Q1,
     Q2,
 };
+
+namespace godot {
 
 // Wrapper for a GeoRaster from the RasterTileExtractor.
 // Provides data in a format directly compatible with Godot (using Godot types).
