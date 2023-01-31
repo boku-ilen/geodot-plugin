@@ -22,6 +22,12 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      
+      - name: Get godot-cpp commit hash
+        id: get-godot-cpp-hash
+        run: |
+          echo "hash=$(git submodule | head -n1 | awk '{print $1;}')" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Cache generated godot-cpp bindings
         id: cache-bindings
@@ -30,7 +36,7 @@ jobs:
           cache-name: godot-cpp-cache
         with:
           path: godot-cpp
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ github.ref_name }}-${{ hashFiles('godot-cpp') }}-linux
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ github.ref_name }}-${{ steps.get-godot-cpp-hash.outputs.hash }}-linux
 
       - name: Initialize submodules
         if: steps.cache-bindings.outputs.cache-hit != 'true'
