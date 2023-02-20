@@ -15,8 +15,10 @@ class NativeDataset {
 
     /// Returns the layer from this dataset with the given name, or null if there is no layer
     /// with that name.
+    /// @RequiresManualDelete
     NativeLayer *get_layer(const char *name) const;
 
+    /// @RequiresManualDelete
     NativeDataset *get_subdataset(const char *name) const;
 
     NativeDataset *clone();

@@ -3,6 +3,11 @@
 
 Feature::Feature(OGRFeature *feature) : feature(feature) {}
 
+Feature::~Feature() {
+    // See e.g. https://gdal.org/api/ogrlayer_cpp.html#_CPPv4N8OGRLayer14GetNextFeatureEv
+    OGRFeature::DestroyFeature(feature);
+}
+
 std::map<std::string, std::string> Feature::get_attributes() {
     std::map<std::string, std::string> ret;
 

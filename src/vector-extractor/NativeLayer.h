@@ -21,6 +21,7 @@ class NativeLayer {
     /// Create a new feature on the in-RAM layer corresponding to the actual disk layer. No changes
     /// are made on the original layer, so that layer can be opened as read-only.
     /// The exact type of the returned feature corresponds to the layer's geometry type.
+    /// @RequiresManualDelete
     Feature *create_feature();
 
     void add_field(std::string name);
@@ -54,6 +55,8 @@ class NativeLayer {
 
     /// Returns the feature corresponding to the given OGRFeature: Either the cached one, or if
     /// there is none, a new one (then placed within the cache).
+    /// Takes ownership of the passed OGRFeature, deleting it if it is not required thanks to a
+    /// cache hit, and passing it on to the new Feature otherwise.
     std::list<Feature *> get_feature_for_ogrfeature(OGRFeature *feature);
 
     /// Returns the feature corresponding to the given ID

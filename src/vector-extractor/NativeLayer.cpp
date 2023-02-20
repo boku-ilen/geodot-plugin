@@ -14,7 +14,11 @@ std::list<Feature *> NativeLayer::get_feature_for_ogrfeature(OGRFeature *feature
         std::list<Feature *> cached_feature = feature_cache[feature->GetFID()];
 
         // Remove deleted features from the list
+        // FIXME: This also requires a `delete` on the Feature object!
         cached_feature.remove_if([](const Feature *feature) { return feature->is_deleted; });
+
+        // Since there already is an OGRFeature object inside of the cached Feature, we don't need this one anymore
+        OGRFeature::DestroyFeature(feature);
 
         return cached_feature;
     }
@@ -155,6 +159,9 @@ std::list<Feature *> NativeLayer::get_features_near_position(double pos_x, doubl
         // Add the Feature objects from the next OGRFeature in the layer to the list
         list.splice(list.end(), get_feature_for_ogrfeature(ram_layer->GetNextFeature()));
     }
+
+    delete circle;
+    delete circle_buffer;
 
     return list;
 }

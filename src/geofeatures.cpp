@@ -7,7 +7,7 @@ using namespace godot;
 GeoFeature::GeoFeature() {}
 
 GeoFeature::~GeoFeature() {
-    // FIXME: Decrease the GDAL feature's reference count?
+    // FIXME: Decrease the GDAL feature's reference count? It could be part of multiple GeoFeatures (e.g. different layers calling get_features_near_position)
 }
 
 void GeoFeature::_bind_methods() {

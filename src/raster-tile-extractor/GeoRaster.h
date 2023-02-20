@@ -32,6 +32,7 @@ class GeoRaster {
     /// RGB -> (RGB)(RGB)(RGB) with R, G, B of type uint8_t
     /// RGBA -> (RGBA)(RGBA)(RGBA) with R, G, B, A of type uint8_t
     /// RF -> (F)(F)(F) with F of type float
+    /// @RequiresManualDelete
     void *get_as_array();
 
     /// Return the total size of the data in bytes. Useful in conjunction with get_as_array.
@@ -48,12 +49,13 @@ class GeoRaster {
 
     /// Return a histogram in the format of ID -> number of occurrences.
     /// Only works with BYTE images!
+    /// @RequiresManualDelete
     uint64_t *get_histogram();
 
     /// Return the number_of_elements most common IDs in the GeoRaster.
     /// Note: This function is optimized for few elements (less than ~10). For use cases where a
-    /// more complete sorted
-    ///  list is required, the array should be sorted with a proper sorting algorithm.
+    /// more complete sorted list is required, the array should be sorted with a proper sorting algorithm.
+    /// @RequiresManualDelete
     int *get_most_common(int number_of_elements);
 
   private:

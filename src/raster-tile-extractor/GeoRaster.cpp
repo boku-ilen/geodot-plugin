@@ -110,6 +110,9 @@ void *GeoRaster::get_as_array() {
 
         if (error < CE_Failure) { return array; }
 
+        // Delete array in case of error
+        delete [] array;
+
     } else if (format == RGBA) {
         if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
@@ -143,6 +146,9 @@ void *GeoRaster::get_as_array() {
 
         if (error < CE_Failure) { return array; }
 
+        // Delete array in case of error
+        delete [] array;
+
     } else if (format == RGB) {
         if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
@@ -175,6 +181,9 @@ void *GeoRaster::get_as_array() {
 
         if (error < CE_Failure) { return array; }
 
+        // Delete array in case of error
+        delete [] array;
+
     } else if (format == BYTE) {
         if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
@@ -195,8 +204,12 @@ void *GeoRaster::get_as_array() {
             &rasterio_args);
 
         if (error < CE_Failure) { return array; }
+
+        // Delete array in case of error
+        delete [] array;
     }
 
+    // If nothing worked, return null
     return nullptr;
 }
 
@@ -260,6 +273,8 @@ uint64_t *GeoRaster::get_histogram() {
     for (int i = 0; i < array_size; i += step) {
         histogram[array[i]]++;
     }
+
+    delete[] array;
 
     return histogram;
 }

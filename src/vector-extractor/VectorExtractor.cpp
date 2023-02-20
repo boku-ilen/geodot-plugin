@@ -110,20 +110,21 @@ bool NativeLayer::is_valid() const {
 }
 
 Feature *NativeLayer::create_feature() {
-    OGRFeature *new_feature = new OGRFeature(layer->GetLayerDefn()); // TOOD: delete somewhere
-    Feature *feature;                                                // TODO: delete somewhere
+    OGRFeature *new_feature = new OGRFeature(layer->GetLayerDefn());
+    Feature *feature;
 
     // Create an instance of a specific class based on the layer's geometry type
     OGRwkbGeometryType geometry_type = layer->GetGeomType();
 
+    // SetGeometryDirectly takes ownership of the passed geometry, so no need to delete it
     if (geometry_type == OGRwkbGeometryType::wkbPoint) {
-        new_feature->SetGeometry(new OGRPoint());
+        new_feature->SetGeometryDirectly(new OGRPoint());
         feature = new PointFeature(new_feature);
     } else if (geometry_type == OGRwkbGeometryType::wkbPolygon) {
-        new_feature->SetGeometry(new OGRPolygon());
+        new_feature->SetGeometryDirectly(new OGRPolygon());
         feature = new PolygonFeature(new_feature);
     } else if (geometry_type == OGRwkbGeometryType::wkbLineString) {
-        new_feature->SetGeometry(new OGRLineString());
+        new_feature->SetGeometryDirectly(new OGRLineString());
         feature = new LineFeature(new_feature);
     } else {
         // Either no geometry or unknown -- create a basic feature without geometry

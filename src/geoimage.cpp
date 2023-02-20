@@ -271,5 +271,7 @@ Array GeoImage::get_most_common(int number_of_entries) {
         ret_array.append(most_common[i]);
     }
 
+    delete[] most_common;
+
     return ret_array;
 }

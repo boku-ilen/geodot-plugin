@@ -12,10 +12,10 @@ class Feature {
   public:
     enum GeometryType { NONE, POINT, LINE, POLYGON };
 
-    /// Construct a Feature from an OGRFeature from GDAL.
+    /// Construct a Feature from an OGRFeature from GDAL, taking ownership of the OGRFeature object
     explicit Feature(OGRFeature *feature);
 
-    virtual ~Feature() = default;
+    virtual ~Feature();
 
     /// Construct a Feature with a feature that can contain any geometry - it is
     /// not accessed, the geometry is given as a separate OGRGeometry parameter instead.
