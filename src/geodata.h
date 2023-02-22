@@ -75,14 +75,14 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// Set the OGRLayer object directly.
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this
     /// is only for internal use.
-    void set_native_layer(NativeLayer *new_layer);
+    void set_native_layer(std::shared_ptr<NativeLayer> new_layer);
 
     /// Sets the dataset which this layer was opened from.
     /// Not exposed to Godot since it should never construct GeoFeatureLayers by hand.
     void set_origin_dataset(Ref<GeoDataset> dataset);
 
   private:
-    NativeLayer *layer;
+    std::shared_ptr<NativeLayer> layer;
     Ref<GeoDataset> origin_dataset;
     ExtentData extent_data;
 };
@@ -173,7 +173,7 @@ class EXPORT GeoRasterLayer : public Resource {
     /// Set the GDALDataset object for this layer. Must be a valid raster
     /// dataset. Not exposed to Godot since Godot doesn't know about
     /// GDALDatasets - this is only for internal use.
-    void set_native_dataset(NativeDataset *new_dataset);
+    void set_native_dataset(std::shared_ptr<NativeDataset> new_dataset);
 
     /// Sets the dataset which this layer was opened from.
     /// Not exposed to Godot since it should never construct GeoFeatureLayers by hand.
@@ -183,7 +183,7 @@ class EXPORT GeoRasterLayer : public Resource {
 
   private:
     Ref<GeoDataset> origin_dataset;
-    NativeDataset *dataset;
+    std::shared_ptr<NativeDataset> dataset;
     ExtentData extent_data;
 };
 
@@ -225,12 +225,12 @@ class EXPORT GeoDataset : public Resource {
     /// Set the GDALDataset object directly.
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this
     /// is only for internal use.
-    void set_native_dataset(NativeDataset *new_dataset);
+    void set_native_dataset(std::shared_ptr<NativeDataset> new_dataset);
 
     bool write_access;
 
   private:
-    NativeDataset *dataset;
+    std::shared_ptr<NativeDataset> dataset;
 };
 
 } // namespace godot

@@ -11,8 +11,8 @@ void VectorExtractor::initialize() {
     GDALAllRegister();
 }
 
-NativeDataset *VectorExtractor::open_dataset(const char *path, bool write_access) {
-    return new NativeDataset(path, write_access);
+std::shared_ptr<NativeDataset> VectorExtractor::open_dataset(const char *path, bool write_access) {
+    return std::make_shared<NativeDataset> (path, write_access);
 }
 
 std::vector<double> VectorExtractor::transform_coordinates(double input_x, double input_z,

@@ -12,7 +12,6 @@ class RasterTileExtractor {
 
     /// Returns a GeoRaster with the data from the given dataset, in the given area, with the given
     /// resolution and interpolation.
-    /// @RequiresManualDelete
     static GeoRaster *get_tile_from_dataset(GDALDataset *dataset, double top_left_x,
                                             double top_left_y, double size_meters, int img_size,
                                             int interpolation_type);
@@ -32,7 +31,6 @@ class RasterTileExtractor {
     /// Return a GeoRaster containing the area in the given dataset starting at top_left_x,
     /// top_left_y with a given size (in meters). The resulting image has the resolution
     /// img_size * img_size (pixels).
-    /// @RequiresManualDelete
     static GeoRaster *clip_dataset(GDALDataset *dataset, double top_left_x, double top_left_y,
                                    double size_meters, int img_size, int interpolation_type);
 };

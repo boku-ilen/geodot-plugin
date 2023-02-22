@@ -36,14 +36,14 @@ std::vector<std::string> NativeDataset::get_raster_layer_names() {
     return names;
 }
 
-NativeLayer *NativeDataset::get_layer(const char *name) const {
-    return new NativeLayer(dataset->GetLayerByName(name));
+std::shared_ptr<NativeLayer> NativeDataset::get_layer(const char *name) const {
+    return std::make_shared<NativeLayer>(dataset->GetLayerByName(name));
 }
 
-std::list<LineFeature *> NativeLayer::crop_lines_to_square(const char *path, double top_left_x,
+std::list<std::shared_ptr<LineFeature> > NativeLayer::crop_lines_to_square(const char *path, double top_left_x,
                                                            double top_left_y, double size_meters,
                                                            int max_amount) {
-    auto list = std::list<LineFeature *>();
+    auto list = std::list<std::shared_ptr<LineFeature> >();
 
     // TODO: Remove this and pass a OGRLayer* instead of the path
     GDALDataset *poDS;
@@ -122,14 +122,14 @@ std::list<LineFeature *> NativeLayer::crop_lines_to_square(const char *path, dou
     return list;
 }
 
-NativeDataset *NativeDataset::get_subdataset(const char *name) const {
+std::shared_ptr<NativeDataset> NativeDataset::get_subdataset(const char *name) const {
     // TODO: Hardcoded for the way GeoPackages work - do we want to support others too?
-    return new NativeDataset(("GPKG:" + path + std::string(":") + std::string(name)).c_str(),
+    return std::make_shared<NativeDataset> (("GPKG:" + path + std::string(":") + std::string(name)).c_str(),
                              write_access);
 }
 
-NativeDataset *NativeDataset::clone() {
-    return new NativeDataset(path, write_access);
+std::shared_ptr<NativeDataset> NativeDataset::clone() {
+    return std::make_shared<NativeDataset> (path, write_access);
 }
 
 bool NativeDataset::is_valid() const {

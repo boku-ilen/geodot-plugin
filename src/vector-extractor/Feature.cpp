@@ -1,9 +1,15 @@
 #include "Feature.h"
 #include "gdal-includes.h"
 
-Feature::Feature(OGRFeature *feature) : feature(feature) {}
+#include <iostream>
+
+Feature::Feature(OGRFeature *feature) : feature(feature) {
+    std::cout << "Feature created" << std::endl;
+}
 
 Feature::~Feature() {
+    std::cout << "Feature deleted" << std::endl;
+
     // See e.g. https://gdal.org/api/ogrlayer_cpp.html#_CPPv4N8OGRLayer14GetNextFeatureEv
     OGRFeature::DestroyFeature(feature);
 }
@@ -30,7 +36,7 @@ int Feature::get_id() const {
     return feature->GetFID();
 }
 
-bool Feature::intersects_with(Feature *other) const {
+bool Feature::intersects_with(std::shared_ptr<Feature> other) const {
     if (geometry_type == NONE or other->geometry_type == NONE) {
         // Features without goemetry cannot intersect
         return false;

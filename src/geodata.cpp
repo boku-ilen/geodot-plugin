@@ -83,7 +83,7 @@ void GeoDataset::load_from_file(String file_path, bool write_access) {
     dataset = VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access);
 }
 
-void GeoDataset::set_native_dataset(NativeDataset *new_dataset) {
+void GeoDataset::set_native_dataset(std::shared_ptr<NativeDataset> new_dataset) {
     dataset = new_dataset;
 }
 
@@ -118,14 +118,14 @@ Vector3 GeoFeatureLayer::get_center() {
 }
 
 // Utility function for converting a Processing Library Feature to the appropriate GeoFeature
-Ref<GeoFeature> get_specialized_feature(Feature *raw_feature) {
+Ref<GeoFeature> get_specialized_feature(std::shared_ptr<Feature> raw_feature) {
     // Check which geometry this feature has, and cast it to the according
     // specialized class
     if (raw_feature->geometry_type == raw_feature->POINT) {
         Ref<GeoPoint> point;
         point.instantiate();
 
-        PointFeature *point_feature = dynamic_cast<PointFeature *>(raw_feature);
+        std::shared_ptr<PointFeature> point_feature = std::dynamic_pointer_cast<PointFeature>(raw_feature);
 
         point->set_gdal_feature(point_feature);
 
@@ -134,7 +134,7 @@ Ref<GeoFeature> get_specialized_feature(Feature *raw_feature) {
         Ref<GeoLine> line;
         line.instantiate();
 
-        LineFeature *line_feature = dynamic_cast<LineFeature *>(raw_feature);
+        std::shared_ptr<LineFeature> line_feature = std::dynamic_pointer_cast<LineFeature>(raw_feature);
 
         line->set_gdal_feature(line_feature);
 
@@ -143,7 +143,7 @@ Ref<GeoFeature> get_specialized_feature(Feature *raw_feature) {
         Ref<GeoPolygon> polygon;
         polygon.instantiate();
 
-        PolygonFeature *polygon_feature = dynamic_cast<PolygonFeature *>(raw_feature);
+        std::shared_ptr<PolygonFeature> polygon_feature = std::dynamic_pointer_cast<PolygonFeature>(raw_feature);
 
         polygon->set_gdal_feature(polygon_feature);
 
@@ -160,7 +160,7 @@ Ref<GeoFeature> get_specialized_feature(Feature *raw_feature) {
 }
 
 Ref<GeoFeature> GeoFeatureLayer::get_feature_by_id(int id) {
-    std::list<Feature *> features = layer->get_feature_by_id(id);
+    std::list<std::shared_ptr<Feature> > features = layer->get_feature_by_id(id);
     if (features.empty()) return nullptr;
 
     // TODO: How to deal with MultiFeatures? Currently we just use the first one
@@ -172,10 +172,10 @@ Ref<GeoFeature> GeoFeatureLayer::get_feature_by_id(int id) {
 Array GeoFeatureLayer::get_all_features() {
     Array geofeatures = Array();
 
-    std::list<Feature *> gdal_features = layer->get_features();
+    std::list<std::shared_ptr<Feature> > gdal_features = layer->get_features();
     Array features = Array();
 
-    for (Feature *raw_feature : gdal_features) {
+    for (std::shared_ptr<Feature> raw_feature : gdal_features) {
         features.push_back(get_specialized_feature(raw_feature));
     }
 
@@ -183,7 +183,7 @@ Array GeoFeatureLayer::get_all_features() {
 }
 
 Ref<GeoFeature> GeoFeatureLayer::create_feature() {
-    Feature *gdal_feature = layer->create_feature();
+    std::shared_ptr<Feature> gdal_feature = layer->create_feature();
 
     Ref<GeoFeature> feature = get_specialized_feature(gdal_feature);
 
@@ -212,10 +212,10 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
                                                   int max_features) {
     Array features = Array();
 
-    std::list<Feature *> raw_features =
+    std::list<std::shared_ptr<Feature> > raw_features =
         layer->get_features_near_position(pos_x, pos_y, radius, max_features);
 
-    for (Feature *raw_feature : raw_features) {
+    for (std::shared_ptr<Feature> raw_feature : raw_features) {
         features.push_back(get_specialized_feature(raw_feature));
     }
 
@@ -228,7 +228,7 @@ Array GeoFeatureLayer::crop_lines_to_square(double top_left_x, double top_left_y
     return Array();
 }
 
-void GeoFeatureLayer::set_native_layer(NativeLayer *new_layer) {
+void GeoFeatureLayer::set_native_layer(std::shared_ptr<NativeLayer> new_layer) {
     layer = new_layer;
     extent_data = layer->get_extent();
 }
@@ -436,7 +436,7 @@ void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
     }
 }
 
-void GeoRasterLayer::set_native_dataset(NativeDataset *new_dataset) {
+void GeoRasterLayer::set_native_dataset(std::shared_ptr<NativeDataset> new_dataset) {
     dataset = new_dataset;
     extent_data = RasterTileExtractor::get_extent_data(new_dataset->dataset);
 }

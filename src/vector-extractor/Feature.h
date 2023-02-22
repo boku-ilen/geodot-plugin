@@ -3,6 +3,7 @@
 
 #include "defines.h"
 #include <map>
+#include <memory>
 #include <string>
 
 class OGRFeature;
@@ -33,7 +34,7 @@ class Feature {
 
     int get_id() const;
 
-    bool intersects_with(Feature *other) const;
+    bool intersects_with(std::shared_ptr<Feature> other) const;
 
     GeometryType geometry_type = NONE;
 

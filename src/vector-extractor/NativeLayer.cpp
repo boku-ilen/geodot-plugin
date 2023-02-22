@@ -79,9 +79,9 @@ bool NativeLayer::is_valid() const {
     return true;
 }
 
-Feature *NativeLayer::create_feature() {
+std::shared_ptr<Feature> NativeLayer::create_feature() {
     OGRFeature *new_feature = new OGRFeature(layer->GetLayerDefn());
-    Feature *feature;
+    std::shared_ptr<Feature> feature;
 
     // Create an instance of a specific class based on the layer's geometry type
     OGRwkbGeometryType geometry_type = layer->GetGeomType();
@@ -89,16 +89,16 @@ Feature *NativeLayer::create_feature() {
     // SetGeometryDirectly takes ownership of the passed geometry, so no need to delete it
     if (geometry_type == OGRwkbGeometryType::wkbPoint) {
         new_feature->SetGeometryDirectly(new OGRPoint());
-        feature = new PointFeature(new_feature);
+        feature = std::make_shared<PointFeature>(new_feature);
     } else if (geometry_type == OGRwkbGeometryType::wkbPolygon) {
         new_feature->SetGeometryDirectly(new OGRPolygon());
-        feature = new PolygonFeature(new_feature);
+        feature = std::make_shared<PolygonFeature>(new_feature);
     } else if (geometry_type == OGRwkbGeometryType::wkbLineString) {
         new_feature->SetGeometryDirectly(new OGRLineString());
-        feature = new LineFeature(new_feature);
+        feature = std::make_shared<LineFeature>(new_feature);
     } else {
         // Either no geometry or unknown -- create a basic feature without geometry
-        feature = new Feature(new_feature);
+        feature = std::make_shared<Feature>(new_feature);
     }
 
     // Generate a new ID based on the highest ID within the original data plus the highest added ID
@@ -119,24 +119,24 @@ Feature *NativeLayer::create_feature() {
     const OGRErr error = ram_layer->CreateFeature(new_feature);
     // (No need to check that error, we're in a self-owned in-RAM dataset)
 
-    feature_cache[id] = std::list<Feature *>{feature};
+    feature_cache[id] = std::list<std::shared_ptr<Feature> >{feature};
 
     return feature;
 }
 
-std::list<Feature *> NativeLayer::get_feature_for_ogrfeature(OGRFeature *feature) {
-    std::list<Feature *> list = std::list<Feature *>();
+std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_for_ogrfeature(OGRFeature *feature) {
+    std::list<std::shared_ptr<Feature> > list = std::list<std::shared_ptr<Feature> >();
 
     // FIXME: This should never happen - would be better to throw an error towards Godot here
     if (feature == nullptr) { return list; }
 
     if (feature_cache.count(feature->GetFID())) {
         // The feature is already cached, return that
-        std::list<Feature *> cached_feature = feature_cache[feature->GetFID()];
+        std::list<std::shared_ptr<Feature> > cached_feature = feature_cache[feature->GetFID()];
 
         // Remove deleted features from the list
         // FIXME: This also requires a `delete` on the Feature object!
-        cached_feature.remove_if([](const Feature *feature) { return feature->is_deleted; });
+        cached_feature.remove_if([](const std::shared_ptr<Feature> feature) { return feature->is_deleted; });
 
         // Since there already is an OGRFeature object inside of the cached Feature, we don't need this one anymore
         OGRFeature::DestroyFeature(feature);
@@ -202,14 +202,14 @@ ExtentData NativeLayer::get_extent() {
     return extent;
 }
 
-std::list<Feature *> NativeLayer::get_feature_by_id(int id) {
+std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_by_id(int id) {
     OGRFeature *feature = layer->GetFeature(id);
 
     return get_feature_for_ogrfeature(feature);
 }
 
-std::list<Feature *> NativeLayer::get_features() {
-    auto list = std::list<Feature *>();
+std::list<std::shared_ptr<Feature> > NativeLayer::get_features() {
+    auto list = std::list<std::shared_ptr<Feature> >();
 
     layer->ResetReading();            // Reset the reading cursor
     layer->SetSpatialFilter(nullptr); // Reset the spatial filter
@@ -238,9 +238,9 @@ std::list<Feature *> NativeLayer::get_features() {
     return list;
 }
 
-std::list<Feature *> NativeLayer::get_features_near_position(double pos_x, double pos_y,
+std::list<std::shared_ptr<Feature> > NativeLayer::get_features_near_position(double pos_x, double pos_y,
                                                              double radius, int max_amount) {
-    std::list<Feature *> list = std::list<Feature *>();
+    std::list<std::shared_ptr<Feature> > list = std::list<std::shared_ptr<Feature> >();
 
     // We want to extract the features within the circle constructed with the given position and
     // radius from the vector layer. For this circle, we have to create a new dataset + layer +

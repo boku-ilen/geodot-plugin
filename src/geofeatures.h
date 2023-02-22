@@ -32,14 +32,14 @@ class EXPORT GeoFeature : public Resource {
 
     Dictionary get_attributes() const;
 
-    void set_gdal_feature(Feature *gdal_feature);
+    void set_gdal_feature(std::shared_ptr<Feature> gdal_feature);
 
     void set_deleted(bool is_deleted);
 
     bool intersects_with(Ref<GeoFeature> other);
 
   protected:
-    Feature *gdal_feature;
+    std::shared_ptr<Feature> gdal_feature;
 };
 
 // Wrapper for a PointFeature from the VectorExtractor.

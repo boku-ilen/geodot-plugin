@@ -42,7 +42,7 @@ Dictionary GeoFeature::get_attributes() const {
     return attributes;
 }
 
-void GeoFeature::set_gdal_feature(Feature *gdal_feature) {
+void GeoFeature::set_gdal_feature(std::shared_ptr<Feature> gdal_feature) {
     this->gdal_feature = gdal_feature;
 }
 
@@ -69,14 +69,14 @@ void GeoPoint::_bind_methods() {
 }
 
 Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
-    PointFeature *point = dynamic_cast<PointFeature *>(gdal_feature);
+    std::shared_ptr<PointFeature> point = std::dynamic_pointer_cast<PointFeature>(gdal_feature);
 
     return Vector3(point->get_x() + offset_x, point->get_z() + offset_y,
                    -(point->get_y() + offset_z));
 }
 
 void GeoPoint::set_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z) {
-    PointFeature *point = dynamic_cast<PointFeature *>(gdal_feature);
+    std::shared_ptr<PointFeature> point = std::dynamic_pointer_cast<PointFeature>(gdal_feature);
 
     // Internally, a different coordinate system is used (Z up and reversed), which is why the
     // coordinates are passed in a different order here.
@@ -109,7 +109,7 @@ void GeoLine::_bind_methods() {
 }
 
 Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
-    LineFeature *line = (LineFeature *)gdal_feature;
+    std::shared_ptr<LineFeature> line = std::dynamic_pointer_cast<LineFeature>(gdal_feature);
 
     Ref<Curve3D> curve;
     curve.instantiate();
@@ -130,7 +130,7 @@ Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_
 }
 
 void GeoLine::set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y, int offset_z) {
-    LineFeature *line = (LineFeature *)gdal_feature;
+    std::shared_ptr<LineFeature> line = std::dynamic_pointer_cast<LineFeature>(gdal_feature);
     int point_count = curve->get_point_count();
 
     // Update the number of points to free up space or create new space, depending on the difference
@@ -158,7 +158,7 @@ void GeoLine::set_curve3d(Ref<Curve3D> curve) {
 }
 
 void GeoLine::add_point(Vector3 point) {
-    LineFeature *line = (LineFeature *)gdal_feature;
+    std::shared_ptr<LineFeature> line = std::dynamic_pointer_cast<LineFeature>(gdal_feature);
     line->set_point_count(line->get_point_count() + 1);
     line->set_line_point(line->get_point_count() - 1, point.x, point.y, point.z);
 
@@ -177,7 +177,7 @@ void GeoPolygon::_bind_methods() {
 
 PackedVector2Array GeoPolygon::get_outer_vertices() {
     PackedVector2Array vertices = PackedVector2Array();
-    PolygonFeature *polygon = (PolygonFeature *)gdal_feature;
+    std::shared_ptr<PolygonFeature> polygon = std::dynamic_pointer_cast<PolygonFeature>(gdal_feature);
 
     std::list<std::vector<double>> raw_outer_vertices = polygon->get_outer_vertices();
 
@@ -194,7 +194,7 @@ void GeoPolygon::set_outer_vertices(PackedVector2Array vertices) {
 
 Array GeoPolygon::get_holes() {
     Array holes = Array();
-    PolygonFeature *polygon = (PolygonFeature *)gdal_feature;
+    std::shared_ptr<PolygonFeature> polygon = std::dynamic_pointer_cast<PolygonFeature>(gdal_feature);
 
     std::list<std::list<std::vector<double>>> raw_holes = polygon->get_holes();
 

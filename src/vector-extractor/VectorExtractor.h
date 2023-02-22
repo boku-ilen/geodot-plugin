@@ -17,8 +17,7 @@ class VectorExtractor {
 
     /// Returns the GDALDataset at the given path, or null.
     /// TODO: This could also be in the RasterExtractor, it's not raster- or vector-specific...
-    /// @RequiresManualDelete
-    static NativeDataset *open_dataset(const char *path, bool write_access);
+    static std::shared_ptr<NativeDataset> open_dataset(const char *path, bool write_access);
 
     static std::vector<double> transform_coordinates(double input_x, double input_z,
                                                      std::string from, std::string to);
