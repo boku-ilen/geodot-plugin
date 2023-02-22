@@ -1,6 +1,14 @@
 #include "NativeDataset.h"
 #include "NativeLayer.h"
 
+NativeDataset::NativeDataset(std::string path, bool write_access)
+    : path(path), write_access(write_access) {
+    unsigned int open_access = write_access ? GDAL_OF_UPDATE : GDAL_OF_READONLY;
+
+    dataset = (GDALDataset *)GDALOpenEx(path.c_str(), open_access, nullptr, nullptr, nullptr);
+}
+
+
 std::vector<std::string> NativeDataset::get_raster_layer_names() {
     std::vector<std::string> names;
 
