@@ -1,11 +1,12 @@
 #include "gdal-includes.h"
 
+
 class NativeLayer;
 
 class NativeDataset {
   public:
     NativeDataset(std::string path, bool write_access);
-    ~NativeDataset() = default;
+    ~NativeDataset();
 
     /// Return the names of all feature layers as std::strings.
     std::vector<std::string> get_feature_layer_names();

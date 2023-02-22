@@ -22,8 +22,8 @@ class EXPORT GeoFeature : public Resource {
     static void _bind_methods();
 
   public:
-    GeoFeature();
-    virtual ~GeoFeature();
+    GeoFeature() = default;
+    virtual ~GeoFeature() = default;
 
     String get_attribute(String name) const;
     void set_attribute(String name, String value);

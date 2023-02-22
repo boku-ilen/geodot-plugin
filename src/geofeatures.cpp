@@ -4,12 +4,6 @@ using namespace godot;
 
 // GeoFeature
 
-GeoFeature::GeoFeature() {}
-
-GeoFeature::~GeoFeature() {
-    // FIXME: Decrease the GDAL feature's reference count? It could be part of multiple GeoFeatures (e.g. different layers calling get_features_near_position)
-}
-
 void GeoFeature::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_attribute", "name"), &GeoFeature::get_attribute);
     ClassDB::bind_method(D_METHOD("set_attribute", "name", "value"), &GeoFeature::set_attribute);

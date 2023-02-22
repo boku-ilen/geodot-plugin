@@ -1,15 +1,9 @@
 #include "Feature.h"
 #include "gdal-includes.h"
 
-#include <iostream>
-
-Feature::Feature(OGRFeature *feature) : feature(feature) {
-    std::cout << "Feature created" << std::endl;
-}
+Feature::Feature(OGRFeature *feature) : feature(feature) {}
 
 Feature::~Feature() {
-    std::cout << "Feature deleted" << std::endl;
-
     // See e.g. https://gdal.org/api/ogrlayer_cpp.html#_CPPv4N8OGRLayer14GetNextFeatureEv
     OGRFeature::DestroyFeature(feature);
 }
