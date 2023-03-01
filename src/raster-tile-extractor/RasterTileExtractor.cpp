@@ -109,8 +109,9 @@ void RasterTileExtractor::write_into_dataset(GDALDataset *dataset, double center
 
     GDALDataType data_type = dataset->GetRasterBand(1)->GetRasterDataType();
 
-    if (data_type == GDALDataType::GDT_Float32) {
-        // Float32
+    if (data_type == GDALDataType::GDT_Float32 || data_type == GDALDataType::GDT_Float64) {
+        // Float
+        // Note: Writing into GDT_Float64 rasters with GDT_Float64 works fine, so we can handle both here
         GDALRasterBand *band = dataset->GetRasterBand(1);
         CPLErr error =
             band->RasterIO(GDALRWFlag::GF_Write, position_data.pixels_x, position_data.pixels_y, 1,

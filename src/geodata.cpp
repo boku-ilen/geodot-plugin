@@ -369,7 +369,7 @@ float GeoRasterLayer::get_value_at_position_with_resolution(double pos_x, double
 }
 
 void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant value) {
-    // TODO: Validate against Raster type to see whether the passed Variant is sensible
+    // Validate against Raster type to see whether the passed Variant is sensible
     if (value.get_type() == Variant::Type::FLOAT && get_format() == Image::FORMAT_RF) {
         float godot_float = static_cast<float>(value);
         float *values = new float[1];
@@ -407,7 +407,30 @@ void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant v
 }
 
 void GeoRasterLayer::smooth_add_value_at_position(double pos_x, double pos_y, double summand,
-                                                  double radius) {}
+                                                  double radius) {
+    // FIXME: Like overlay_image_at_position, this could be done much more efficiently by batch-reading and writing
+    
+    float resolution = get_pixel_size();
+
+    for (float offset_x = -radius; offset_x <= radius; offset_x += resolution) {
+        for (float offset_y = -radius; offset_y <= radius; offset_y += resolution) {
+            float distance_to_center = sqrt(offset_x * offset_x + offset_y * offset_y) / radius;
+            float summand_factor = 1.0 - distance_to_center;
+
+            if (summand_factor <= 0.0) {
+                continue;
+            }
+
+            float pos_here_x = pos_x + offset_x;
+            float pos_here_y = pos_y + offset_y;
+
+            float existing_value = get_value_at_position(pos_here_x, pos_here_y);
+            float new_value = existing_value + summand_factor * summand;
+
+            set_value_at_position(pos_here_x, pos_here_y, new_value);
+        }
+    }
+}
 
 void GeoRasterLayer::overlay_image_at_position(double pos_x, double pos_y, Ref<Image> image,
                                                double scale) {
