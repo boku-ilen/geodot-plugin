@@ -26,6 +26,7 @@ class RasterTileExtractor {
 
     static float get_min(GDALDataset *dataset);
     static float get_max(GDALDataset *dataset);
+    static float get_pixel_size(GDALDataset *dataset);
 
   private:
     /// Return a GeoRaster containing the area in the given dataset starting at top_left_x,

@@ -15,7 +15,8 @@ class GeoRaster {
         RGB,  // 3 8-bit int channels
         RGBA, // 4 8-bit int channels
         RF,   // 1 32-bit float channel
-        BYTE  // 1 8-bit int channel
+        BYTE, // 1 8-bit int channel
+        UNKNOWN
     };
 
     GeoRaster(GDALDataset *data, int interpolation_type);
@@ -25,6 +26,8 @@ class GeoRaster {
               int interpolation_type);
 
     ~GeoRaster() = default;
+
+    static FORMAT get_format_for_dataset(GDALDataset *data);
 
     /// Return the data of the GeoRaster as an array. The array contains type of the raster format
     /// (get_format).

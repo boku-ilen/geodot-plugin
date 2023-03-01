@@ -92,6 +92,17 @@ float RasterTileExtractor::get_max(GDALDataset *dataset) {
     return dataset->GetRasterBand(1)->GetMaximum();
 }
 
+float RasterTileExtractor::get_pixel_size(GDALDataset *dataset) {
+    // Get the Transform of the image
+    double transform[6];
+    dataset->GetGeoTransform(transform);
+
+    // From the docs:
+    // In a north up image, padfTransform[1] is the pixel width, and padfTransform[5] is the pixel height.
+    // The upper left corner of the upper left pixel is at position (padfTransform[0],padfTransform[3]).
+    return transform[1];
+}
+
 void RasterTileExtractor::write_into_dataset(GDALDataset *dataset, double center_x, double center_y,
                                              void *values, double scale, int interpolation_type) {
     DatasetPositionData position_data(dataset, center_x, center_y, 0);

@@ -279,6 +279,25 @@ uint64_t *GeoRaster::get_histogram() {
     return histogram;
 }
 
+GeoRaster::FORMAT GeoRaster::get_format_for_dataset(GDALDataset *data) {
+    int raster_count = data->GetRasterCount();
+    GDALDataType raster_type = data->GetRasterBand(1)->GetRasterDataType();
+
+    if (raster_type == GDT_Byte) {
+        if (raster_count == 4) {
+            return RGBA;
+        } else if (raster_count == 3) {
+            return RGB;
+        } else {
+            return BYTE;
+        }
+    } else if (raster_type == GDT_Float32 || raster_type == GDT_Float64) {
+        return RF;
+    } else {
+        return UNKNOWN;
+    }
+}
+
 GeoRaster::GeoRaster(GDALDataset *data, int interpolation_type)
     : GeoRaster(data, 0, 0, data->GetRasterXSize(), data->GetRasterXSize(), interpolation_type) {}
 
@@ -289,24 +308,7 @@ GeoRaster::GeoRaster(GDALDataset *data, int pixel_offset_x, int pixel_offset_y,
       source_window_size_pixels(source_window_size_pixels),
       destination_window_size_pixels(destination_window_size_pixels),
       interpolation_type(interpolation_type) {
-    int raster_count = data->GetRasterCount();
-    GDALDataType raster_type = data->GetRasterBand(1)->GetRasterDataType();
-
-    if (raster_count == 3 && raster_type == GDT_Byte) { format = RGB; }
-
-    if (raster_type == GDT_Byte) {
-        if (raster_count == 4) {
-            format = RGBA;
-        } else if (raster_count == 3) {
-            format = RGB;
-        } else {
-            format = BYTE;
-        }
-    } else {
-        // TODO: Is this fine as a fallback, or would another type be better? Maybe we should
-        // assert?
-        format = RF;
-    }
+    format = get_format_for_dataset(data);
 }
 
 int get_index_of_highest_value(const uint64_t *array, int array_size) {

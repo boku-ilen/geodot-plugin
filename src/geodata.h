@@ -107,6 +107,9 @@ class EXPORT GeoRasterLayer : public Resource {
     /// Returns information about this file, e.g. the filename and the path
     Dictionary get_file_info();
 
+    /// Returns the Image format which corresponds to the data within this raster layer.
+    Image::Format get_format();
+
     /// Returns the dataset which this layer was opened from or null if it was opened directly, e.g.
     /// from a GeoTIFF.
     Ref<GeoDataset> get_dataset();
@@ -166,6 +169,9 @@ class EXPORT GeoRasterLayer : public Resource {
     /// Returns the largest value found in the first raster band of the dataset.
     /// Note that this requires the dataset to have pre-computed statistics!
     float get_max();
+
+    /// Returns the length of a side of a pixel in the dataset, in meters.
+    float get_pixel_size();
 
     /// Load a raster dataset file such as a GeoTIFF into this object.
     void load_from_file(String file_path, bool write_access);

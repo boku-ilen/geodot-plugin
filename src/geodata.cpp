@@ -1,12 +1,12 @@
 #include "geodata.h"
 #include "NativeLayer.h"
+#include "RasterTileExtractor.h"
 #include "geofeatures.h"
 #include "godot_cpp/core/error_macros.hpp"
 #include "godot_cpp/variant/dictionary.hpp"
 #include "godot_cpp/variant/variant.hpp"
 #include "vector-extractor/Feature.h"
 #include "vector-extractor/VectorExtractor.h"
-#include <cmath>
 
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -244,6 +244,7 @@ GeoRasterLayer::~GeoRasterLayer() {
 void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoRasterLayer::is_valid);
     ClassDB::bind_method(D_METHOD("get_file_info"), &GeoRasterLayer::get_file_info);
+    ClassDB::bind_method(D_METHOD("get_format"), &GeoRasterLayer::get_format);
     ClassDB::bind_method(D_METHOD("get_dataset"), &GeoRasterLayer::get_dataset);
     ClassDB::bind_method(D_METHOD("get_image", "top_left_x", "top_left_y", "size_meters",
                                   "img_size", "interpolation_type"),
@@ -263,6 +264,7 @@ void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_center"), &GeoRasterLayer::get_center);
     ClassDB::bind_method(D_METHOD("get_min"), &GeoRasterLayer::get_min);
     ClassDB::bind_method(D_METHOD("get_max"), &GeoRasterLayer::get_max);
+    ClassDB::bind_method(D_METHOD("get_pixel_size"), &GeoRasterLayer::get_pixel_size);
     ClassDB::bind_method(D_METHOD("clone"), &GeoRasterLayer::clone);
     ClassDB::bind_method(D_METHOD("load_from_file", "file_path", "write_access"),
                          &GeoRasterLayer::load_from_file);
@@ -288,6 +290,23 @@ Dictionary GeoRasterLayer::get_file_info() {
     info["path"] = origin_dataset == nullptr ? get_name() : get_path();
 
     return info;
+}
+
+Image::Format GeoRasterLayer::get_format() {
+    GeoRaster::FORMAT format = GeoRaster::get_format_for_dataset(dataset->dataset);
+
+    if (format == GeoRaster::BYTE) {
+        return Image::FORMAT_R8;
+    } else if (format == GeoRaster::RF) {
+        return Image::FORMAT_RF;
+    } else if (format == GeoRaster::RGB) {
+        return Image::FORMAT_RGB8;
+    } else if (format == GeoRaster::RGBA) {
+        return Image::FORMAT_RGBA8;
+    } else {
+        // FORMAT_MAX is returned as a fallback
+        return Image::FORMAT_MAX;
+    }
 }
 
 Ref<GeoDataset> GeoRasterLayer::get_dataset() {
@@ -351,7 +370,7 @@ float GeoRasterLayer::get_value_at_position_with_resolution(double pos_x, double
 
 void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant value) {
     // TODO: Validate against Raster type to see whether the passed Variant is sensible
-    if (value.get_type() == Variant::Type::FLOAT) {
+    if (value.get_type() == Variant::Type::FLOAT && get_format() == Image::FORMAT_RF) {
         float godot_float = static_cast<float>(value);
         float *values = new float[1];
 
@@ -359,7 +378,7 @@ void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant v
         RasterTileExtractor::write_into_dataset(dataset->dataset, pos_x, pos_y, values, 1.0, 0);
 
         delete[] values;
-    } else if (value.get_type() == Variant::Type::COLOR) {
+    } else if (value.get_type() == Variant::Type::COLOR && (get_format() == Image::FORMAT_RGB8 || get_format() == Image::FORMAT_RGBA8)) {
         Color color = static_cast<Color>(value);
         char *values = new char[3];
 
@@ -371,7 +390,7 @@ void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant v
 
         delete[] values;
 
-    } else if (value.get_type() == Variant::Type::INT) {
+    } else if (value.get_type() == Variant::Type::INT && get_format() == Image::FORMAT_R8) {
         // TODO: Should we check for precision loss and emit a warning here?
         char godot_int = static_cast<int>(value); // Downcast to char, since there are no int images
         char *values = new char[1];
@@ -380,6 +399,8 @@ void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant v
         RasterTileExtractor::write_into_dataset(dataset->dataset, pos_x, pos_y, values, 1.0, 0);
 
         delete[] values;
+    } else {
+        // TODO: Output an error since there was apparently a type mis-match
     }
 
     dataset->dataset->FlushCache();
@@ -389,7 +410,69 @@ void GeoRasterLayer::smooth_add_value_at_position(double pos_x, double pos_y, do
                                                   double radius) {}
 
 void GeoRasterLayer::overlay_image_at_position(double pos_x, double pos_y, Ref<Image> image,
-                                               double scale) {}
+                                               double scale) {
+    // FIXME: Rough initial implementation, it works but it is very inefficient!
+    // Rather than constantly calling set_value_at_position, we'll want to set the entire image data at once.
+
+    float resolution = get_pixel_size();
+    image->resize(ceil(scale / resolution), ceil(scale / resolution));
+
+    PackedByteArray data = image->get_data();
+
+    int image_width = image->get_width();
+    int image_height = image->get_height();
+
+    if (image->get_format() == Image::FORMAT_R8 && get_format() == Image::FORMAT_R8) {
+        // Single-band byte
+        for (int i = 0; i < data.size(); i++) {
+            char value = data.decode_u8(i);
+
+            double pos_in_image_x = pos_x + ((float)(i % image_width) / (float)image_width) * scale;
+            double pos_in_image_y = pos_y - ((float)floor(i / image_width) / (float)image_height) * scale;
+
+            set_value_at_position(pos_in_image_x, pos_in_image_y, value);
+        }
+
+    } else if (image->get_format() == Image::FORMAT_RGB8 && (get_format() == Image::FORMAT_RGB8 || get_format() == Image::FORMAT_RGBA8)) {
+        // RGB
+        for (int i = 0; i < data.size(); i += 3) {
+            float value_r = static_cast<float>(data.decode_u8(i)) / 255.0;
+            float value_g = static_cast<float>(data.decode_u8(i + 1)) / 255.0;
+            float value_b = static_cast<float>(data.decode_u8(i + 2)) / 255.0;
+
+            double pos_in_image_x = pos_x + ((float)(i/3 % image_width) / (float)image_width) * scale;
+            double pos_in_image_y = pos_y - ((float)floor(i/3 / image_width) / (float)image_height) * scale;
+
+            set_value_at_position(pos_in_image_x, pos_in_image_y, Color(value_r, value_g, value_b));
+        }
+    } else if (image->get_format() == Image::FORMAT_RGBA8 && (get_format() == Image::FORMAT_RGB8 || get_format() == Image::FORMAT_RGBA8)) {
+        // RGBA
+        for (int i = 0; i < data.size(); i += 4) {
+            float value_r = static_cast<float>(data.decode_u8(i)) / 255.0;
+            float value_g = static_cast<float>(data.decode_u8(i + 1)) / 255.0;
+            float value_b = static_cast<float>(data.decode_u8(i + 2)) / 255.0;
+            float value_a = static_cast<float>(data.decode_u8(i + 3)) / 255.0;
+
+            double pos_in_image_x = pos_x + ((float)(i/4 % image_width) / (float)image_width) * scale;
+            double pos_in_image_y = pos_y - ((float)floor(i/4 / image_width) / (float)image_height) * scale;
+
+            set_value_at_position(pos_in_image_x, pos_in_image_y, Color(value_r, value_g, value_b, value_a));
+        }
+    } else if (image->get_format() == Image::FORMAT_RF && get_format() == Image::FORMAT_RF) {
+        // 4-byte Float
+        for (int i = 0; i < data.size(); i += 4) {
+            float value = data.decode_float(i);
+
+            double pos_in_image_x = pos_x + ((float)(i % image_width) / (float)image_width) * scale;
+            double pos_in_image_y = pos_y - ((float)floor(i / image_width) / (float)image_height) * scale;
+
+            set_value_at_position(pos_in_image_x, pos_in_image_y, value);
+        }
+    } else {
+        // TODO: Output an error since there was apparently a type mis-match
+        std::cout << "Type mismatch: image of type " << image->get_format() << " and dataset of type " << get_format() << std::endl;
+    }
+}
 
 Rect2 GeoRasterLayer::get_extent() {
     return Rect2(extent_data.left, extent_data.top, extent_data.right - extent_data.left,
@@ -407,6 +490,10 @@ float GeoRasterLayer::get_min() {
 
 float GeoRasterLayer::get_max() {
     return RasterTileExtractor::get_max(dataset->dataset);
+}
+
+float GeoRasterLayer::get_pixel_size() {
+    return RasterTileExtractor::get_pixel_size(dataset->dataset);
 }
 
 void GeoRasterLayer::set_origin_dataset(Ref<GeoDataset> dataset) {
