@@ -20,17 +20,14 @@ var ortho_data_path: String
 
 
 func _ready():
-	var heightmap_data = Geodot.get_raster_layer(heightmap_data_path)
-	var ortho_data = Geodot.get_raster_layer(ortho_data_path)
-	
-	var img = heightmap_data.get_image(
+	var img = Geodot.get_raster_layer(heightmap_data_path).get_image(
 		start_position_x,
 		start_position_y,
 		tile_size_meters,
 		tile_size_pixels,
 		0
 	)
-	var ortho = ortho_data.get_image(
+	var ortho = Geodot.get_raster_layer(ortho_data_path).get_image(
 		start_position_x,
 		start_position_y,
 		tile_size_meters,

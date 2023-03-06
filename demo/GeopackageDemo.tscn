@@ -3,6 +3,6 @@
 [ext_resource type="Script" path="res://GeopackageDemo.gd" id="1"]
 
 [node name="GeopackageDemo" type="Node"]
-script = ExtResource( "1" )
+script = ExtResource("1")
 path = "geodata/geopackage_sample.gpkg"
 layer_name = "geopackage_sample"

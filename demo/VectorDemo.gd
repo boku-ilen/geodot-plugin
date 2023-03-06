@@ -11,10 +11,7 @@ var street_scene = preload("res://Street.tscn")
 
 
 func _ready() -> void:
-	var dataset = Geodot.get_dataset(streets_shapefile_path)
-	var layer = dataset.get_feature_layer("streets_webm")
-	
-	#var lines = layer.get_all_features()
+	var layer = Geodot.get_dataset(streets_shapefile_path).get_feature_layer("streets_webm")
 	var lines = layer.get_features_near_position(center_x, center_y, radius, max_streets)
 	print(lines.size())
 
