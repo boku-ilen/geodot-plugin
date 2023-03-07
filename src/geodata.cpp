@@ -18,6 +18,7 @@ GeoDataset::~GeoDataset() {
 
 void GeoDataset::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoDataset::is_valid);
+    ClassDB::bind_method(D_METHOD("get_file_info"), &GeoDataset::get_file_info);
     ClassDB::bind_method(D_METHOD("has_write_access"), &GeoDataset::has_write_access);
     ClassDB::bind_method(D_METHOD("get_raster_layers"), &GeoDataset::get_raster_layers);
     ClassDB::bind_method(D_METHOD("get_feature_layers"), &GeoDataset::get_feature_layers);
@@ -29,6 +30,15 @@ void GeoDataset::_bind_methods() {
 
 bool GeoDataset::is_valid() {
     return dataset && dataset->is_valid();
+}
+
+Dictionary GeoDataset::get_file_info() {
+    Dictionary info;
+
+    info["name"] = get_name();
+    info["path"] = dataset->path.c_str();
+
+    return info;
 }
 
 bool GeoDataset::has_write_access() {

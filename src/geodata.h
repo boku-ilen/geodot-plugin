@@ -214,6 +214,9 @@ class EXPORT GeoDataset : public Resource {
     /// Returns true if the GeoDataset could successfully be loaded.
     bool is_valid();
 
+    /// Returns information about this file, e.g. the filename and the path
+    Dictionary get_file_info();
+
     /// Returns true for read-write-access and false for read-only-access.
     bool has_write_access();
 
