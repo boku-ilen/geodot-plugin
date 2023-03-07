@@ -18,6 +18,7 @@ GeoDataset::~GeoDataset() {
 
 void GeoDataset::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoDataset::is_valid);
+    ClassDB::bind_method(D_METHOD("has_write_access"), &GeoDataset::has_write_access);
     ClassDB::bind_method(D_METHOD("get_raster_layers"), &GeoDataset::get_raster_layers);
     ClassDB::bind_method(D_METHOD("get_feature_layers"), &GeoDataset::get_feature_layers);
     ClassDB::bind_method(D_METHOD("get_raster_layer", "name"), &GeoDataset::get_raster_layer);
@@ -28,6 +29,10 @@ void GeoDataset::_bind_methods() {
 
 bool GeoDataset::is_valid() {
     return dataset && dataset->is_valid();
+}
+
+bool GeoDataset::has_write_access() {
+    return write_access;
 }
 
 Array GeoDataset::get_raster_layers() {
@@ -249,6 +254,7 @@ void GeoFeatureLayer::set_origin_dataset(Ref<GeoDataset> dataset) {
 
 void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoRasterLayer::is_valid);
+    ClassDB::bind_method(D_METHOD("has_write_access"), &GeoRasterLayer::has_write_access);
     ClassDB::bind_method(D_METHOD("get_file_info"), &GeoRasterLayer::get_file_info);
     ClassDB::bind_method(D_METHOD("get_format"), &GeoRasterLayer::get_format);
     ClassDB::bind_method(D_METHOD("get_dataset"), &GeoRasterLayer::get_dataset);
@@ -278,6 +284,10 @@ void GeoRasterLayer::_bind_methods() {
 
 bool GeoRasterLayer::is_valid() {
     return dataset && dataset->is_valid();
+}
+
+bool GeoRasterLayer::has_write_access() {
+    return write_access;
 }
 
 Dictionary GeoRasterLayer::get_file_info() {
