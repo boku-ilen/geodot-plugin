@@ -89,6 +89,7 @@ void GeoDataset::set_native_dataset(std::shared_ptr<NativeDataset> new_dataset) 
 
 void GeoFeatureLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoFeatureLayer::is_valid);
+    ClassDB::bind_method(D_METHOD("get_file_info"), &GeoFeatureLayer::get_file_info);
     ClassDB::bind_method(D_METHOD("get_dataset"), &GeoFeatureLayer::get_dataset);
     ClassDB::bind_method(D_METHOD("get_center"), &GeoFeatureLayer::get_center);
     ClassDB::bind_method(D_METHOD("get_feature_by_id", "id"), &GeoFeatureLayer::get_feature_by_id);
@@ -106,6 +107,15 @@ void GeoFeatureLayer::_bind_methods() {
 
 bool GeoFeatureLayer::is_valid() {
     return layer && layer->is_valid();
+}
+
+Dictionary GeoFeatureLayer::get_file_info() {
+    Dictionary info;
+
+    info["name"] = get_name();
+    info["path"] = origin_dataset->dataset->path.c_str();
+
+    return info;
 }
 
 Ref<GeoDataset> GeoFeatureLayer::get_dataset() {
@@ -237,10 +247,6 @@ void GeoFeatureLayer::set_origin_dataset(Ref<GeoDataset> dataset) {
     this->origin_dataset = dataset;
 }
 
-GeoRasterLayer::~GeoRasterLayer() {
-    // delete dataset;
-}
-
 void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoRasterLayer::is_valid);
     ClassDB::bind_method(D_METHOD("get_file_info"), &GeoRasterLayer::get_file_info);
@@ -287,7 +293,7 @@ Dictionary GeoRasterLayer::get_file_info() {
 
     // If origin_dataset is not set, the name equals the path. Otherwise, the path comes from the
     // origin_dataset and is set in the `path` attribute.
-    info["path"] = origin_dataset == nullptr ? get_name() : get_path();
+    info["path"] = origin_dataset == nullptr ? get_name() : dataset->path.c_str();
 
     return info;
 }

@@ -27,11 +27,14 @@ class EXPORT GeoFeatureLayer : public Resource {
 
   public:
     GeoFeatureLayer() = default;
-    virtual ~GeoFeatureLayer() = default; // No need to delete anything here - OGRLayers are part of
-                                          // the dataset and deleted with it.
+    ~GeoFeatureLayer() = default; // No need to delete anything here - OGRLayers are part of
+                                  // the dataset and deleted with it.
 
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
+
+    /// Returns information about this file, e.g. the filename and the path
+    Dictionary get_file_info();
 
     /// Returns the dataset which this layer was opened from.
     Ref<GeoDataset> get_dataset();
@@ -99,7 +102,7 @@ class EXPORT GeoRasterLayer : public Resource {
 
   public:
     GeoRasterLayer() : origin_dataset(nullptr) {}
-    virtual ~GeoRasterLayer();
+    ~GeoRasterLayer() = default;
 
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
@@ -235,7 +238,6 @@ class EXPORT GeoDataset : public Resource {
 
     bool write_access;
 
-  private:
     std::shared_ptr<NativeDataset> dataset;
 };
 
