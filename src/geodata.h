@@ -69,11 +69,9 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// position (within the given radius).
     Array get_features_near_position(double pos_x, double pos_y, double radius, int max_features);
 
-    /// Crops features with line geometry to the square created by the given
-    /// coordinates and size. Useful for doing tile-based requests.
-    /// TODO: Can this be made generic like 'get_features_near_position'?
-    Array crop_lines_to_square(double top_left_x, double top_left_y, double size_meters,
-                               int max_lines);
+    /// Returns all features which intersect with the square constructed by the given top-left and size.
+    Array get_features_in_square(double top_left_x, double top_left_y, double size_meters,
+                               int max_features);
 
     /// Set the OGRLayer object directly.
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this

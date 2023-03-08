@@ -43,12 +43,12 @@ class NativeLayer {
     std::list<std::shared_ptr<Feature> > get_features_near_position(double pos_x, double pos_y, double radius,
                                                     int max_amount);
 
-    /// Return all line data in the dataset at the given path which is within the square formed by
-    /// the given parameters. Lines which are only partially within the square are cut to the part
-    /// that is within (intersection operation). Thus, this can be used for contiguous tiles. If
-    /// there are more lines than the given max_amount within that square, the last few (arbitrarily
-    /// chosen) are skipped. This is a safeguard for not loading more lines than can be handled.
-    std::list<std::shared_ptr<LineFeature> > crop_lines_to_square(const char *path, double top_left_x,
+    /// Return all features, regardless of what the geometry is, which somehow overlap with the
+    /// rectangle created by the given top-left position and size. Parts of the geometry outside the
+    /// rectangle are not cut, so features may extend outside of the circle. To prevent hangups from
+    /// unexpectedly many features, a maximum amount can be given so that the remaining features are
+    /// skipped.
+    std::list<std::shared_ptr<Feature> > get_features_in_square(double top_left_x,
                                                   double top_left_y, double size_meters,
                                                   int max_amount);
 
@@ -76,4 +76,7 @@ class NativeLayer {
 
     int disk_feature_count;
     int ram_feature_count;
+
+  private:
+    std::list<std::shared_ptr<Feature> > get_features_inside_geometry(OGRGeometry *geometry, int max_amount);
 };

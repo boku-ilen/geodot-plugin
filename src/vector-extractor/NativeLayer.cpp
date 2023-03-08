@@ -238,20 +238,14 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_features() {
     return list;
 }
 
-std::list<std::shared_ptr<Feature> > NativeLayer::get_features_near_position(double pos_x, double pos_y,
-                                                             double radius, int max_amount) {
+std::list<std::shared_ptr<Feature> > NativeLayer::get_features_inside_geometry(OGRGeometry *geometry, int max_amount) {
     std::list<std::shared_ptr<Feature> > list = std::list<std::shared_ptr<Feature> >();
 
-    // We want to extract the features within the circle constructed with the given position and
-    // radius from the vector layer. For this circle, we have to create a new dataset + layer +
-    // feature + geometry because layers can only be
-    //  intersected with other layers, and layers need a dataset.
+    // We want to extract the features within the given geometry.
+    // For this geometry, we have to create a new dataset + layer + feature + geometry because layers can only be
+    // intersected with other layers, and layers need a dataset.
 
-    // Create the circle geometry
-    OGRGeometry *circle = new OGRPoint(pos_x, pos_y);
-    OGRGeometry *circle_buffer = circle->Buffer(radius);
-
-    layer->SetSpatialFilter(circle_buffer);
+    layer->SetSpatialFilter(geometry);
     layer->ResetReading();
 
     // Put the resulting features into the returned list. We add as many features as were returned
@@ -281,10 +275,43 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_features_near_position(dou
         list.splice(list.end(), get_feature_for_ogrfeature(ram_layer->GetNextFeature()));
     }
 
+    return list;
+}
+
+std::list<std::shared_ptr<Feature> > NativeLayer::get_features_near_position(double pos_x, double pos_y,
+                                                             double radius, int max_amount) {
+    // Create the circle geometry
+    OGRGeometry *circle = new OGRPoint(pos_x, pos_y);
+    OGRGeometry *circle_buffer = circle->Buffer(radius);
+
+    std::list<std::shared_ptr<Feature> > features = get_features_inside_geometry(circle_buffer, max_amount);
+
     delete circle;
     delete circle_buffer;
 
-    return list;
+    return features;
+}
+
+std::list<std::shared_ptr<Feature>> NativeLayer::get_features_in_square(double top_left_x,
+                                                           double top_left_y, double size_meters,
+                                                           int max_amount) {
+    // Create the circle geometry
+    OGRLinearRing *square_outline = new OGRLinearRing();
+    square_outline->addPoint(top_left_x, top_left_y);
+    square_outline->addPoint(top_left_x + size_meters, top_left_y);
+    square_outline->addPoint(top_left_x + size_meters, top_left_y - size_meters);
+    square_outline->addPoint(top_left_x, top_left_y - size_meters);
+    square_outline->addPoint(top_left_x, top_left_y);
+
+    OGRPolygon *square = new OGRPolygon();
+    square->addRing(square_outline);
+
+    std::list<std::shared_ptr<Feature> > features = get_features_inside_geometry(square, max_amount);
+
+    delete square_outline;
+    delete square;
+
+    return features;
 }
 
 std::vector<std::string> NativeDataset::get_feature_layer_names() {
