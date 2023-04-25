@@ -10,6 +10,8 @@ void GeoFeature::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_attributes"), &GeoFeature::get_attributes);
     ClassDB::bind_method(D_METHOD("get_id"), &GeoFeature::get_id);
     ClassDB::bind_method(D_METHOD("intersects_with", "other"), &GeoFeature::intersects_with);
+
+    ADD_SIGNAL(MethodInfo("feature_changed"));
 }
 
 String GeoFeature::get_attribute(String name) const {
@@ -58,8 +60,6 @@ void GeoPoint::_bind_methods() {
     ClassDB::bind_method(
         D_METHOD("set_offset_vector3", "vector", "offset_x", "offset_y", "offset_z"),
         &GeoPoint::set_offset_vector3);
-
-    ADD_SIGNAL(MethodInfo("point_changed"));
 }
 
 Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
@@ -76,7 +76,7 @@ void GeoPoint::set_offset_vector3(Vector3 vector, int offset_x, int offset_y, in
     // coordinates are passed in a different order here.
     point->set_vector(offset_x + vector.x, offset_z - vector.z, offset_y + vector.y);
 
-    emit_signal("point_changed");
+    emit_signal("feature_changed");
 }
 
 Vector3 GeoPoint::get_vector3() {
@@ -98,8 +98,6 @@ void GeoLine::_bind_methods() {
         D_METHOD("set_offset_curve3d", "curve", "offset_x", "offset_y", "offset_z"),
         &GeoLine::set_offset_curve3d);
     ClassDB::bind_method(D_METHOD("add_point", "point"), &GeoLine::add_point);
-
-    ADD_SIGNAL(MethodInfo("line_changed"));
 }
 
 Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
@@ -138,7 +136,7 @@ void GeoLine::set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y,
                              -position.y - static_cast<double>(offset_x));
     }
 
-    emit_signal("line_changed");
+    emit_signal("feature_changed");
 }
 
 Ref<Curve3D> GeoLine::get_curve3d() {
@@ -148,7 +146,7 @@ Ref<Curve3D> GeoLine::get_curve3d() {
 void GeoLine::set_curve3d(Ref<Curve3D> curve) {
     set_offset_curve3d(curve, 0, 0, 0);
 
-    emit_signal("line_changed");
+    emit_signal("feature_changed");
 }
 
 void GeoLine::add_point(Vector3 point) {
@@ -156,7 +154,7 @@ void GeoLine::add_point(Vector3 point) {
     line->set_point_count(line->get_point_count() + 1);
     line->set_line_point(line->get_point_count() - 1, point.x, point.y, point.z);
 
-    emit_signal("line_changed");
+    emit_signal("feature_changed");
 }
 
 // GeoPolygon
