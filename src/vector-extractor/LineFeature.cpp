@@ -35,6 +35,7 @@ double LineFeature::get_line_point_z(int index) {
 
 void LineFeature::set_point_count(int new_count) {
     line->setNumPoints(new_count);
+    point_count = new_count;
 }
 
 void LineFeature::set_line_point(int index, double x, double y, double z) {
