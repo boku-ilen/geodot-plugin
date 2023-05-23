@@ -7,7 +7,7 @@
 
 #include "geodata.h"
 #include "geoimage.h"
-#include "geoutil.h"
+#include "geotransform.h"
 
 using namespace godot;
 
@@ -21,7 +21,7 @@ void register_geodot_types(ModuleInitializationLevel p_level) {
     ClassDB::register_class<GeoDataset>();
     ClassDB::register_class<GeoFeatureLayer>();
     ClassDB::register_class<GeoRasterLayer>();
-    ClassDB::register_class<GeoUtil>();
+    ClassDB::register_class<GeoTransform>();
 }
 
 void unregister_geodot_types(ModuleInitializationLevel p_level) {
