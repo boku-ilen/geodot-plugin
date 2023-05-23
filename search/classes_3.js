@@ -9,5 +9,5 @@ var searchData=
   ['geopolygon_6',['GeoPolygon',['../classgodot_1_1GeoPolygon.html',1,'godot']]],
   ['georaster_7',['GeoRaster',['../classGeoRaster.html',1,'']]],
   ['georasterlayer_8',['GeoRasterLayer',['../classgodot_1_1GeoRasterLayer.html',1,'godot']]],
-  ['geoutil_9',['GeoUtil',['../classgodot_1_1GeoUtil.html',1,'godot']]]
+  ['geotransform_9',['GeoTransform',['../classgodot_1_1GeoTransform.html',1,'godot']]]
 ];

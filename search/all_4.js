@@ -10,7 +10,7 @@ var searchData=
   ['geopolygon_7',['GeoPolygon',['../classgodot_1_1GeoPolygon.html',1,'godot']]],
   ['georaster_8',['GeoRaster',['../classGeoRaster.html',1,'']]],
   ['georasterlayer_9',['GeoRasterLayer',['../classgodot_1_1GeoRasterLayer.html',1,'godot']]],
-  ['geoutil_10',['GeoUtil',['../classgodot_1_1GeoUtil.html',1,'godot']]],
+  ['geotransform_10',['GeoTransform',['../classgodot_1_1GeoTransform.html',1,'godot']]],
   ['get_5fall_5ffeatures_11',['get_all_features',['../classgodot_1_1GeoFeatureLayer.html#a3a0011425bd7643a847452b63a0facd1',1,'godot::GeoFeatureLayer']]],
   ['get_5fas_5farray_12',['get_as_array',['../classGeoRaster.html#a3455baef98db203b90a0da110f6a7b40',1,'GeoRaster']]],
   ['get_5fattribute_13',['get_attribute',['../classFeature.html#aa7bf8e2e85be5b3b2203ccf7b6d66896',1,'Feature']]],
