@@ -8,6 +8,8 @@ Various types of Raster and Vector data can be loaded from georeferenced files a
 
 Automated builds of the addon with an included demo can be found [in the GitHub Actions tab](https://github.com/boku-ilen/geodot-plugin/actions). The `master` branch is a GDExtension plugin for Godot 4.x. For Godot 3.x with GDNative, use the `godot3` branch and its builds.
 
+Documentation generated via Doxygen can be found here: https://boku-ilen.github.io/geodot-plugin/
+
 Feel free to join our Discord for talking about geospatial Godot: https://discord.gg/MhB5sG7czF
 
 ## Usage
@@ -37,11 +39,9 @@ var layer = dataset.get_feature_layer("layername")
 var features = layer.get_features_near_position(pos_x, pos_y, radius, max_features)
 ```
 
-__If you want to add the Geodot addon to your own game__, copy the `addons/geodot` directory and add `addons/geodot/geodot.gdns` as a Singleton.
+__If you want to add the Geodot addon to your own game__, copy the `addons/geodot` directory to your project.
 
-[Until we have proper external documentation](https://github.com/boku-ilen/geodot-plugin/issues/9), check the examples and source code for additional functions and details. The exposed classes and functions are documented in `geodot.h`, `geodata.h`, `geofeatures.h` and `geoimage.h`.
-
-__You will need some sort of geodata to use this plugin.__ A good starting point is a GeoTIFF with a heightmap. If you need such a file for testing, you can get a heightmap for Austria [at data.gv.at](https://www.data.gv.at/katalog/dataset/b5de6975-417b-4320-afdb-eb2a9e2a1dbf) (licensed under CC-BY-4.0).
+__You will need some sort of geodata to use this plugin.__ The bundled demo scenes include small snippets of example data such as a raster heightmap and a vector street dataset.
 
 # Building
 
@@ -50,6 +50,7 @@ For building this project we need to install [Scons](https://scons.org) by follo
 - [Linux](#building-on-linux)
 - [Windows](#building-on-windows)
 - [MacOS](#building-on-macos)
+
 ## Building on Linux
 
 ### Preparation
@@ -71,38 +72,30 @@ For building a self-contained plugin for use in other projects, it is recommende
 
 ## Building on Windows
 
+Because of very inconsistent results with native Visual Studio compilation, we use Docker to create Windows builds from a Linux environment using MinGW. This means that Windows builds can also be created on a Linux machine. We recommend the following process on Linux or on WSL:
+
 ### Preparation
 
-1. Install the newest Visual Studio
-2. Install [Scons](https://scons.org/pages/download.html) for building
-3. Install [OSGeo](http://download.osgeo.org/osgeo4w/osgeo4w-setup-x86_64.exe) for the GDAL library
-4. In the Visual Studio Installer, tab "Individual Components", make sure the following are installed:
-    - SQL Server ODBC Driver
-    - C++ core features
-    - MSVC v142 - VS 2019 C++ x64/x86 build tools
-    - MSVC v142 - VS 2019 C++ x64/x86 Spectre-mitigated libs
-    - MSBuild
-    - C++/CLI support for v142 build tools
-5. In `geodot-plugin`, initialize all git submodules: `git submodule update --init --recursive`
-6. In `geodot-plugin/godot-cpp`, generate the GDExtension C++ bindings: `scons platform=windows generate_bindings=yes bits=64 target=release`
+1. Install Docker
+2. Initialize all git submodules: `git submodule update --init --recursive`
+3. Generate the GDExtension C++ bindings: `cd godot-cpp; scons platform=windows generate_bindings=yes`
+4. Create the build container: `docker build -f DockerfileMinGW -t gdal-mingw .`
+
 
 ### Compiling
 
-We got the best results with the "x64 Native Tools Command Prompt for VS 2019" command line.
-
-Everything is built via SConstruct. Running `scons platform=windows osgeo_path=C:/path/to/osgeo target=release` in the root directory will compile everything: First the processing libraries, then the finished GDExtension plugin. (Building for debug caused crashes for us, which is why `target=release` is recommended on Windows.)
-
-If you're working on a processing library, you can also only compile this library with the same `scons platform=windows osgeo_path=C:/path/to/osgeo` command in that library's directory (e.g. in `src/raster-tile-extractor`).
+Build Geodot on the container: `docker run --name mingw-builder gdal-mingw:latest`
 
 ### Packaging
 
-When using GDAL on Windows, problems with DLLs not being found are pretty frequent. We got the best results by simply copying all DLLs from the OSGeo `bin` directory to `demo/addons/geodot/win64`. Depending on your luck, you may or may not have to do this.
+Copy the resulting Geodot library: `docker cp mingw-builder:/geodot/demo/addons/geodot/win64 ./demo/addons/geodot`
 
-If you still get `Error 126: The specified module could not be found.` when starting the demo project, we recommend checking the Geodot DLL and the GDAL DLL with [Dependencies](https://github.com/lucasg/Dependencies).
+Copy the DLLs for GDAL and all dependencies: `docker cp mingw-builder:/usr/x86_64-w64-mingw32/sys-root/mingw/bin ./tmp` and `cp ./tmp/*.dll ./demo/addons/geodot/win64/`
 
 ## Building on MacOS
 
-NOTES
+### Notes
+
 - The current implementation only has support for x86 and **not for** the new M1 processor.
 - VectorExtractor is causing the game to crash. See #51
 - You have to move some generated files. See #52
