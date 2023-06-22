@@ -16,11 +16,11 @@ std::shared_ptr<NativeDataset> VectorExtractor::open_dataset(const char *path, b
 }
 
 std::vector<double> VectorExtractor::transform_coordinates(double input_x, double input_z,
-                                                           std::string from, std::string to) {
+                                                           int from, int to) {
     OGRSpatialReference source_reference, target_reference;
 
-    source_reference.importFromWkt(from.c_str());
-    target_reference.importFromWkt(to.c_str());
+    source_reference.importFromEPSG(from);
+    target_reference.importFromEPSG(to);
 
     OGRCoordinateTransformation *transformation =
         OGRCreateCoordinateTransformation(&source_reference, &target_reference);
