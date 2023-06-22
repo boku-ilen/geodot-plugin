@@ -76,6 +76,7 @@ $(function() {
 <p >A Godot plugin for loading geospatial data. Written as a GDExtension with C++ and GDAL.</p>
 <p >Various types of Raster and Vector data can be loaded from georeferenced files and used in Godot. One might load a heightmap from a GeoTIFF, building footprints from a Shapefile, or an entire database of data from a GeoPackage. Thanks to efficient filtering and cropping, data can be loaded in real-time.</p>
 <p >Automated builds of the addon with an included demo can be found <a href="https://github.com/boku-ilen/geodot-plugin/actions">in the GitHub Actions tab</a>. The <code>master</code> branch is a GDExtension plugin for Godot 4.x. For Godot 3.x with GDNative, use the <code>godot3</code> branch and its builds.</p>
+<p >Documentation generated via Doxygen can be found here: <a href="https://boku-ilen.github.io/geodot-plugin/">https://boku-ilen.github.io/geodot-plugin/</a></p>
 <p >Feel free to join our Discord for talking about geospatial Godot: <a href="https://discord.gg/MhB5sG7czF">https://discord.gg/MhB5sG7czF</a></p>
 <h1><a class="anchor" id="autotoc_md1"></a>
 Usage</h1>
@@ -96,16 +97,15 @@ Usage</h1>
 <div class="line">var layer = dataset.get_feature_layer(&quot;layername&quot;)</div>
 <div class="line">    </div>
 <div class="line">var features = layer.get_features_near_position(pos_x, pos_y, radius, max_features)</div>
-</div><!-- fragment --><p ><b>If you want to add the Geodot addon to your own game</b>, copy the <code>addons/geodot</code> directory and add <code>addons/geodot/geodot.gdns</code> as a Singleton.</p>
-<p ><a href="https://github.com/boku-ilen/geodot-plugin/issues/9">Until we have proper external documentation</a>, check the examples and source code for additional functions and details. The exposed classes and functions are documented in <code>geodot.h</code>, <code><a class="el" href="geodata_8h_source.html">geodata.h</a></code>, <code><a class="el" href="geofeatures_8h_source.html">geofeatures.h</a></code> and <code><a class="el" href="geoimage_8h_source.html">geoimage.h</a></code>.</p>
-<p ><b>You will need some sort of geodata to use this plugin.</b> A good starting point is a GeoTIFF with a heightmap. If you need such a file for testing, you can get a heightmap for Austria <a href="https://www.data.gv.at/katalog/dataset/b5de6975-417b-4320-afdb-eb2a9e2a1dbf">at data.gv.at</a> (licensed under CC-BY-4.0).</p>
+</div><!-- fragment --><p ><b>If you want to add the Geodot addon to your own game</b>, copy the <code>addons/geodot</code> directory to your project.</p>
+<p ><b>You will need some sort of geodata to use this plugin.</b> The bundled demo scenes include small snippets of example data such as a raster heightmap and a vector street dataset.</p>
 <h1><a class="anchor" id="autotoc_md2"></a>
 Building</h1>
 <p >For building this project we need to install <a href="https://scons.org">Scons</a> by following one of the <a href="https://scons.org/documentation.html">User Guide</a> <em>Installing Scons</em> which is both used for Godot GDExtension and this project and we need the GDAL library which has different installation instruction listed below.</p>
 <ul>
 <li>Linux</li>
 <li>Windows</li>
-<li>MacOS </li>
+<li>MacOS</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md3"></a>
 Building on Linux</h2>
@@ -125,41 +125,32 @@ Packaging</h3>
 <p >For building a self-contained plugin for use in other projects, it is recommended to move <code>libgdal</code> into the same directory as <code>libgeodot</code> and the other libraries (<code>demo/addons/geodot/x11/</code>).</p>
 <h2><a class="anchor" id="autotoc_md7"></a>
 Building on Windows</h2>
+<p >Because of very inconsistent results with native Visual Studio compilation, we use Docker to create Windows builds from a Linux environment using MinGW. This means that Windows builds can also be created on a Linux machine. We recommend the following process on Linux or on WSL:</p>
 <h3><a class="anchor" id="autotoc_md8"></a>
 Preparation</h3>
 <ol type="1">
-<li>Install the newest Visual Studio</li>
-<li>Install <a href="https://scons.org/pages/download.html">Scons</a> for building</li>
-<li>Install <a href="http://download.osgeo.org/osgeo4w/osgeo4w-setup-x86_64.exe">OSGeo</a> for the GDAL library</li>
-<li>In the Visual Studio Installer, tab "Individual Components", make sure the following are installed:<ul>
-<li>SQL Server ODBC Driver</li>
-<li>C++ core features</li>
-<li>MSVC v142 - VS 2019 C++ x64/x86 build tools</li>
-<li>MSVC v142 - VS 2019 C++ x64/x86 Spectre-mitigated libs</li>
-<li>MSBuild</li>
-<li>C++/CLI support for v142 build tools</li>
-</ul>
-</li>
-<li>In <code>geodot-plugin</code>, initialize all git submodules: <code>git submodule update --init --recursive</code></li>
-<li>In <code>geodot-plugin/godot-cpp</code>, generate the GDExtension C++ bindings: <code>scons platform=windows generate_bindings=yes bits=64 target=release</code></li>
+<li>Install Docker</li>
+<li>Initialize all git submodules: <code>git submodule update --init --recursive</code></li>
+<li>Generate the GDExtension C++ bindings: <code>cd godot-cpp; scons platform=windows generate_bindings=yes</code></li>
+<li>Create the build container: <code>docker build -f DockerfileMinGW -t gdal-mingw .</code></li>
 </ol>
 <h3><a class="anchor" id="autotoc_md9"></a>
 Compiling</h3>
-<p >We got the best results with the "x64 Native Tools Command Prompt for VS 2019" command line.</p>
-<p >Everything is built via SConstruct. Running <code>scons platform=windows osgeo_path=C:/path/to/osgeo target=release</code> in the root directory will compile everything: First the processing libraries, then the finished GDExtension plugin. (Building for debug caused crashes for us, which is why <code>target=release</code> is recommended on Windows.)</p>
-<p >If you're working on a processing library, you can also only compile this library with the same <code>scons platform=windows osgeo_path=C:/path/to/osgeo</code> command in that library's directory (e.g. in <code>src/raster-tile-extractor</code>).</p>
+<p >Build Geodot on the container: <code>docker run --name mingw-builder gdal-mingw:latest</code></p>
 <h3><a class="anchor" id="autotoc_md10"></a>
 Packaging</h3>
-<p >When using GDAL on Windows, problems with DLLs not being found are pretty frequent. We got the best results by simply copying all DLLs from the OSGeo <code>bin</code> directory to <code>demo/addons/geodot/win64</code>. Depending on your luck, you may or may not have to do this.</p>
-<p >If you still get <code>Error 126: The specified module could not be found.</code> when starting the demo project, we recommend checking the Geodot DLL and the GDAL DLL with <a href="https://github.com/lucasg/Dependencies">Dependencies</a>.</p>
+<p >Copy the resulting Geodot library: <code>docker cp mingw-builder:/geodot/demo/addons/geodot/win64 ./demo/addons/geodot</code></p>
+<p >Copy the DLLs for GDAL and all dependencies: <code>docker cp mingw-builder:/usr/x86_64-w64-mingw32/sys-root/mingw/bin ./tmp</code> and <code>cp ./tmp/*.dll ./demo/addons/geodot/win64/</code></p>
 <h2><a class="anchor" id="autotoc_md11"></a>
 Building on MacOS</h2>
-<p >NOTES</p><ul>
+<h3><a class="anchor" id="autotoc_md12"></a>
+Notes</h3>
+<ul>
 <li>The current implementation only has support for x86 and <b>not for</b> the new M1 processor.</li>
 <li><a class="el" href="classVectorExtractor.html">VectorExtractor</a> is causing the game to crash. See #51</li>
 <li>You have to move some generated files. See #52</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md12"></a>
+<h3><a class="anchor" id="autotoc_md13"></a>
 Preparation</h3>
 <ol type="1">
 <li>Install using <code>brew install gdal</code> or manually <a href="https://github.com/OSGeo/gdal">https://github.com/OSGeo/gdal</a>.<ol type="a">
@@ -182,7 +173,7 @@ Preparation</h3>
 <div class="line">cd ..</div>
 </div><!-- fragment --></li>
 </ol>
-<h3><a class="anchor" id="autotoc_md13"></a>
+<h3><a class="anchor" id="autotoc_md14"></a>
 Compiling</h3>
 <ol type="1">
 <li>Compile the project itself using the GDAL location like <code>scons target=release osgeo_path=/usr/local/Cellar/gdal/3.2.1</code><ol type="a">
@@ -196,41 +187,41 @@ Compiling</h3>
 </ol>
 </li>
 </ol>
-<h1><a class="anchor" id="autotoc_md14"></a>
+<h1><a class="anchor" id="autotoc_md15"></a>
 Developing</h1>
 <p >We recommend VSCodium for developing. For on-the-fly code completion, error reporting, etc., install the <code>clangd</code> extension in VSCodium and run <code>scons compiledb=yes</code> in order to generate the required compilation database.</p>
-<h1><a class="anchor" id="autotoc_md15"></a>
+<h1><a class="anchor" id="autotoc_md16"></a>
 Project structure</h1>
-<h2><a class="anchor" id="autotoc_md16"></a>
+<h2><a class="anchor" id="autotoc_md17"></a>
 Demo</h2>
 <p >A minimal Godot project which the plugin is compiled into by default. Used to test its functionality.</p>
-<h2><a class="anchor" id="autotoc_md17"></a>
+<h2><a class="anchor" id="autotoc_md18"></a>
 godot-cpp</h2>
 <p >Git submodule with everything that's required for building a GDExtension plugin with C++.</p>
-<h2><a class="anchor" id="autotoc_md18"></a>
+<h2><a class="anchor" id="autotoc_md19"></a>
 Geodot</h2>
 <p ><code>geodot.h</code>, <code><a class="el" href="geodata_8h_source.html">geodata.h</a></code>, etc. - the GDExtension C++ code for the actual plugin. It mainly acts as an interface from Godot-compatible types to custom libraries and classes - it is kept as simple as possible so that adapting it to changes in Godot is easy.</p>
-<h2><a class="anchor" id="autotoc_md19"></a>
+<h2><a class="anchor" id="autotoc_md20"></a>
 Processing Libraries</h2>
 <p >Processing Libraries handle calls to external libraries and convert the results to generic custom classes (independent and unaware of Godot). This way, Godot and external libraries are decoupled, with only one dependency per project.</p>
 <p >The reason for this layer of abstraction is ease of compilation and extendibility: The libraries can remain the same, only the core Geodot must be kept consistent with Godot. Similarly, changes in external libraries only affect the corresponding processing library, not the Geodot layer.</p>
-<h3><a class="anchor" id="autotoc_md20"></a>
+<h3><a class="anchor" id="autotoc_md21"></a>
 RasterTileExtractor</h3>
 <p >Processing library called by Geodot. Wraps GDAL's Raster functionality, primarily the extraction of Raster data into an array.</p>
-<h3><a class="anchor" id="autotoc_md21"></a>
+<h3><a class="anchor" id="autotoc_md22"></a>
 VectorExtractor</h3>
 <p >Another processing library like the <a class="el" href="classRasterTileExtractor.html">RasterTileExtractor</a>. Also uses GDAL internally, but for vector data functionality, as well as general database and layer handling.</p>
-<h1><a class="anchor" id="autotoc_md22"></a>
+<h1><a class="anchor" id="autotoc_md23"></a>
 Contributing</h1>
 <p >Help is greatly appreciated! You can test and report bugs, fix known <a href="https://github.com/boku-ilen/geodot-plugin/issues">issues</a> or submit new functionality.</p>
-<h2><a class="anchor" id="autotoc_md23"></a>
+<h2><a class="anchor" id="autotoc_md24"></a>
 Adding a new feature</h2>
 <ul>
 <li>Actual processing code and external library calls should be put into a separate project (a processing library) which compiles to a library and is independent from Godot.</li>
 <li>Geodot should only translate Godot calls and types to calls to this custom library. Its only dependencies should be Godot and custom libraries.</li>
 </ul>
 <p >Summed up, dependencies should only go in this direction: Godot + Geodot -&gt; Processing Library -&gt; External Libraries</p>
-<h1><a class="anchor" id="autotoc_md24"></a>
+<h1><a class="anchor" id="autotoc_md25"></a>
 Credits</h1>
 <p >The provided Linux build ships with libgdal.so, a build of the GDAL library. All credits for this library go to <a href="https://github.com/OSGeo/gdal/">OSGeo/gdal</a> (<a href="https://raw.githubusercontent.com/OSGeo/gdal/master/gdal/LICENSE.TXT">license</a>).</p>
 <p >The RasterDemo ships with a small sample of <a href="https://data.wien.gv.at/">Viennese test data</a> (CC BY 4.0); the VectorDemo uses a sample of edges from the <a href="http://www.gip.gv.at/#ogd">GIP dataset</a> (CC BY 4.0). </p>
