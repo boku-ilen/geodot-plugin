@@ -125,11 +125,11 @@ Packaging</h3>
 <p >For building a self-contained plugin for use in other projects, it is recommended to move <code>libgdal</code> into the same directory as <code>libgeodot</code> and the other libraries (<code>demo/addons/geodot/x11/</code>).</p>
 <h2><a class="anchor" id="autotoc_md7"></a>
 Building on Windows</h2>
-<p >Because of very inconsistent results with native Visual Studio compilation, we use Docker to create Windows builds from a Linux environment using MinGW. This means that Windows builds can also be created on a Linux machine. We recommend the following process on Linux or on WSL:</p>
+<p >Because of very inconsistent results with native Visual Studio compilation, we use Docker to create Windows builds from a Linux environment using MinGW. This means that Windows builds are also created on a Linux machine. We recommend the following process <b>on Linux or on WSL</b> (they will not work on native Windows):</p>
 <h3><a class="anchor" id="autotoc_md8"></a>
 Preparation</h3>
 <ol type="1">
-<li>Install Docker</li>
+<li>Install Docker, SCons, and MinGW</li>
 <li>Initialize all git submodules: <code>git submodule update --init --recursive</code></li>
 <li>Generate the GDExtension C++ bindings: <code>cd godot-cpp; scons platform=windows generate_bindings=yes</code></li>
 <li>Create the build container: <code>docker build -f DockerfileMinGW -t gdal-mingw .</code></li>
