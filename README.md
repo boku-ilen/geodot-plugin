@@ -72,11 +72,11 @@ For building a self-contained plugin for use in other projects, it is recommende
 
 ## Building on Windows
 
-Because of very inconsistent results with native Visual Studio compilation, we use Docker to create Windows builds from a Linux environment using MinGW. This means that Windows builds can also be created on a Linux machine. We recommend the following process on Linux or on WSL:
+Because of very inconsistent results with native Visual Studio compilation, we use Docker to create Windows builds from a Linux environment using MinGW. This means that Windows builds are also created on a Linux machine. We recommend the following process **on Linux or on WSL** (they will not work on native Windows):
 
 ### Preparation
 
-1. Install Docker
+1. Install Docker, SCons, and MinGW
 2. Initialize all git submodules: `git submodule update --init --recursive`
 3. Generate the GDExtension C++ bindings: `cd godot-cpp; scons platform=windows generate_bindings=yes`
 4. Create the build container: `docker build -f DockerfileMinGW -t gdal-mingw .`
