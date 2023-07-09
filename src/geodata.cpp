@@ -435,7 +435,7 @@ void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant v
 
         delete[] values;
     } else {
-        // TODO: Output an error since there was apparently a type mis-match
+        std::cout << "Type mismatch: value of type " << value.get_type() << " and dataset of type " << get_format() << std::endl;
     }
 
     dataset->dataset->FlushCache();
@@ -527,7 +527,6 @@ void GeoRasterLayer::overlay_image_at_position(double pos_x, double pos_y, Ref<I
             set_value_at_position(pos_in_image_x, pos_in_image_y, value);
         }
     } else {
-        // TODO: Output an error since there was apparently a type mis-match
         std::cout << "Type mismatch: image of type " << image->get_format() << " and dataset of type " << get_format() << std::endl;
     }
 }
