@@ -84,26 +84,17 @@ void *GeoRaster::get_as_array() {
 
     // Depending on the image format, we need to structure the resulting array differently and/or
     // read multiple bands.
-    // TODO: Lots of code duplication down there, but due to C++'s lack of reflection and all the
-    // subtle differences, it's tricky to generalize it. A templated factory class might help, but
-    // seems overkill
     if (format == RF) {
         GDALRasterBand *band = data->GetRasterBand(1);
 
         float nodata = static_cast<float>(band->GetNoDataValue());
-
+        float *array = new float[get_pixel_size_x() * get_pixel_size_y()];
+        std::fill(array, array + get_pixel_size_x() * get_pixel_size_y(), nodata);
         if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
             // only 0s
-            float *target_array = new float[get_pixel_size_x() * get_pixel_size_y()];
-            std::fill(target_array, target_array + get_pixel_size_x() * get_pixel_size_y(),
-                      nodata);
-            return target_array;
+            return array;
         }
-
-        // Write the data directly into a float array.
-        float *array = new float[get_pixel_size_x() * get_pixel_size_y()];
-        std::fill(array, array + get_pixel_size_x() * get_pixel_size_y(), nodata);
 
         error = band->RasterIO(
             GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width, usable_height,
@@ -116,102 +107,85 @@ void *GeoRaster::get_as_array() {
         // Delete array in case of error
         delete [] array;
 
-    } else if (format == RGBA) {
+    } else {
+        // Otherwise we are dealing with only uint8_t *arrays
+        // The only thing that changes is what we put in the arrays
+        uint8_t *array = new uint8_t[get_size_in_bytes()];
+        std::fill(array, array + get_size_in_bytes(), 0);
         if (usable_width <= 0 || usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
             // only 0s
-            uint8_t *target_array = new uint8_t[get_size_in_bytes()];
-            std::fill(target_array, target_array + get_size_in_bytes(), 0);
-            return target_array;
+            return array;
         }
+        switch (format) {
+            case RGBA:
+                // Write the data into a byte array like this:
+                // R   R   R
+                //  G   G   G
+                //   B   B   B
+                //    A   A   A
+                // So that the result is RGBARGBARGBA.
+                for (int band_number = 1; band_number < 5; band_number++) {
+                    GDALRasterBand *band = data->GetRasterBand(band_number);
 
-        // Write the data into a byte array like this:
-        // R   R   R
-        //  G   G   G
-        //   B   B   B
-        //    A   A   A
-        // So that the result is RGBARGBARGBA.
-        uint8_t *array = new uint8_t[get_size_in_bytes()];
-        std::fill(array, array + get_size_in_bytes(), 0);
+                    // Read into the array with 4 bytes between the pixels
+                    error = band->RasterIO(
+                        GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width,
+                        usable_height,
+                        array + (remainder_y_top * destination_window_size_pixels + remainder_x_left) * 4 +
+                            (band_number - 1),
+                        target_width, target_height, GDT_Byte, 4, destination_window_size_pixels * 4,
+                        &rasterio_args);
+                }
 
-        for (int band_number = 1; band_number < 5; band_number++) {
-            GDALRasterBand *band = data->GetRasterBand(band_number);
+                if (error < CE_Failure) { return array; }
 
-            // Read into the array with 4 bytes between the pixels
-            error = band->RasterIO(
-                GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width,
-                usable_height,
-                array + (remainder_y_top * destination_window_size_pixels + remainder_x_left) * 4 +
-                    (band_number - 1),
-                target_width, target_height, GDT_Byte, 4, destination_window_size_pixels * 4,
-                &rasterio_args);
+                // Delete array in case of error
+                delete [] array;
+                break;
+            case RGB:
+                // Write the data into a byte array like this:
+                // R  R  R
+                //  G  G  G
+                //   B  B  B
+                // So that the result is RGBRGBRGB.
+                for (int band_number = 1; band_number < 4; band_number++) {
+                    GDALRasterBand *band = data->GetRasterBand(band_number);
+
+                    // Read into the array with 4 bytes between the pixels
+                    error = band->RasterIO(
+                        GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width,
+                        usable_height,
+                        array + (remainder_y_top * destination_window_size_pixels + remainder_x_left) * 3 +
+                            (band_number - 1),
+                        target_width, target_height, GDT_Byte, 3, destination_window_size_pixels * 3,
+                        &rasterio_args);
+                }
+
+                if (error < CE_Failure) { return array; }
+
+                // Delete array in case of error
+                delete [] array;
+                break;
+            case BYTE:
+                GDALRasterBand *band = data->GetRasterBand(1);
+                error = band->RasterIO(
+                    GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width, usable_height,
+                    array + remainder_y_top * destination_window_size_pixels + remainder_x_left,
+                    target_width, target_height, GDT_Byte, 0, destination_window_size_pixels,
+                    &rasterio_args);
+
+                if (error < CE_Failure) { return array; }
+
+                // Delete array in case of error
+                delete [] array;
+                break;
+            default:
+                // In case we had a not-supported format, delete the created array
+                delete [] array;
+                break;
         }
-
-        if (error < CE_Failure) { return array; }
-
-        // Delete array in case of error
-        delete [] array;
-
-    } else if (format == RGB) {
-        if (usable_width <= 0 || usable_height <= 0) {
-            // Empty results are still valid and should be treated normally, so return an array with
-            // only 0s
-            uint8_t *target_array = new uint8_t[get_size_in_bytes()];
-            std::fill(target_array, target_array + get_size_in_bytes(), 0);
-            return target_array;
-        }
-
-        // Write the data into a byte array like this:
-        // R  R  R
-        //  G  G  G
-        //   B  B  B
-        // So that the result is RGBRGBRGB.
-        uint8_t *array = new uint8_t[get_size_in_bytes()];
-        std::fill(array, array + get_size_in_bytes(), 0);
-
-        for (int band_number = 1; band_number < 4; band_number++) {
-            GDALRasterBand *band = data->GetRasterBand(band_number);
-
-            // Read into the array with 4 bytes between the pixels
-            error = band->RasterIO(
-                GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width,
-                usable_height,
-                array + (remainder_y_top * destination_window_size_pixels + remainder_x_left) * 3 +
-                    (band_number - 1),
-                target_width, target_height, GDT_Byte, 3, destination_window_size_pixels * 3,
-                &rasterio_args);
-        }
-
-        if (error < CE_Failure) { return array; }
-
-        // Delete array in case of error
-        delete [] array;
-
-    } else if (format == BYTE) {
-        if (usable_width <= 0 || usable_height <= 0) {
-            // Empty results are still valid and should be treated normally, so return an array with
-            // only 0s
-            uint8_t *target_array = new uint8_t[get_size_in_bytes()];
-            std::fill(target_array, target_array + get_size_in_bytes(), 0);
-            return target_array;
-        }
-
-        GDALRasterBand *band = data->GetRasterBand(1);
-        uint8_t *array = new uint8_t[get_size_in_bytes()];
-        std::fill(array, array + get_size_in_bytes(), 0);
-
-        error = band->RasterIO(
-            GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width, usable_height,
-            array + remainder_y_top * destination_window_size_pixels + remainder_x_left,
-            target_width, target_height, GDT_Byte, 0, destination_window_size_pixels,
-            &rasterio_args);
-
-        if (error < CE_Failure) { return array; }
-
-        // Delete array in case of error
-        delete [] array;
     }
-
     // If nothing worked, return null
     return nullptr;
 }
