@@ -118,7 +118,7 @@ void *GeoRaster::get_as_array() {
             return array;
         }
         switch (format) {
-            case RGBA:
+            case RGBA: {
                 // Write the data into a byte array like this:
                 // R   R   R
                 //  G   G   G
@@ -143,7 +143,8 @@ void *GeoRaster::get_as_array() {
                 // Delete array in case of error
                 delete [] array;
                 break;
-            case RGB:
+            }
+            case RGB: {
                 // Write the data into a byte array like this:
                 // R  R  R
                 //  G  G  G
@@ -151,7 +152,6 @@ void *GeoRaster::get_as_array() {
                 // So that the result is RGBRGBRGB.
                 for (int band_number = 1; band_number < 4; band_number++) {
                     GDALRasterBand *band = data->GetRasterBand(band_number);
-
                     // Read into the array with 4 bytes between the pixels
                     error = band->RasterIO(
                         GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width,
@@ -167,7 +167,8 @@ void *GeoRaster::get_as_array() {
                 // Delete array in case of error
                 delete [] array;
                 break;
-            case BYTE:
+            }
+            case BYTE: {
                 GDALRasterBand *band = data->GetRasterBand(1);
                 error = band->RasterIO(
                     GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width, usable_height,
@@ -180,10 +181,12 @@ void *GeoRaster::get_as_array() {
                 // Delete array in case of error
                 delete [] array;
                 break;
-            default:
+            }
+            default: {
                 // In case we had a not-supported format, delete the created array
                 delete [] array;
                 break;
+            }
         }
     }
     // If nothing worked, return null
@@ -258,17 +261,31 @@ uint64_t *GeoRaster::get_histogram() {
 
 GeoRaster::FORMAT GeoRaster::get_format_for_dataset(GDALDataset *data) {
     int raster_count = data->GetRasterCount();
-    GDALDataType raster_type = data->GetRasterBand(1)->GetRasterDataType();
-
-    if (raster_type == GDT_Byte) {
-        if (raster_count == 4) {
-            return RGBA;
-        } else if (raster_count == 3) {
-            return RGB;
-        } else {
-            return BYTE;
+    GDALDataType first_raster_type = data->GetRasterBand(1)->GetRasterDataType();
+    bool raster_types_mismatch = false;
+    for (int next = 2; next < raster_count + 1; next++) {
+        GDALDataType next_raster_type = data->GetRasterBand(next)->GetRasterDataType();
+        if (next_raster_type != first_raster_type) {
+            raster_types_mismatch = true;
+            break;
         }
-    } else if (raster_type == GDT_Float32 || raster_type == GDT_Float64) {
+    }
+
+    if (first_raster_type == GDT_Byte) {
+        switch (raster_count) {
+            case 4: return RGBA;
+            case 3: return RGB;
+            default: {
+                if (raster_types_mismatch) {
+                    return MIXED;
+                }
+                return BYTE;
+            }
+        }
+    } else if (first_raster_type == GDT_Float32 || first_raster_type == GDT_Float64) {
+        if (raster_types_mismatch) {
+            return MIXED;
+        }
         return RF;
     } else {
         return UNKNOWN;

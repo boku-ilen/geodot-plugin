@@ -11,12 +11,13 @@ class GDALDataset;
 /// Provides easy access without GDAL dependencies to library users.
 class GeoRaster {
   public:
-    enum FORMAT {
-        RGB,  // 3 8-bit int channels
-        RGBA, // 4 8-bit int channels
-        RF,   // 1 32-bit float channel
-        BYTE, // 1 8-bit int channel
-        UNKNOWN
+    enum FORMAT { // size (bits)    | data type         |   Number of chanels
+        RGB,      //    8           | int               |   3
+        RGBA,     //    8           | int               |   4
+        RF,       //    32          | float             |   X >= 1
+        BYTE,     //    8           | int               |   X >= 1
+        MIXED,    //    8<=X<=64    | int and/or float  |   X >= 2
+        UNKNOWN   //    unknown     | unknown           |   X >= 1
     };
 
     GeoRaster(GDALDataset *data, int interpolation_type);
