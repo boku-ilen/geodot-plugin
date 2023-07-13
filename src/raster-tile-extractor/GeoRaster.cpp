@@ -3,19 +3,8 @@
 #include <algorithm> // For std::clamp etc
 #include <cstring>
 
-void *GeoRaster::get_as_array() {
-    GDALRasterIOExtraArg rasterio_args;
-    INIT_RASTERIO_EXTRA_ARG(rasterio_args);
-
-    int interpolation = interpolation_type;
-
-    // If we're requesting downscaled data, always use nearest neighbour scaling.
-    // TODO: Would be good if this could be overridden with an optional parameter, but any other
-    // scaling usually causes very long loading times so this is the default for now
-    if (destination_window_size_pixels < source_window_size_pixels) { interpolation = 0; }
-
-    rasterio_args.eResampleAlg = static_cast<GDALRIOResampleAlg>(interpolation);
-
+RasterIOHelper GeoRaster::get_raster_io_helper() {
+    RasterIOHelper result;
     // Restrict the offset and extent to the available data
     // TODO: Handle properly:
     // 1. Create array using size destination_window_size_pixels
@@ -77,6 +66,32 @@ void *GeoRaster::get_as_array() {
         target_height = destination_window_size_pixels;
     }
 
+    result.clamped_pixel_offset_x = clamped_pixel_offset_x;
+    result.clamped_pixel_offset_y = clamped_pixel_offset_y;
+    result.min_raster_size = min_raster_size;
+    result.remainder_x_left = remainder_x_left;
+    result.remainder_y_top = remainder_y_top;
+    result.target_height = target_width;
+    result.target_width = target_width;
+    result.usable_height = usable_height;
+    result.usable_width = usable_width;
+    return result;
+}
+
+void *GeoRaster::get_as_array() {
+    GDALRasterIOExtraArg rasterio_args;
+    INIT_RASTERIO_EXTRA_ARG(rasterio_args);
+
+    int interpolation = interpolation_type;
+
+    // If we're requesting downscaled data, always use nearest neighbour scaling.
+    // TODO: Would be good if this could be overridden with an optional parameter, but any other
+    // scaling usually causes very long loading times so this is the default for now
+    if (destination_window_size_pixels < source_window_size_pixels) { interpolation = 0; }
+
+    rasterio_args.eResampleAlg = static_cast<GDALRIOResampleAlg>(interpolation);
+
+    RasterIOHelper helper = get_raster_io_helper();
     // TODO: We could do more precise error handling by getting the error number using
     // CPLGetLastErrorNo() and returning that to the user somehow - maybe a flag in the
     // GeoRaster.
@@ -90,16 +105,16 @@ void *GeoRaster::get_as_array() {
         float nodata = static_cast<float>(band->GetNoDataValue());
         float *array = new float[get_pixel_size_x() * get_pixel_size_y()];
         std::fill(array, array + get_pixel_size_x() * get_pixel_size_y(), nodata);
-        if (usable_width <= 0 || usable_height <= 0) {
+        if (helper.usable_width <= 0 || helper.usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
             // only 0s
             return array;
         }
 
         error = band->RasterIO(
-            GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width, usable_height,
-            array + remainder_y_top * destination_window_size_pixels + remainder_x_left,
-            target_width, target_height, GDT_Float32, 0, destination_window_size_pixels * 4,
+            GF_Read, helper.clamped_pixel_offset_x, helper.clamped_pixel_offset_y, helper.usable_width, helper.usable_height,
+            array + helper.remainder_y_top * destination_window_size_pixels + helper.remainder_x_left,
+            helper.target_width, helper.target_height, GDT_Float32, 0, destination_window_size_pixels * 4,
             &rasterio_args);
 
         if (error < CE_Failure) { return array; }
@@ -112,7 +127,7 @@ void *GeoRaster::get_as_array() {
         // The only thing that changes is what we put in the arrays
         uint8_t *array = new uint8_t[get_size_in_bytes()];
         std::fill(array, array + get_size_in_bytes(), 0);
-        if (usable_width <= 0 || usable_height <= 0) {
+        if (helper.usable_width <= 0 || helper.usable_height <= 0) {
             // Empty results are still valid and should be treated normally, so return an array with
             // only 0s
             return array;
@@ -130,11 +145,11 @@ void *GeoRaster::get_as_array() {
 
                     // Read into the array with 4 bytes between the pixels
                     error = band->RasterIO(
-                        GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width,
-                        usable_height,
-                        array + (remainder_y_top * destination_window_size_pixels + remainder_x_left) * 4 +
+                        GF_Read, helper.clamped_pixel_offset_x, helper.clamped_pixel_offset_y, helper.usable_width,
+                        helper.usable_height,
+                        array + (helper.remainder_y_top * destination_window_size_pixels + helper.remainder_x_left) * 4 +
                             (band_number - 1),
-                        target_width, target_height, GDT_Byte, 4, destination_window_size_pixels * 4,
+                        helper.target_width, helper.target_height, GDT_Byte, 4, destination_window_size_pixels * 4,
                         &rasterio_args);
                 }
 
@@ -154,11 +169,11 @@ void *GeoRaster::get_as_array() {
                     GDALRasterBand *band = data->GetRasterBand(band_number);
                     // Read into the array with 4 bytes between the pixels
                     error = band->RasterIO(
-                        GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width,
-                        usable_height,
-                        array + (remainder_y_top * destination_window_size_pixels + remainder_x_left) * 3 +
+                        GF_Read, helper.clamped_pixel_offset_x, helper.clamped_pixel_offset_y, helper.usable_width,
+                        helper.usable_height,
+                        array + (helper.remainder_y_top * destination_window_size_pixels + helper.remainder_x_left) * 3 +
                             (band_number - 1),
-                        target_width, target_height, GDT_Byte, 3, destination_window_size_pixels * 3,
+                        helper.target_width, helper.target_height, GDT_Byte, 3, destination_window_size_pixels * 3,
                         &rasterio_args);
                 }
 
@@ -171,9 +186,9 @@ void *GeoRaster::get_as_array() {
             case BYTE: {
                 GDALRasterBand *band = data->GetRasterBand(1);
                 error = band->RasterIO(
-                    GF_Read, clamped_pixel_offset_x, clamped_pixel_offset_y, usable_width, usable_height,
-                    array + remainder_y_top * destination_window_size_pixels + remainder_x_left,
-                    target_width, target_height, GDT_Byte, 0, destination_window_size_pixels,
+                    GF_Read, helper.clamped_pixel_offset_x, helper.clamped_pixel_offset_y, helper.usable_width, helper.usable_height,
+                    array + helper.remainder_y_top * destination_window_size_pixels + helper.remainder_x_left,
+                    helper.target_width, helper.target_height, GDT_Byte, 0, destination_window_size_pixels,
                     &rasterio_args);
 
                 if (error < CE_Failure) { return array; }
@@ -190,6 +205,77 @@ void *GeoRaster::get_as_array() {
         }
     }
     // If nothing worked, return null
+    return nullptr;
+}
+
+void *GeoRaster::get_band_as_array(int band_index) {
+    GDALRasterIOExtraArg rasterio_args;
+    INIT_RASTERIO_EXTRA_ARG(rasterio_args);
+
+    int interpolation = interpolation_type;
+    // If we're requesting downscaled data, always use nearest neighbour scaling.
+    // TODO: Would be good if this could be overridden with an optional parameter, but any other
+    // scaling usually causes very long loading times so this is the default for now
+    if (destination_window_size_pixels < source_window_size_pixels) { interpolation = 0; }
+    rasterio_args.eResampleAlg = static_cast<GDALRIOResampleAlg>(interpolation);
+
+    RasterIOHelper helper = get_raster_io_helper();
+    // TODO: We could do more precise error handling by getting the error number using
+    // CPLGetLastErrorNo() and returning that to the user somehow - maybe a flag in the
+    // GeoRaster.
+    CPLErr error = CE_Failure;
+    FORMAT band_format = get_band_format(band_index);
+    int pixel_size = get_pixel_size_x() * get_pixel_size_y();
+    switch (band_format) {
+        case BYTE: {
+            GDALRasterBand *band = data->GetRasterBand(band_index);
+            uint8_t *array = new uint8_t[pixel_size];
+            std::fill(array, array + pixel_size, 0);
+            if (helper.usable_width <= 0 || helper.usable_height <= 0) {
+                // Empty results are still valid and should be treated normally, so return an array with
+                // only 0s
+                return array;
+            }
+            error = band->RasterIO(
+                    GF_Read, helper.clamped_pixel_offset_x, helper.clamped_pixel_offset_y, helper.usable_width, helper.usable_height,
+                    array + helper.remainder_y_top * destination_window_size_pixels + helper.remainder_x_left,
+                    helper.target_width, helper.target_height, GDT_Byte, 0, destination_window_size_pixels,
+                    &rasterio_args);
+
+                if (error < CE_Failure) { return array; }
+
+                // Delete array in case of error
+                delete [] array;
+
+            break;
+        }
+        case RF: {
+            GDALRasterBand *band = data->GetRasterBand(band_index);
+            float nodata = static_cast<float>(band->GetNoDataValue());
+            float *array = new float[pixel_size];
+            std::fill(array, array + pixel_size, nodata);
+            if (helper.usable_width <= 0 || helper.usable_height <= 0) {
+                // Empty results are still valid and should be treated normally, so return an array with
+                // only 0s
+                return array;
+            }
+
+            error = band->RasterIO(
+                GF_Read, helper.clamped_pixel_offset_x, helper.clamped_pixel_offset_y, helper.usable_width, helper.usable_height,
+                array + helper.remainder_y_top * destination_window_size_pixels + helper.remainder_x_left,
+                helper.target_width, helper.target_height, GDT_Float32, 0, destination_window_size_pixels * 4,
+                &rasterio_args);
+
+            if (error < CE_Failure) { return array; }
+
+            // Delete array in case of error
+            delete [] array;
+
+
+            break;
+        }
+        default: break;
+    }
     return nullptr;
 }
 
@@ -212,6 +298,30 @@ int GeoRaster::get_size_in_bytes() {
 
 GeoRaster::FORMAT GeoRaster::get_format() {
     return format;
+}
+
+GeoRaster::FORMAT GeoRaster::get_band_format(int band_index) {
+    int raster_count = data->GetRasterCount();
+    if (band_index < 1 || band_index > raster_count) {
+        return UNKNOWN;
+    }
+    GDALDataType d_format = data->GetRasterBand(band_index)->GetRasterDataType();
+    switch (d_format) {
+    case GDT_Unknown: return UNKNOWN;
+    case GDT_Byte: return BYTE;
+    // case GDT_UInt16:
+    // case GDT_Int16:
+    // case GDT_UInt32:
+    // case GDT_Int32:
+    case GDT_Float32: return RF;
+    case GDT_Float64: return RF;
+    // case GDT_CInt16:
+    // case GDT_CInt32:
+    // case GDT_CFloat32:
+    // case GDT_CFloat64:
+    // case GDT_TypeCount:
+    default: return UNKNOWN;
+    }
 }
 
 int GeoRaster::get_pixel_size_x() {

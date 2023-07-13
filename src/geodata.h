@@ -129,6 +129,14 @@ class EXPORT GeoRasterLayer : public Resource {
     Ref<GeoImage> get_image(double top_left_x, double top_left_y, double size_meters, int img_size,
                             int interpolation_type);
 
+    /// Like get_image but only returns the GeoImage of a single Band.
+    /// Each GeoRasterLayer has an index that represents the RasterBand index from where the
+    /// the information is taken in the Dataset. Bands that have been initialized without a specific
+    /// index will (probably erroneously) be assigned index 1.
+    /// TODO: Make sure that all layers get a correctly assigned index.
+    Ref<GeoImage> get_band_image(double top_left_x, double top_left_y, double size_meters, int img_size,
+                            int interpolation_type);
+
     /// Returns the value in the GeoRasterLayer at exactly the given position.
     /// Note that when reading many values from a confined area, it is more efficient to call
     /// get_image and read the pixels from there.
@@ -189,12 +197,22 @@ class EXPORT GeoRasterLayer : public Resource {
     /// Not exposed to Godot since it should never construct GeoFeatureLayers by hand.
     void set_origin_dataset(Ref<GeoDataset> dataset);
 
+    /// Get the band_index that this raster_layer is set to.
+    int get_band_index();
+
+    /// @brief Sets the band_index for this layer.
+    ///
+    /// Not exposed to Godot, since it's only meant for cloning/internal use.
+    void set_band_index(int band_index);
+
     bool write_access;
 
   private:
     Ref<GeoDataset> origin_dataset;
     std::shared_ptr<NativeDataset> dataset;
     ExtentData extent_data;
+    // The Band (in the Raster) that this GeoRasterLayer represents
+    int band_index;
 };
 
 /// A dataset which contains layers of geodata.
@@ -221,13 +239,22 @@ class EXPORT GeoDataset : public Resource {
     /// Return all GeoRasterLayers objects for this dataset.
     Array get_raster_layers();
 
+    /// Like `get_raster_layers`, but instead of looking for them by name, looking by index
+    Array get_raster_layers_by_band();
+
     /// Return all GeoFeatureLayer objects for this dataset.
     Array get_feature_layers();
 
     /// Returns a GeoRasterLayer object of the layer within this dataset with
     /// the given name. It is recommended to check the validity of the returned
     /// object with GeoRasterLayer::is_valid().
-    Ref<GeoRasterLayer> get_raster_layer(String name);
+    Ref<GeoRasterLayer> get_raster_layer(String name, int band_index);
+
+    /// Like `get_raster_layer` returns a GeoRasterLayer.
+    /// Different to `get_raster_layer` it not attempt to extract (possibly)
+    /// non-existent SUBDATASETS from the main Dataset and just sets the main
+    /// dataset as the native dataset of the Layer.
+    Ref<GeoRasterLayer> get_raster_band(String description, int band_index);
 
     /// Returns a GeoFeatureLayer object of the layer within this dataset with
     /// the given name. It is recommended to check the validity of the returned
@@ -242,6 +269,11 @@ class EXPORT GeoDataset : public Resource {
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this
     /// is only for internal use.
     void set_native_dataset(std::shared_ptr<NativeDataset> new_dataset);
+
+    /// @brief Get the total amount of raster bands contained in the dataset.
+    /// Returns 0 if dataset is not valid
+    /// @return the total amount of raster bands in the dataset.
+    int get_raster_count();
 
     bool write_access;
 

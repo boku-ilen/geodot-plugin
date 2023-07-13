@@ -1,4 +1,5 @@
 #include "geoimage.h"
+#include "GeoRaster.h"
 
 #include <algorithm>
 
@@ -144,6 +145,88 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
     }
 
     validity = true;
+}
+
+void GeoImage::set_raster_from_band(GeoRaster *raster, int interpolation, int band_index) {
+    this->raster = raster;
+    this->interpolation = interpolation;
+    int size = raster->get_pixel_size_x() * raster->get_pixel_size_y();
+    GeoRaster::FORMAT band_format = raster->get_band_format(band_index);
+    if (band_format == GeoRaster::RF) {
+        // Only two types currently supported at the moment FLOAT and BYTE
+        // and the former is 4 x bigger than the latter.
+        size *= 4;
+    }
+
+    PackedByteArray pba;
+
+    // Multiply by 4 since we want to put 32-float values into a byte array
+    pba.resize(size);
+
+    int index = 0;
+    int img_size_x = raster->get_pixel_size_x();
+    int img_size_y = raster->get_pixel_size_y();
+
+    // Depending on the data type, the insertion of the raw image into the
+    // PoolByteArray is different. The format is dependent on how Godot handles
+    // Image->create_from_data.
+
+    switch (band_format) {
+        case GeoRaster::RF: {
+            float *data = (float *)raster->get_band_as_array(band_index);
+
+            if (data == nullptr) return;
+            // Convert the float into 4 bytes and add those to the array
+            // Format of the PoolByteArray: (F1F2F3F4)(F1F2F3F4)(F1F2F3F4)...
+            union {
+                float fval;
+                int8_t bval[4];
+            } floatAsBytes;
+
+            for (int y = 0; y < img_size_y; y++) {
+                for (int x = 0; x < img_size_x; x++) {
+                    floatAsBytes.fval = data[y * img_size_x + x];
+
+                    pba.set(index, floatAsBytes.bval[0]);
+                    pba.set(++index, floatAsBytes.bval[1]);
+                    pba.set(++index, floatAsBytes.bval[2]);
+                    pba.set(++index, floatAsBytes.bval[3]);
+
+                    index++;
+                }
+            }
+            // All content of data is now in pba, so we can delete it
+            delete[] data;
+            // Create an image from the PoolByteArray
+            image =
+                Image::create_from_data(img_size_x, img_size_y, false, Image::Format::FORMAT_RF, pba);
+            break;
+        }
+        case GeoRaster::BYTE: {
+            uint8_t *data = (uint8_t *)raster->get_band_as_array(band_index);
+            Image::Format img_format = Image::Format::FORMAT_R8;
+            if (data == nullptr) { return; }
+            // 1:1 copy
+            // Format of the PoolByteArray: (B)(B)(B)...
+            for (int y = 0; y < img_size_y; y++) {
+                for (int x = 0; x < img_size_x; x++) {
+                    // We need to convert the float into 4 bytes because that's the
+                    // format Godot expects
+                    pba.set(index++, data[y * img_size_x + x]);
+                }
+            }
+            // All content of data is now in pba, so we can delete it
+            delete[] data;
+            image = Image::create_from_data(img_size_x, img_size_y, false, img_format,
+                                            pba);
+            break;
+        }
+        default:
+            break;
+    }
+
+    validity = true;
+
 }
 
 Ref<Image> GeoImage::get_image() {

@@ -53,6 +53,9 @@ class EXPORT GeoImage : public Resource {
     /// which already have raster data.
     void set_raster(GeoRaster *raster, int interpolation);
 
+    /// Like `set_raster` but uses only the band at band_index from raster.
+    void set_raster_from_band(GeoRaster *raster, int interpolation, int band_index);
+
     /// Get a Godot Image with the GeoImage's data
     Ref<Image> get_image();
 
