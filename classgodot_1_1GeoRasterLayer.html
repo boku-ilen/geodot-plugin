@@ -108,12 +108,21 @@ Dictionary&#160;</td><td class="memItemRight" valign="bottom"><b>get_file_info</
 Image::Format&#160;</td><td class="memItemRight" valign="bottom"><b>get_format</b> ()</td></tr>
 <tr class="memdesc:a203f754b3e66ae641eb5f0f575982125"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the Image format which corresponds to the data within this raster layer. <br /></td></tr>
 <tr class="separator:a203f754b3e66ae641eb5f0f575982125"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01322f30bff812a12e5c7bf229e0a4a9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoRasterLayer.html#a01322f30bff812a12e5c7bf229e0a4a9">get_band_count</a> ()</td></tr>
+<tr class="memdesc:a01322f30bff812a12e5c7bf229e0a4a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the total amount of raster bands contained in the layer. Returns 0 if layer is not valid.  <a href="classgodot_1_1GeoRasterLayer.html#a01322f30bff812a12e5c7bf229e0a4a9">More...</a><br /></td></tr>
+<tr class="separator:a01322f30bff812a12e5c7bf229e0a4a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a044355b4691797cbbf07bcc543bc2204"><td class="memItemLeft" align="right" valign="top"><a id="a044355b4691797cbbf07bcc543bc2204" name="a044355b4691797cbbf07bcc543bc2204"></a>
+Array&#160;</td><td class="memItemRight" valign="bottom"><b>get_band_descriptions</b> ()</td></tr>
+<tr class="memdesc:a044355b4691797cbbf07bcc543bc2204"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the descriptions of the individual raster bands as strings in an array. <br /></td></tr>
+<tr class="separator:a044355b4691797cbbf07bcc543bc2204"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa55ca73d539615453aa92694bf53e1e"><td class="memItemLeft" align="right" valign="top">Ref&lt; <a class="el" href="classgodot_1_1GeoDataset.html">GeoDataset</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoRasterLayer.html#aaa55ca73d539615453aa92694bf53e1e">get_dataset</a> ()</td></tr>
 <tr class="separator:aaa55ca73d539615453aa92694bf53e1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac118123e984167d0aefd22fabbc9bbfc"><td class="memItemLeft" align="right" valign="top">Ref&lt; <a class="el" href="classgodot_1_1GeoRasterLayer.html">GeoRasterLayer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoRasterLayer.html#ac118123e984167d0aefd22fabbc9bbfc">clone</a> ()</td></tr>
 <tr class="separator:ac118123e984167d0aefd22fabbc9bbfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6b2b1033a2487d1c91141bbfd68cf78"><td class="memItemLeft" align="right" valign="top">Ref&lt; <a class="el" href="classgodot_1_1GeoImage.html">GeoImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoRasterLayer.html#ac6b2b1033a2487d1c91141bbfd68cf78">get_image</a> (double top_left_x, double top_left_y, double size_meters, int img_size, int interpolation_type)</td></tr>
 <tr class="separator:ac6b2b1033a2487d1c91141bbfd68cf78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30efd544e06e65d7a0f8a8ba372d9a40"><td class="memItemLeft" align="right" valign="top">Ref&lt; <a class="el" href="classgodot_1_1GeoImage.html">GeoImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoRasterLayer.html#a30efd544e06e65d7a0f8a8ba372d9a40">get_band_image</a> (double top_left_x, double top_left_y, double size_meters, int img_size, int interpolation_type, int band_index)</td></tr>
+<tr class="separator:a30efd544e06e65d7a0f8a8ba372d9a40"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae493dd3fe2475fe535350c933f90670b"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoRasterLayer.html#ae493dd3fe2475fe535350c933f90670b">get_value_at_position</a> (double pos_x, double pos_y)</td></tr>
 <tr class="separator:ae493dd3fe2475fe535350c933f90670b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a02e0ac34f21807ff75f0ec05c2a9d194"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoRasterLayer.html#a02e0ac34f21807ff75f0ec05c2a9d194">get_value_at_position_with_resolution</a> (double pos_x, double pos_y, double pixel_size_meters)</td></tr>
@@ -177,6 +186,79 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>_bind_methods<
       </table>
 </div><div class="memdoc">
 <p >Returns a clone of this layer which points to the same file, but uses a different object to access it. This is required when using the same layer in multiple threads. </p>
+
+</div>
+</div>
+<a id="a01322f30bff812a12e5c7bf229e0a4a9" name="a01322f30bff812a12e5c7bf229e0a4a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a01322f30bff812a12e5c7bf229e0a4a9">&#9670;&#160;</a></span>get_band_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int godot::GeoRasterLayer::get_band_count </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the total amount of raster bands contained in the layer. Returns 0 if layer is not valid. </p>
+<dl class="section return"><dt>Returns</dt><dd>the total amount of raster bands in the layer. </dd></dl>
+
+</div>
+</div>
+<a id="a30efd544e06e65d7a0f8a8ba372d9a40" name="a30efd544e06e65d7a0f8a8ba372d9a40"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a30efd544e06e65d7a0f8a8ba372d9a40">&#9670;&#160;</a></span>get_band_image()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Ref&lt; <a class="el" href="classgodot_1_1GeoImage.html">GeoImage</a> &gt; godot::GeoRasterLayer::get_band_image </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>top_left_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>top_left_y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>size_meters</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>img_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>interpolation_type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>band_index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Like get_image but only returns the <a class="el" href="classgodot_1_1GeoImage.html">GeoImage</a> of a single Band. Each <a class="el" href="classgodot_1_1GeoRasterLayer.html">GeoRasterLayer</a> has an index that represents the RasterBand index from where the the information is taken in the Dataset. Bands that have been initialized without a specific index will (probably erroneously) be assigned index 1. TODO: Make sure that all layers get a correctly assigned index. </p>
 
 </div>
 </div>

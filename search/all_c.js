@@ -8,6 +8,7 @@ var searchData=
   ['set_5forigin_5fdataset_5',['set_origin_dataset',['../classgodot_1_1GeoFeatureLayer.html#a45f77fa3a58b280815e1a38b7ef159fb',1,'godot::GeoFeatureLayer::set_origin_dataset()'],['../classgodot_1_1GeoRasterLayer.html#aa259588fb7841da7e85bbe613c547f4b',1,'godot::GeoRasterLayer::set_origin_dataset()']]],
   ['set_5fpoint_5fcount_6',['set_point_count',['../classLineFeature.html#ad26b65db0e3f785e5c793e2332235a77',1,'LineFeature']]],
   ['set_5fraster_7',['set_raster',['../classgodot_1_1GeoImage.html#ab343fade8a4a8eafa8a9f0140cc0348e',1,'godot::GeoImage']]],
-  ['set_5fvalue_5fat_5fposition_8',['set_value_at_position',['../classgodot_1_1GeoRasterLayer.html#ad26c39a468cba6337f50122daaeba009',1,'godot::GeoRasterLayer']]],
-  ['smooth_5fadd_5fvalue_5fat_5fposition_9',['smooth_add_value_at_position',['../classgodot_1_1GeoRasterLayer.html#aa3ba940845cb86d0fb8fd9285f4eb670',1,'godot::GeoRasterLayer']]]
+  ['set_5fraster_5ffrom_5fband_8',['set_raster_from_band',['../classgodot_1_1GeoImage.html#a1fafdc92b2f86fa283dcec344795950f',1,'godot::GeoImage']]],
+  ['set_5fvalue_5fat_5fposition_9',['set_value_at_position',['../classgodot_1_1GeoRasterLayer.html#ad26c39a468cba6337f50122daaeba009',1,'godot::GeoRasterLayer']]],
+  ['smooth_5fadd_5fvalue_5fat_5fposition_10',['smooth_add_value_at_position',['../classgodot_1_1GeoRasterLayer.html#aa3ba940845cb86d0fb8fd9285f4eb670',1,'godot::GeoRasterLayer']]]
 ];

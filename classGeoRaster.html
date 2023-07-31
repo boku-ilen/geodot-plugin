@@ -88,7 +88,8 @@ Public Types</h2></td></tr>
 , <b>RF</b>
 , <b>BYTE</b>
 , <br />
-&#160;&#160;<b>UNKNOWN</b>
+&#160;&#160;<b>MIXED</b>
+, <b>UNKNOWN</b>
 <br />
  }</td></tr>
 <tr class="separator:a35d0f1990ac6bd50d2af4eb08651649d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -103,12 +104,18 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a37a3077f6dfbb7bb3d1c7e37ec5db194"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3455baef98db203b90a0da110f6a7b40"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeoRaster.html#a3455baef98db203b90a0da110f6a7b40">get_as_array</a> ()</td></tr>
 <tr class="separator:a3455baef98db203b90a0da110f6a7b40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb30d048782410848892d4fff1aae5d0"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeoRaster.html#afb30d048782410848892d4fff1aae5d0">get_band_as_array</a> (int band_index)</td></tr>
+<tr class="memdesc:afb30d048782410848892d4fff1aae5d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the data within a single band of the <a class="el" href="classGeoRaster.html">GeoRaster</a> as an array. The type of the array can be any of: BYTE, RF, or UNKNOWN.  <a href="classGeoRaster.html#afb30d048782410848892d4fff1aae5d0">More...</a><br /></td></tr>
+<tr class="separator:afb30d048782410848892d4fff1aae5d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75e633d6578e14de342773e527ece9eb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeoRaster.html#a75e633d6578e14de342773e527ece9eb">get_size_in_bytes</a> ()</td></tr>
 <tr class="separator:a75e633d6578e14de342773e527ece9eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab35fc13314dbacace7f3378aff5594bb"><td class="memItemLeft" align="right" valign="top"><a id="ab35fc13314dbacace7f3378aff5594bb" name="ab35fc13314dbacace7f3378aff5594bb"></a>
 FORMAT&#160;</td><td class="memItemRight" valign="bottom"><b>get_format</b> ()</td></tr>
 <tr class="memdesc:ab35fc13314dbacace7f3378aff5594bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the format of the data of this <a class="el" href="classGeoRaster.html">GeoRaster</a>. <br /></td></tr>
 <tr class="separator:ab35fc13314dbacace7f3378aff5594bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ecb3767acab98a30bf833a1aaeff657"><td class="memItemLeft" align="right" valign="top">FORMAT&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeoRaster.html#a7ecb3767acab98a30bf833a1aaeff657">get_band_format</a> (int band_index)</td></tr>
+<tr class="memdesc:a7ecb3767acab98a30bf833a1aaeff657"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the FORMAT of the band at band_index within the dataset. This function is most useful when working with either MIXED datasets or simply for extracting specific band information  <a href="classGeoRaster.html#a7ecb3767acab98a30bf833a1aaeff657">More...</a><br /></td></tr>
+<tr class="separator:a7ecb3767acab98a30bf833a1aaeff657"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc533dd614b34e573fa8c0807a013a2c"><td class="memItemLeft" align="right" valign="top"><a id="abc533dd614b34e573fa8c0807a013a2c" name="abc533dd614b34e573fa8c0807a013a2c"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>get_pixel_size_x</b> ()</td></tr>
 <tr class="separator:abc533dd614b34e573fa8c0807a013a2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,6 +151,60 @@ static FORMAT&#160;</td><td class="memItemRight" valign="bottom"><b>get_format_f
       </table>
 </div><div class="memdoc">
 <p >Return the data of the <a class="el" href="classGeoRaster.html">GeoRaster</a> as an array. The array contains type of the raster format (get_format). BYTE -&gt; (B)(B)(B) with B of type uint8_t RGB -&gt; (RGB)(RGB)(RGB) with R, G, B of type uint8_t RGBA -&gt; (RGBA)(RGBA)(RGBA) with R, G, B, A of type uint8_t RF -&gt; (F)(F)(F) with F of type float @RequiresManualDelete </p>
+
+</div>
+</div>
+<a id="afb30d048782410848892d4fff1aae5d0" name="afb30d048782410848892d4fff1aae5d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb30d048782410848892d4fff1aae5d0">&#9670;&#160;</a></span>get_band_as_array()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void * GeoRaster::get_band_as_array </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>band_index</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return the data within a single band of the <a class="el" href="classGeoRaster.html">GeoRaster</a> as an array. The type of the array can be any of: BYTE, RF, or UNKNOWN. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">band_index</td><td>the index of the band to be returned as array. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the band as array. </dd></dl>
+
+</div>
+</div>
+<a id="a7ecb3767acab98a30bf833a1aaeff657" name="a7ecb3767acab98a30bf833a1aaeff657"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ecb3767acab98a30bf833a1aaeff657">&#9670;&#160;</a></span>get_band_format()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">GeoRaster::FORMAT GeoRaster::get_band_format </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>band_index</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>get the FORMAT of the band at band_index within the dataset. This function is most useful when working with either MIXED datasets or simply for extracting specific band information </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">band_index</td><td>index of the band whose format will be found </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the FORMAT of the band at band_index </dd></dl>
 
 </div>
 </div>

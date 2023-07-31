@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['rastertileextractor_0',['RasterTileExtractor',['../classRasterTileExtractor.html',1,'']]]
+  ['rasteriohelper_0',['RasterIOHelper',['../structRasterIOHelper.html',1,'']]],
+  ['rastertileextractor_1',['RasterTileExtractor',['../classRasterTileExtractor.html',1,'']]]
 ];
