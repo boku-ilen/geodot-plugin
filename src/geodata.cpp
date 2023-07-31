@@ -24,7 +24,7 @@ void GeoDataset::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_raster_layers"), &GeoDataset::get_raster_layers);
     ClassDB::bind_method(D_METHOD("get_raster_layers_by_band"), &GeoDataset::get_raster_layers_by_band);
     ClassDB::bind_method(D_METHOD("get_feature_layers"), &GeoDataset::get_feature_layers);
-    ClassDB::bind_method(D_METHOD("get_raster_layer", "name", "band_index"), &GeoDataset::get_raster_layer);
+    ClassDB::bind_method(D_METHOD("get_raster_layer", "name", "band_index"), &GeoDataset::get_raster_layer, DEFVAL(1));
     ClassDB::bind_method(D_METHOD("get_feature_layer", "name"), &GeoDataset::get_feature_layer);
     ClassDB::bind_method(D_METHOD("get_raster_count"), &GeoDataset::get_raster_count);
     ClassDB::bind_method(D_METHOD("load_from_file", "file_path", "write_access"),
