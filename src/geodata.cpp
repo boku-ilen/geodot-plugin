@@ -22,9 +22,8 @@ void GeoDataset::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_file_info"), &GeoDataset::get_file_info);
     ClassDB::bind_method(D_METHOD("has_write_access"), &GeoDataset::has_write_access);
     ClassDB::bind_method(D_METHOD("get_raster_layers"), &GeoDataset::get_raster_layers);
-    ClassDB::bind_method(D_METHOD("get_raster_layers_by_band"), &GeoDataset::get_raster_layers_by_band);
     ClassDB::bind_method(D_METHOD("get_feature_layers"), &GeoDataset::get_feature_layers);
-    ClassDB::bind_method(D_METHOD("get_raster_layer", "name", "band_index"), &GeoDataset::get_raster_layer, DEFVAL(1));
+    ClassDB::bind_method(D_METHOD("get_raster_layer", "name"), &GeoDataset::get_raster_layer);
     ClassDB::bind_method(D_METHOD("get_feature_layer", "name"), &GeoDataset::get_feature_layer);
     ClassDB::bind_method(D_METHOD("get_raster_count"), &GeoDataset::get_raster_count);
     ClassDB::bind_method(D_METHOD("load_from_file", "file_path", "write_access"),
@@ -55,21 +54,10 @@ Array GeoDataset::get_raster_layers() {
     int total_names = names.size();
     for (int i = 0; i < total_names; i++ ) {
         std::string name = names[i];
-        layers.append(get_raster_layer(name.c_str(), i + 1));
+        layers.append(get_raster_layer(name.c_str()));
     }
 
     return layers;
-}
-
-Array GeoDataset::get_raster_layers_by_band() {
-    Array result = Array();
-
-    std::vector<std::string> descriptions = dataset->get_raster_band_descriptions();
-    for (int i = 0; i < descriptions.size(); i++) {
-        std::string description = descriptions[i];
-        result.append(get_raster_band(description.c_str(), i + 1));
-    }
-    return result;
 }
 
 Array GeoDataset::get_feature_layers() {
@@ -84,26 +72,13 @@ Array GeoDataset::get_feature_layers() {
     return layers;
 }
 
-Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name, int band_index) {
+Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
     Ref<GeoRasterLayer> raster_layer;
     raster_layer.instantiate();
 
     raster_layer->set_native_dataset(dataset->get_subdataset(name.utf8().get_data()));
     raster_layer->set_name(name);
     raster_layer->set_origin_dataset(this);
-    raster_layer->set_band_index(band_index);
-
-    return raster_layer;
-}
-
-Ref<GeoRasterLayer> GeoDataset::get_raster_band(String description, int band_index) {
-    Ref<GeoRasterLayer> raster_layer;
-    raster_layer.instantiate();
-
-    raster_layer->set_native_dataset(std::shared_ptr<NativeDataset>(this->dataset));
-    raster_layer->set_name(description);
-    raster_layer->set_origin_dataset(this);
-    raster_layer->set_band_index(band_index);
 
     return raster_layer;
 }
@@ -333,7 +308,6 @@ void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_center"), &GeoRasterLayer::get_center);
     ClassDB::bind_method(D_METHOD("get_min"), &GeoRasterLayer::get_min);
     ClassDB::bind_method(D_METHOD("get_max"), &GeoRasterLayer::get_max);
-    ClassDB::bind_method(D_METHOD("get_band_index"), &GeoRasterLayer::get_band_index);
     ClassDB::bind_method(D_METHOD("get_pixel_size"), &GeoRasterLayer::get_pixel_size);
     ClassDB::bind_method(D_METHOD("clone"), &GeoRasterLayer::clone);
     ClassDB::bind_method(D_METHOD("load_from_file", "file_path", "write_access"),
@@ -417,7 +391,7 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
 }
 
 Ref<GeoImage> GeoRasterLayer::get_band_image(double top_left_x, double top_left_y, double size_meters,
-                                        int img_size, int interpolation_type) {
+                                        int img_size, int interpolation_type, int band_index) {
     Ref<GeoImage> image;
     image.instantiate();
     if (dataset == nullptr || !dataset->is_valid()) {
@@ -617,14 +591,6 @@ void GeoRasterLayer::set_origin_dataset(Ref<GeoDataset> dataset) {
     this->origin_dataset = dataset;
 }
 
-void GeoRasterLayer::set_band_index(int band_index) {
-    this->band_index = band_index;
-}
-
-int GeoRasterLayer::get_band_index() {
-    return this->band_index;
-}
-
 Ref<GeoRasterLayer> GeoRasterLayer::clone() {
     Ref<GeoRasterLayer> layer_clone;
     layer_clone.instantiate();
@@ -632,14 +598,12 @@ Ref<GeoRasterLayer> GeoRasterLayer::clone() {
     layer_clone->set_native_dataset(dataset->clone());
     layer_clone->set_origin_dataset(origin_dataset);
     layer_clone->set_name(get_name());
-    layer_clone->set_band_index(this->band_index);
 
     return layer_clone;
 }
 
 void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
     this->write_access = write_access;
-    this->band_index = 1; // This is the default index if none is set explicitly
     dataset = VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access);
 
     // TODO: Might be better to produce a hard crash here, but CRASH_COND doesn't have the desired
