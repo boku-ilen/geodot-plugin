@@ -114,6 +114,14 @@ class EXPORT GeoRasterLayer : public Resource {
     /// Returns the Image format which corresponds to the data within this raster layer.
     Image::Format get_format();
 
+    /// @brief Get the total amount of raster bands contained in the layer.
+    /// Returns 0 if layer is not valid
+    /// @return the total amount of raster bands in the layer.
+    int get_band_count();
+
+    /// Returns the descriptions of the individual raster bands as strings in an array.
+    Array get_band_descriptions();
+
     /// Returns the dataset which this layer was opened from or null if it was opened directly, e.g.
     /// from a GeoTIFF.
     Ref<GeoDataset> get_dataset();
@@ -250,11 +258,6 @@ class EXPORT GeoDataset : public Resource {
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this
     /// is only for internal use.
     void set_native_dataset(std::shared_ptr<NativeDataset> new_dataset);
-
-    /// @brief Get the total amount of raster bands contained in the dataset.
-    /// Returns 0 if dataset is not valid
-    /// @return the total amount of raster bands in the dataset.
-    int get_raster_count();
 
     bool write_access;
 

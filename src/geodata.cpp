@@ -25,7 +25,6 @@ void GeoDataset::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_feature_layers"), &GeoDataset::get_feature_layers);
     ClassDB::bind_method(D_METHOD("get_raster_layer", "name"), &GeoDataset::get_raster_layer);
     ClassDB::bind_method(D_METHOD("get_feature_layer", "name"), &GeoDataset::get_feature_layer);
-    ClassDB::bind_method(D_METHOD("get_raster_count"), &GeoDataset::get_raster_count);
     ClassDB::bind_method(D_METHOD("load_from_file", "file_path", "write_access"),
                          &GeoDataset::load_from_file);
 }
@@ -103,13 +102,6 @@ void GeoDataset::load_from_file(String file_path, bool write_access) {
 
 void GeoDataset::set_native_dataset(std::shared_ptr<NativeDataset> new_dataset) {
     dataset = new_dataset;
-}
-
-int GeoDataset::get_raster_count() {
-    if (dataset == nullptr || !this->is_valid()) {
-        return 0;
-    }
-    return dataset->dataset->GetRasterCount();
 }
 
 void GeoFeatureLayer::_bind_methods() {
@@ -286,6 +278,8 @@ void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("has_write_access"), &GeoRasterLayer::has_write_access);
     ClassDB::bind_method(D_METHOD("get_file_info"), &GeoRasterLayer::get_file_info);
     ClassDB::bind_method(D_METHOD("get_format"), &GeoRasterLayer::get_format);
+    ClassDB::bind_method(D_METHOD("get_band_count"), &GeoRasterLayer::get_band_count);
+    ClassDB::bind_method(D_METHOD("get_band_descriptions"), &GeoRasterLayer::get_band_descriptions);
     ClassDB::bind_method(D_METHOD("get_dataset"), &GeoRasterLayer::get_dataset);
     ClassDB::bind_method(D_METHOD("get_image", "top_left_x", "top_left_y", "size_meters",
                                   "img_size", "interpolation_type"),
@@ -322,6 +316,18 @@ bool GeoRasterLayer::has_write_access() {
     return write_access;
 }
 
+Array GeoRasterLayer::get_band_descriptions() {
+    Array result = Array();
+
+    std::vector<std::string> descriptions = dataset->get_raster_band_descriptions();
+    for (int i = 0; i < descriptions.size(); i++) {
+        std::string description = descriptions[i];
+        result.append(description.c_str());
+    }
+
+    return result;
+}
+
 Dictionary GeoRasterLayer::get_file_info() {
     Dictionary info;
 
@@ -356,6 +362,10 @@ Image::Format GeoRasterLayer::get_format() {
             // FORMAT_MAX is returned as a fallback for mixed, and unknown
             return Image::FORMAT_MAX;
     }
+}
+
+int GeoRasterLayer::get_band_count() {
+    return dataset->dataset->GetRasterCount();
 }
 
 Ref<GeoDataset> GeoRasterLayer::get_dataset() {
