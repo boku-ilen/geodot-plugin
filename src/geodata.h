@@ -114,6 +114,14 @@ class EXPORT GeoRasterLayer : public Resource {
     /// Returns the Image format which corresponds to the data within this raster layer.
     Image::Format get_format();
 
+    /// @brief Get the total amount of raster bands contained in the layer.
+    /// Returns 0 if layer is not valid
+    /// @return the total amount of raster bands in the layer.
+    int get_band_count();
+
+    /// Returns the descriptions of the individual raster bands as strings in an array.
+    Array get_band_descriptions();
+
     /// Returns the dataset which this layer was opened from or null if it was opened directly, e.g.
     /// from a GeoTIFF.
     Ref<GeoDataset> get_dataset();
@@ -128,6 +136,14 @@ class EXPORT GeoRasterLayer : public Resource {
     /// operation is costly for large images. (Consider multithreading.)
     Ref<GeoImage> get_image(double top_left_x, double top_left_y, double size_meters, int img_size,
                             int interpolation_type);
+
+    /// Like get_image but only returns the GeoImage of a single Band.
+    /// Each GeoRasterLayer has an index that represents the RasterBand index from where the
+    /// the information is taken in the Dataset. Bands that have been initialized without a specific
+    /// index will (probably erroneously) be assigned index 1.
+    /// TODO: Make sure that all layers get a correctly assigned index.
+    Ref<GeoImage> get_band_image(double top_left_x, double top_left_y, double size_meters, int img_size,
+                            int interpolation_type, int band_index);
 
     /// Returns the value in the GeoRasterLayer at exactly the given position.
     /// Note that when reading many values from a confined area, it is more efficient to call

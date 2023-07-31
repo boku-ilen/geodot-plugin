@@ -41,6 +41,20 @@ std::vector<std::string> NativeDataset::get_raster_layer_names() {
     return names;
 }
 
+std::vector<std::string> NativeDataset::get_raster_band_descriptions() {
+    std::vector<std::string> result;
+    if (!this->is_valid()) {
+        return result;
+    }
+    int total_raster_bands = this->dataset->GetRasterCount();
+    for (int i = 1; i < total_raster_bands + 1; i++) {
+        GDALRasterBand *band = this->dataset->GetRasterBand(i);
+        std::string description(band->GetDescription());
+        result.emplace_back(description);
+    }
+    return result;
+}
+
 std::shared_ptr<NativeLayer> NativeDataset::get_layer(const char *name) const {
     return std::make_shared<NativeLayer>(dataset->GetLayerByName(name));
 }

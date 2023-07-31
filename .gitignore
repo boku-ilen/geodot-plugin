@@ -4,3 +4,4 @@ build/
 **/.sconsign.dblite
 **/.vscode/
 demo/.import/
+**/.godot/*

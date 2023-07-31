@@ -9,6 +9,7 @@
 #include "vector-extractor/VectorExtractor.h"
 
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <vector>
 
 namespace godot {
 
@@ -49,8 +50,9 @@ Array GeoDataset::get_raster_layers() {
     Array layers = Array();
 
     std::vector<std::string> names = dataset->get_raster_layer_names();
-
-    for (std::string name : names) {
+    int total_names = names.size();
+    for (int i = 0; i < total_names; i++ ) {
+        std::string name = names[i];
         layers.append(get_raster_layer(name.c_str()));
     }
 
@@ -276,10 +278,15 @@ void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("has_write_access"), &GeoRasterLayer::has_write_access);
     ClassDB::bind_method(D_METHOD("get_file_info"), &GeoRasterLayer::get_file_info);
     ClassDB::bind_method(D_METHOD("get_format"), &GeoRasterLayer::get_format);
+    ClassDB::bind_method(D_METHOD("get_band_count"), &GeoRasterLayer::get_band_count);
+    ClassDB::bind_method(D_METHOD("get_band_descriptions"), &GeoRasterLayer::get_band_descriptions);
     ClassDB::bind_method(D_METHOD("get_dataset"), &GeoRasterLayer::get_dataset);
     ClassDB::bind_method(D_METHOD("get_image", "top_left_x", "top_left_y", "size_meters",
                                   "img_size", "interpolation_type"),
                          &GeoRasterLayer::get_image);
+    ClassDB::bind_method(D_METHOD("get_band_image", "top_left_x", "top_left_y", "size_meters",
+                                  "img_size", "interpolation_type"),
+                         &GeoRasterLayer::get_band_image);
     ClassDB::bind_method(D_METHOD("get_value_at_position", "pos_x", "pos_y"),
                          &GeoRasterLayer::get_value_at_position);
     ClassDB::bind_method(D_METHOD("get_value_at_position_with_resolution"),
@@ -309,6 +316,18 @@ bool GeoRasterLayer::has_write_access() {
     return write_access;
 }
 
+Array GeoRasterLayer::get_band_descriptions() {
+    Array result = Array();
+
+    std::vector<std::string> descriptions = dataset->get_raster_band_descriptions();
+    for (int i = 0; i < descriptions.size(); i++) {
+        std::string description = descriptions[i];
+        result.append(description.c_str());
+    }
+
+    return result;
+}
+
 Dictionary GeoRasterLayer::get_file_info() {
     Dictionary info;
 
@@ -330,18 +349,23 @@ Dictionary GeoRasterLayer::get_file_info() {
 Image::Format GeoRasterLayer::get_format() {
     GeoRaster::FORMAT format = GeoRaster::get_format_for_dataset(dataset->dataset);
 
-    if (format == GeoRaster::BYTE) {
-        return Image::FORMAT_R8;
-    } else if (format == GeoRaster::RF) {
-        return Image::FORMAT_RF;
-    } else if (format == GeoRaster::RGB) {
-        return Image::FORMAT_RGB8;
-    } else if (format == GeoRaster::RGBA) {
-        return Image::FORMAT_RGBA8;
-    } else {
-        // FORMAT_MAX is returned as a fallback
-        return Image::FORMAT_MAX;
+    switch (format) {
+        case GeoRaster::BYTE:
+            return Image::FORMAT_R8;
+        case GeoRaster::RF:
+            return Image::FORMAT_RF;
+        case GeoRaster::RGB:
+            return Image::FORMAT_RGB8;
+        case GeoRaster::RGBA:
+            return Image::FORMAT_RGBA8;
+        default:
+            // FORMAT_MAX is returned as a fallback for mixed, and unknown
+            return Image::FORMAT_MAX;
     }
+}
+
+int GeoRasterLayer::get_band_count() {
+    return dataset->dataset->GetRasterCount();
 }
 
 Ref<GeoDataset> GeoRasterLayer::get_dataset() {
@@ -373,6 +397,26 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
 
     image->set_raster(raster, interpolation_type);
 
+    return image;
+}
+
+Ref<GeoImage> GeoRasterLayer::get_band_image(double top_left_x, double top_left_y, double size_meters,
+                                        int img_size, int interpolation_type, int band_index) {
+    Ref<GeoImage> image;
+    image.instantiate();
+    if (dataset == nullptr || !dataset->is_valid()) {
+        UtilityFunctions::push_error("Raster layer '", get_name(), "', index '",
+                band_index, "', is invalid. cannot get_band_image!");
+        return image;
+    }
+    GeoRaster *raster = RasterTileExtractor::get_tile_from_dataset(
+        dataset->dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
+    if (raster == nullptr) {
+        UtilityFunctions::push_error("No valid data was available in the raster layer '",
+                get_name(), "', index '", band_index, "', at the requested position position!");
+        return image;
+    }
+    image->set_raster_from_band(raster, interpolation_type, band_index);
     return image;
 }
 
@@ -435,7 +479,7 @@ void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant v
 
         delete[] values;
     } else {
-        // TODO: Output an error since there was apparently a type mis-match
+        std::cout << "Type mismatch: value of type " << value.get_type() << " and dataset of type " << get_format() << std::endl;
     }
 
     dataset->dataset->FlushCache();
@@ -444,7 +488,7 @@ void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant v
 void GeoRasterLayer::smooth_add_value_at_position(double pos_x, double pos_y, double summand,
                                                   double radius) {
     // FIXME: Like overlay_image_at_position, this could be done much more efficiently by batch-reading and writing
-    
+
     float resolution = get_pixel_size();
 
     for (float offset_x = -radius; offset_x <= radius; offset_x += resolution) {
@@ -527,7 +571,6 @@ void GeoRasterLayer::overlay_image_at_position(double pos_x, double pos_y, Ref<I
             set_value_at_position(pos_in_image_x, pos_in_image_y, value);
         }
     } else {
-        // TODO: Output an error since there was apparently a type mis-match
         std::cout << "Type mismatch: image of type " << image->get_format() << " and dataset of type " << get_format() << std::endl;
     }
 }
@@ -571,7 +614,6 @@ Ref<GeoRasterLayer> GeoRasterLayer::clone() {
 
 void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
     this->write_access = write_access;
-
     dataset = VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access);
 
     // TODO: Might be better to produce a hard crash here, but CRASH_COND doesn't have the desired
