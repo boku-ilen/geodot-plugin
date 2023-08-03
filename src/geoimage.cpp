@@ -40,7 +40,6 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
 
     PackedByteArray pba;
 
-    // Multiply by 4 since we want to put 32-float values into a byte array
     pba.resize(size);
 
     int index = 0;
