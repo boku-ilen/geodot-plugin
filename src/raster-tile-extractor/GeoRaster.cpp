@@ -26,19 +26,15 @@ RasterIOHelper GeoRaster::get_raster_io_helper() {
     int remainder_x_left = 0;
     int remainder_y_top = 0;
 
-    // Required for some datasets which don't have a clean transition from data into nodata.
-    // TODO: Consider exposing as an argument
-    int padding = 40;
-
-    int available_x = data->GetRasterXSize() - padding;
-    int available_y = data->GetRasterYSize() - padding;
+    int available_x = data->GetRasterXSize();
+    int available_y = data->GetRasterYSize();
 
     int target_width, target_height;
 
-    if (pixel_offset_x - padding < 0) {
-        usable_width += pixel_offset_x - padding;
-        remainder_x_left = (-pixel_offset_x + padding) * source_destination_ratio;
-        clamped_pixel_offset_x = padding;
+    if (pixel_offset_x < 0) {
+        usable_width += pixel_offset_x;
+        remainder_x_left = (-pixel_offset_x) * source_destination_ratio;
+        clamped_pixel_offset_x = 0;
 
         target_width = usable_width * source_destination_ratio;
     } else if (pixel_offset_x + source_window_size_pixels > available_x) {
@@ -52,10 +48,10 @@ RasterIOHelper GeoRaster::get_raster_io_helper() {
         target_width = destination_window_size_pixels;
     }
 
-    if (pixel_offset_y - padding < 0) {
-        usable_height += pixel_offset_y - padding;
-        remainder_y_top = (-pixel_offset_y + padding) * source_destination_ratio;
-        clamped_pixel_offset_y = padding;
+    if (pixel_offset_y < 0) {
+        usable_height += pixel_offset_y;
+        remainder_y_top = (-pixel_offset_y) * source_destination_ratio;
+        clamped_pixel_offset_y = 0;
 
         target_height = usable_height * source_destination_ratio;
     } else if (pixel_offset_y + source_window_size_pixels > available_y) {
