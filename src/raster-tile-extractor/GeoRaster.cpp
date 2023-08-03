@@ -67,10 +67,11 @@ RasterIOHelper GeoRaster::get_raster_io_helper() {
     result.min_raster_size = min_raster_size;
     result.remainder_x_left = remainder_x_left;
     result.remainder_y_top = remainder_y_top;
-    result.target_height = target_width;
+    result.target_height = target_height;
     result.target_width = target_width;
     result.usable_height = usable_height;
     result.usable_width = usable_width;
+
     return result;
 }
 
