@@ -36,8 +36,8 @@ namespace godot {
 // be acquired with get_image / get_image_texture) Note that a GeoImage should
 // not be created manually from Godot. It is only used as the return type of
 // Geodot functions such as Geodot::get_image.
-class EXPORT GeoImage : public Resource {
-    GDCLASS(GeoImage, Resource)
+class EXPORT GeoImage : public RefCounted {
+    GDCLASS(GeoImage, RefCounted)
 
   protected:
     static void _bind_methods();

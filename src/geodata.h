@@ -19,8 +19,8 @@ class EXPORT GeoDataset;
 /// vector geometry. This layer provides access to these features through
 /// various filters. Corresponds to OGRLayer.
 /// Its `name` property corresponds to the layer name.
-class EXPORT GeoFeatureLayer : public Resource {
-    GDCLASS(GeoFeatureLayer, Resource)
+class EXPORT GeoFeatureLayer : public RefCounted {
+    GDCLASS(GeoFeatureLayer, RefCounted)
 
   protected:
     static void _bind_methods();
@@ -82,6 +82,8 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// Not exposed to Godot since it should never construct GeoFeatureLayers by hand.
     void set_origin_dataset(Ref<GeoDataset> dataset);
 
+    String name;
+
   private:
     std::shared_ptr<NativeLayer> layer;
     Ref<GeoDataset> origin_dataset;
@@ -92,8 +94,8 @@ class EXPORT GeoFeatureLayer : public Resource {
 /// Corresponds to a Raster GDALDataset or Subdataset.
 /// Its `name` property is either the layer name, or the full path if it wasn't opened from a
 /// dataset (i.e. get_dataset() returns null).
-class EXPORT GeoRasterLayer : public Resource {
-    GDCLASS(GeoRasterLayer, Resource)
+class EXPORT GeoRasterLayer : public RefCounted {
+    GDCLASS(GeoRasterLayer, RefCounted)
 
   protected:
     static void _bind_methods();
@@ -207,6 +209,8 @@ class EXPORT GeoRasterLayer : public Resource {
 
     bool write_access;
 
+    String name;
+
   private:
     Ref<GeoDataset> origin_dataset;
     std::shared_ptr<NativeDataset> dataset;
@@ -215,8 +219,8 @@ class EXPORT GeoRasterLayer : public Resource {
 
 /// A dataset which contains layers of geodata.
 /// Corresponds to GDALDataset.
-class EXPORT GeoDataset : public Resource {
-    GDCLASS(GeoDataset, Resource)
+class EXPORT GeoDataset : public RefCounted {
+    GDCLASS(GeoDataset, RefCounted)
 
   protected:
     static void _bind_methods();
@@ -262,6 +266,8 @@ class EXPORT GeoDataset : public Resource {
     bool write_access;
 
     std::shared_ptr<NativeDataset> dataset;
+
+    String name;
 };
 
 } // namespace godot

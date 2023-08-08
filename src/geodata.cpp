@@ -36,7 +36,7 @@ bool GeoDataset::is_valid() {
 Dictionary GeoDataset::get_file_info() {
     Dictionary info;
 
-    info["name"] = get_name();
+    info["name"] = name;
     info["path"] = dataset->path.c_str();
 
     return info;
@@ -74,9 +74,8 @@ Array GeoDataset::get_feature_layers() {
 Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
     Ref<GeoRasterLayer> raster_layer;
     raster_layer.instantiate();
-
+    raster_layer->name = name;
     raster_layer->set_native_dataset(dataset->get_subdataset(name.utf8().get_data()));
-    raster_layer->set_name(name);
     raster_layer->set_origin_dataset(this);
 
     return raster_layer;
@@ -85,9 +84,8 @@ Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
 Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
     Ref<GeoFeatureLayer> feature_layer;
     feature_layer.instantiate();
-
+    feature_layer->name = name;
     feature_layer->set_native_layer(dataset->get_layer(name.utf8().get_data()));
-    feature_layer->set_name(name);
     feature_layer->set_origin_dataset(this);
 
     return feature_layer;
@@ -95,8 +93,6 @@ Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
 
 void GeoDataset::load_from_file(String file_path, bool write_access) {
     this->write_access = write_access;
-
-    set_path(file_path);
     dataset = VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access);
 }
 
@@ -131,7 +127,7 @@ bool GeoFeatureLayer::is_valid() {
 Dictionary GeoFeatureLayer::get_file_info() {
     Dictionary info;
 
-    info["name"] = get_name();
+    info["name"] = name;
     info["path"] = origin_dataset->dataset->path.c_str();
 
     return info;
@@ -337,11 +333,11 @@ Dictionary GeoRasterLayer::get_file_info() {
     // If origin_dataset is not set, this means that this layer is not a subdataset; therefore, the
     // name should only be the file name without the path. Otherwise, if this is a subdataset, the
     // name is just the name.
-    info["name"] = origin_dataset == nullptr ? get_name().get_file() : get_name();
+    info["name"] = origin_dataset == nullptr ? name.get_file() : name;
 
     // If origin_dataset is not set, the name equals the path. Otherwise, the path comes from the
     // origin_dataset and is set in the `path` attribute.
-    info["path"] = origin_dataset == nullptr ? get_name() : dataset->path.c_str();
+    info["path"] = origin_dataset == nullptr ? name : dataset->path.c_str();
 
     return info;
 }
@@ -380,7 +376,7 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
 
     if (dataset == nullptr || !dataset->is_valid()) {
         // TODO: Set validity to false
-        UtilityFunctions::push_error("Raster layer '", get_name(),
+        UtilityFunctions::push_error("Raster layer '", name,
                                      "' is invalid, cannot perform get_image!");
         return image;
     }
@@ -391,7 +387,7 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
     if (raster == nullptr) {
         // TODO: Set validity to false
         UtilityFunctions::push_error("No valid data was available in the raster layer '",
-                                     get_name(), "' at the requested position position!");
+                                     name, "' at the requested position position!");
         return image;
     }
 
@@ -405,7 +401,7 @@ Ref<GeoImage> GeoRasterLayer::get_band_image(double top_left_x, double top_left_
     Ref<GeoImage> image;
     image.instantiate();
     if (dataset == nullptr || !dataset->is_valid()) {
-        UtilityFunctions::push_error("Raster layer '", get_name(), "', index '",
+        UtilityFunctions::push_error("Raster layer '", name, "', index '",
                 band_index, "', is invalid. cannot get_band_image!");
         return image;
     }
@@ -413,7 +409,7 @@ Ref<GeoImage> GeoRasterLayer::get_band_image(double top_left_x, double top_left_
         dataset->dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
     if (raster == nullptr) {
         UtilityFunctions::push_error("No valid data was available in the raster layer '",
-                get_name(), "', index '", band_index, "', at the requested position position!");
+                name, "', index '", band_index, "', at the requested position position!");
         return image;
     }
     image->set_raster_from_band(raster, interpolation_type, band_index);
@@ -604,10 +600,9 @@ void GeoRasterLayer::set_origin_dataset(Ref<GeoDataset> dataset) {
 Ref<GeoRasterLayer> GeoRasterLayer::clone() {
     Ref<GeoRasterLayer> layer_clone;
     layer_clone.instantiate();
-
+    layer_clone->name = this->name;
     layer_clone->set_native_dataset(dataset->clone());
     layer_clone->set_origin_dataset(origin_dataset);
-    layer_clone->set_name(get_name());
 
     return layer_clone;
 }
