@@ -96,13 +96,11 @@ Public Member Functions</h2></td></tr>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_valid</b> ()</td></tr>
 <tr class="memdesc:a1587652792de4b303bef4003c5f2d701"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if the layer could successfully be loaded. <br /></td></tr>
 <tr class="separator:a1587652792de4b303bef4003c5f2d701"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a16d3251c046e0c208cb862f63f54ba46"><td class="memItemLeft" align="right" valign="top"><a id="a16d3251c046e0c208cb862f63f54ba46" name="a16d3251c046e0c208cb862f63f54ba46"></a>
-Dictionary&#160;</td><td class="memItemRight" valign="bottom"><b>get_file_info</b> ()</td></tr>
-<tr class="memdesc:a16d3251c046e0c208cb862f63f54ba46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns information about this file, e.g. the filename and the path. <br /></td></tr>
+<tr class="memitem:a16d3251c046e0c208cb862f63f54ba46"><td class="memItemLeft" align="right" valign="top">Dictionary&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoFeatureLayer.html#a16d3251c046e0c208cb862f63f54ba46">get_file_info</a> ()</td></tr>
 <tr class="separator:a16d3251c046e0c208cb862f63f54ba46"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6733c98a4549cc03141ea383a19c765b"><td class="memItemLeft" align="right" valign="top"><a id="a6733c98a4549cc03141ea383a19c765b" name="a6733c98a4549cc03141ea383a19c765b"></a>
 Ref&lt; <a class="el" href="classgodot_1_1GeoDataset.html">GeoDataset</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_dataset</b> ()</td></tr>
-<tr class="memdesc:a6733c98a4549cc03141ea383a19c765b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the dataset which this layer was opened from. <br /></td></tr>
+<tr class="memdesc:a6733c98a4549cc03141ea383a19c765b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the dataset which this layer was opened from. Never <code>null</code> because feature layers must have an underlying dataset. <br /></td></tr>
 <tr class="separator:a6733c98a4549cc03141ea383a19c765b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a95d0bd17d0d6b4ffb8890dd96aff888a"><td class="memItemLeft" align="right" valign="top">Vector3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoFeatureLayer.html#a95d0bd17d0d6b4ffb8890dd96aff888a">get_center</a> ()</td></tr>
 <tr class="separator:a95d0bd17d0d6b4ffb8890dd96aff888a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,7 +160,7 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>_bind_methods<
         </tr>
       </table>
 </div><div class="memdoc">
-<p >Adds the given feature to the layer. This change has no effect on the dataset on disk unless TODO is called. </p>
+<p >Adds the given feature to the layer. This change has no effect on the dataset on disk unless save_override or save_new is called. </p>
 
 </div>
 </div>
@@ -225,6 +223,24 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>_bind_methods<
 
 </div>
 </div>
+<a id="a16d3251c046e0c208cb862f63f54ba46" name="a16d3251c046e0c208cb862f63f54ba46"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16d3251c046e0c208cb862f63f54ba46">&#9670;&#160;</a></span>get_file_info()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Dictionary godot::GeoFeatureLayer::get_file_info </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Returns information about this file: <code>path</code>: the path to the dataset <code>name</code>: the name of the layer within the dataset </p>
+
+</div>
+</div>
 <a id="a8b224a1bd2f4c353afdf1001c62d2cb0" name="a8b224a1bd2f4c353afdf1001c62d2cb0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8b224a1bd2f4c353afdf1001c62d2cb0">&#9670;&#160;</a></span>remove_feature()</h2>
 
@@ -240,7 +256,7 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>_bind_methods<
         </tr>
       </table>
 </div><div class="memdoc">
-<p >Removes the given feature from the layer. This change has no effect on the dataset on disk unless TODO is called. </p>
+<p >Removes the given feature from the layer. This change has no effect on the dataset on disk unless save_override or save_new is called. </p>
 
 </div>
 </div>
