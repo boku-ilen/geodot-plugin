@@ -25,14 +25,14 @@ func _ready():
 		start_position_y,
 		tile_size_meters,
 		tile_size_pixels,
-		0
+		GeoImage.BILINEAR
 	)
 	var ortho = Geodot.get_raster_layer(ortho_data_path).get_image(
 		start_position_x,
 		start_position_y,
 		tile_size_meters,
 		tile_size_pixels * 4,
-		1
+		GeoImage.NEAREST
 	)
 	
 	get_node("MeshInstance3D").mesh.surface_get_material(0).set_shader_parameter("heightmap", img.get_image_texture())

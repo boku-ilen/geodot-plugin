@@ -12,22 +12,6 @@
 #include "GeoRaster.h"
 #include "defines.h"
 
-// TODO: Not exportable? https://github.com/godotengine/godot/issues/15922
-enum INTERPOLATION {
-    NEAREST,
-    BILINEAR,
-    CUBIC,
-    CUBICSPLINE,
-    LANCZOS,
-    AVG,
-    MODE,
-    MAX,
-    MIN,
-    MED,
-    Q1,
-    Q2,
-};
-
 namespace godot {
 
 // Wrapper for a GeoRaster from the RasterTileExtractor.
@@ -43,6 +27,21 @@ class EXPORT GeoImage : public RefCounted {
     static void _bind_methods();
 
   public:
+    enum INTERPOLATION {
+        NEAREST,
+        BILINEAR,
+        CUBIC,
+        CUBICSPLINE,
+        LANCZOS,
+        AVG,
+        MODE,
+        MAX,
+        MIN,
+        MED,
+        Q1,
+        Q2,
+    };
+
     GeoImage();
     ~GeoImage();
 
@@ -51,10 +50,10 @@ class EXPORT GeoImage : public RefCounted {
     /// Import a GeoRaster and prepare the Godot Image
     /// Should not be called from the outside; Geodot only returns GeoImages
     /// which already have raster data.
-    void set_raster(GeoRaster *raster, int interpolation);
+    void set_raster(GeoRaster *raster, INTERPOLATION interpolation);
 
     /// Like `set_raster` but uses only the band at band_index from raster.
-    void set_raster_from_band(GeoRaster *raster, int interpolation, int band_index);
+    void set_raster_from_band(GeoRaster *raster, INTERPOLATION interpolation, int band_index);
 
     /// Get a Godot Image with the GeoImage's data
     Ref<Image> get_image();
@@ -91,11 +90,13 @@ class EXPORT GeoImage : public RefCounted {
 
     Ref<Mutex> normalmap_load_mutex;
 
-    int interpolation;
+    INTERPOLATION interpolation;
 
     bool validity = false;
 };
 
 } // namespace godot
+
+VARIANT_ENUM_CAST(GeoImage::INTERPOLATION);
 
 #endif // __RASTER_H__

@@ -369,7 +369,7 @@ Ref<GeoDataset> GeoRasterLayer::get_dataset() {
 }
 
 Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,
-                                        int img_size, int interpolation_type) {
+                                        int img_size, GeoImage::INTERPOLATION interpolation_type) {
 
     Ref<GeoImage> image;
     image.instantiate();
@@ -397,7 +397,7 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
 }
 
 Ref<GeoImage> GeoRasterLayer::get_band_image(double top_left_x, double top_left_y, double size_meters,
-                                        int img_size, int interpolation_type, int band_index) {
+                                        int img_size, GeoImage::INTERPOLATION interpolation_type, int band_index) {
     Ref<GeoImage> image;
     image.instantiate();
     if (dataset == nullptr || !dataset->is_valid()) {

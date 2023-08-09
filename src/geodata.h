@@ -137,7 +137,7 @@ class EXPORT GeoRasterLayer : public RefCounted {
     /// The requested section is read from this GeoRasterLayer into that GeoImage, so this
     /// operation is costly for large images. (Consider multithreading.)
     Ref<GeoImage> get_image(double top_left_x, double top_left_y, double size_meters, int img_size,
-                            int interpolation_type);
+                            GeoImage::INTERPOLATION interpolation_type);
 
     /// Like get_image but only returns the GeoImage of a single Band.
     /// Each GeoRasterLayer has an index that represents the RasterBand index from where the
@@ -145,7 +145,7 @@ class EXPORT GeoRasterLayer : public RefCounted {
     /// index will (probably erroneously) be assigned index 1.
     /// TODO: Make sure that all layers get a correctly assigned index.
     Ref<GeoImage> get_band_image(double top_left_x, double top_left_y, double size_meters, int img_size,
-                            int interpolation_type, int band_index);
+                            GeoImage::INTERPOLATION interpolation_type, int band_index);
 
     /// Returns the value in the GeoRasterLayer at exactly the given position.
     /// Note that when reading many values from a confined area, it is more efficient to call
