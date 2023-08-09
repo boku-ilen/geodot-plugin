@@ -33,10 +33,12 @@ class EXPORT GeoFeatureLayer : public RefCounted {
     /// Returns true if the layer could successfully be loaded.
     bool is_valid();
 
-    /// Returns information about this file, e.g. the filename and the path
+    /// Returns information about this file:
+    /// `path`: the path to the dataset
+    /// `name`: the name of the layer within the dataset
     Dictionary get_file_info();
 
-    /// Returns the dataset which this layer was opened from.
+    /// Returns the dataset which this layer was opened from. Never `null` because feature layers must have an underlying dataset.
     Ref<GeoDataset> get_dataset();
 
     /// Returns the point in the center of the layer in projected meters.
@@ -50,11 +52,11 @@ class EXPORT GeoFeatureLayer : public RefCounted {
     Array get_all_features();
 
     /// Adds the given feature to the layer.
-    /// This change has no effect on the dataset on disk unless TODO is called.
+    /// This change has no effect on the dataset on disk unless save_override or save_new is called.
     Ref<GeoFeature> create_feature();
 
     /// Removes the given feature from the layer.
-    /// This change has no effect on the dataset on disk unless TODO is called.
+    /// This change has no effect on the dataset on disk unless save_override or save_new is called.
     void remove_feature(Ref<GeoFeature> feature);
 
     /// Applies all changes made to the layer to this layer, overriding the previous data
@@ -110,7 +112,10 @@ class EXPORT GeoRasterLayer : public RefCounted {
     /// Returns true for read-write-access and false for read-only-access.
     bool has_write_access();
 
-    /// Returns information about this file, e.g. the filename and the path
+    /// Returns information about this file:
+    /// `is_subdataset`: true if this layer is part of a larger dataset (e.g. a GeoPackage) and not a single file (e.g. a GeoTIFF).
+    /// `path`: the path to the underlying dataset (e.g. the GeoTIFF, or the GeoPackage which this layer was opened from).
+    /// `name`: the name of the layer (if `is_subdataset` is true) or the name of the file (otherwise).
     Dictionary get_file_info();
 
     /// Returns the Image format which corresponds to the data within this raster layer.
@@ -124,7 +129,7 @@ class EXPORT GeoRasterLayer : public RefCounted {
     /// Returns the descriptions of the individual raster bands as strings in an array.
     Array get_band_descriptions();
 
-    /// Returns the dataset which this layer was opened from or null if it was opened directly, e.g.
+    /// Returns the dataset which this layer was opened from or `null` if it was opened directly, e.g.
     /// from a GeoTIFF.
     Ref<GeoDataset> get_dataset();
 
@@ -140,10 +145,7 @@ class EXPORT GeoRasterLayer : public RefCounted {
                             GeoImage::INTERPOLATION interpolation_type);
 
     /// Like get_image but only returns the GeoImage of a single Band.
-    /// Each GeoRasterLayer has an index that represents the RasterBand index from where the
-    /// the information is taken in the Dataset. Bands that have been initialized without a specific
-    /// index will (probably erroneously) be assigned index 1.
-    /// TODO: Make sure that all layers get a correctly assigned index.
+    /// Useful for datasets with many bands which are interpreted in an unusual way (i.e. not RGB(A)).
     Ref<GeoImage> get_band_image(double top_left_x, double top_left_y, double size_meters, int img_size,
                             GeoImage::INTERPOLATION interpolation_type, int band_index);
 
