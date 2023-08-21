@@ -171,7 +171,7 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_for_ogrfeature(OGR
         OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
 
         for (OGRGeometry *geometry : collection) {
-            list.emplace_back(new LineFeature(feature, geometry));
+            list.emplace_back(new LineFeature(feature->Clone(), geometry));
         }
     } else if (geometry_type_name == "POLYGON") {
         list.emplace_back(new PolygonFeature(feature));
