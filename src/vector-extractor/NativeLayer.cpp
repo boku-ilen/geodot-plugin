@@ -182,7 +182,7 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_for_ogrfeature(OGR
         const OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
 
         for (const OGRGeometry *geometry : collection) {
-            list.emplace_back(new PolygonFeature(feature, geometry));
+            list.emplace_back(new PolygonFeature(feature->Clone(), geometry));
         }
     }
 

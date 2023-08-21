@@ -26,13 +26,26 @@ void GeoImage::_bind_methods() {
                          &GeoImage::get_normalmap_texture_for_heightmap);
     ClassDB::bind_method(D_METHOD("get_shape_for_heightmap"), &GeoImage::get_shape_for_heightmap);
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoImage::is_valid);
+
+    BIND_ENUM_CONSTANT(AVG);
+    BIND_ENUM_CONSTANT(BILINEAR);
+    BIND_ENUM_CONSTANT(CUBIC);
+    BIND_ENUM_CONSTANT(CUBICSPLINE);
+    BIND_ENUM_CONSTANT(LANCZOS);
+    BIND_ENUM_CONSTANT(MAX);
+    BIND_ENUM_CONSTANT(MED);
+    BIND_ENUM_CONSTANT(MIN);
+    BIND_ENUM_CONSTANT(MODE);
+    BIND_ENUM_CONSTANT(NEAREST);
+    BIND_ENUM_CONSTANT(Q1);
+    BIND_ENUM_CONSTANT(Q2);
 }
 
 bool GeoImage::is_valid() {
     return validity;
 }
 
-void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
+void GeoImage::set_raster(GeoRaster *raster, INTERPOLATION interpolation) {
     this->raster = raster;
     this->interpolation = interpolation;
 
@@ -146,7 +159,7 @@ void GeoImage::set_raster(GeoRaster *raster, int interpolation) {
     validity = true;
 }
 
-void GeoImage::set_raster_from_band(GeoRaster *raster, int interpolation, int band_index) {
+void GeoImage::set_raster_from_band(GeoRaster *raster, INTERPOLATION interpolation, int band_index) {
     this->raster = raster;
     this->interpolation = interpolation;
     int size = raster->get_pixel_size_x() * raster->get_pixel_size_y();

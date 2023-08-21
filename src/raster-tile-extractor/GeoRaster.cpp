@@ -3,15 +3,10 @@
 #include <algorithm> // For std::clamp etc
 #include <cstring>
 
+
 RasterIOHelper GeoRaster::get_raster_io_helper() {
     RasterIOHelper result;
-    // Restrict the offset and extent to the available data
-    // TODO: Handle properly:
-    // 1. Create array using size destination_window_size_pixels
-    // 2. Extract into other array as usual, but with clamped extent
-    // 3. Insert other array into 1. array line-by-line using the part which was clamped as the
-    // offset. This has the disadvantage of potentially allocating twice as much data, but it seems
-    // to be the only option with GDAL's RasterIO.
+    
     int min_raster_size = std::min(data->GetRasterXSize(), data->GetRasterYSize());
 
     double source_destination_ratio = static_cast<double>(destination_window_size_pixels) /
@@ -30,6 +25,12 @@ RasterIOHelper GeoRaster::get_raster_io_helper() {
     int available_y = data->GetRasterYSize();
 
     int target_width, target_height;
+
+    // Calculate clamped_pixel_offset and usable_[width|height] which can be used for retrieving data
+    // without getting outside of the raster data's extent (which would cause RasterIO errors)
+    // How this should be used:
+    // 1. Create array using size destination_window_size_pixels
+    // 2. Extract into that array clamped offset and usable width/height, offset by x and y remainder
 
     if (pixel_offset_x < 0) {
         usable_width += pixel_offset_x;
