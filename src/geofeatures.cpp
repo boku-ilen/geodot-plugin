@@ -66,7 +66,7 @@ Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
     std::shared_ptr<PointFeature> point = std::dynamic_pointer_cast<PointFeature>(gdal_feature);
 
     return Vector3(point->get_x() + offset_x, point->get_z() + offset_y,
-                   -(point->get_y() + offset_z));
+                   -point->get_y() - offset_z);
 }
 
 void GeoPoint::set_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z) {
@@ -113,7 +113,7 @@ Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_
         // system!
         double x = line->get_line_point_x(i) + static_cast<double>(offset_x);
         double y = line->get_line_point_z(i) + static_cast<double>(offset_y);
-        double z = -(line->get_line_point_y(i) + static_cast<double>(offset_z));
+        double z = -line->get_line_point_y(i) - static_cast<double>(offset_z);
 
         curve->add_point(Vector3(x, y, z));
     }
@@ -131,9 +131,9 @@ void GeoLine::set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y,
     // Set all points in the LineFeature according to the Curve3D
     for (int i = 0; i < point_count; i++) {
         Vector3 position = curve->get_point_position(i);
-        line->set_line_point(i, position.x - static_cast<double>(offset_x),
-                             position.z - static_cast<double>(offset_x),
-                             -position.y - static_cast<double>(offset_x));
+        line->set_line_point(i, position.x + static_cast<double>(offset_x),
+                             position.z + static_cast<double>(offset_z),
+                             -position.y - static_cast<double>(offset_y));
     }
 
     emit_signal("feature_changed");
@@ -175,7 +175,7 @@ PackedVector2Array GeoPolygon::get_offset_outer_vertices(int offset_x, int offse
     std::list<std::vector<double>> raw_outer_vertices = polygon->get_outer_vertices();
 
     for (const std::vector<double> vertex : raw_outer_vertices) {
-        vertices.push_back(Vector2(vertex[0] - static_cast<double>(offset_x), vertex[1] - static_cast<double>(offset_y)));
+        vertices.push_back(Vector2(vertex[0] + static_cast<double>(offset_x), vertex[1] + static_cast<double>(offset_y)));
     }
 
     return vertices;
