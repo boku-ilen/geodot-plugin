@@ -179,9 +179,9 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_for_ogrfeature(OGR
         // If this is a MultiFeature, we iterate over all the features in it and add those.
         // All the individual Features then share the same OGRFeature (with the same attributes
         // etc).
-        const OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
+        OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
 
-        for (const OGRGeometry *geometry : collection) {
+        for (OGRGeometry *geometry : collection) {
             list.emplace_back(new PolygonFeature(feature->Clone(), geometry));
         }
     }

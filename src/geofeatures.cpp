@@ -164,6 +164,8 @@ void GeoPolygon::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_offset_outer_vertices"), &GeoPolygon::get_offset_outer_vertices);
     ClassDB::bind_method(D_METHOD("set_outer_vertices", "vertices"),
                          &GeoPolygon::set_outer_vertices);
+    ClassDB::bind_method(D_METHOD("set_offset_outer_vertices", "offset_x", "offset_y", "vertices"),
+                         &GeoPolygon::set_offset_outer_vertices);
     ClassDB::bind_method(D_METHOD("get_holes"), &GeoPolygon::get_holes);
     ClassDB::bind_method(D_METHOD("add_hole", "hole"), &GeoPolygon::add_hole);
 }
@@ -186,7 +188,18 @@ PackedVector2Array GeoPolygon::get_outer_vertices() {
 }
 
 void GeoPolygon::set_outer_vertices(PackedVector2Array vertices) {
-    // TODO: Implement
+    set_offset_outer_vertices(0, 0, vertices);
+}
+
+void GeoPolygon::set_offset_outer_vertices(int offset_x, int offset_y, PackedVector2Array vertices) {
+    std::list<std::vector<double>> new_outer_vertices;
+
+    for (int i = 0; i < vertices.size(); i += 1) {
+        new_outer_vertices.emplace_back(std::vector<double>{vertices[i].x + offset_x, vertices[i].y + offset_y});
+    }
+
+    std::shared_ptr<PolygonFeature> polygon = std::dynamic_pointer_cast<PolygonFeature>(gdal_feature);
+    polygon->set_outer_vertices(new_outer_vertices);
 }
 
 Array GeoPolygon::get_holes() {

@@ -6,7 +6,7 @@ PolygonFeature::PolygonFeature(OGRFeature *feature) : Feature(feature) {
     geometry_type = POLYGON;
 }
 
-PolygonFeature::PolygonFeature(OGRFeature *feature, const OGRGeometry *ogrPolygon)
+PolygonFeature::PolygonFeature(OGRFeature *feature, OGRGeometry *ogrPolygon)
     : Feature(feature), polygon(ogrPolygon->toPolygon()) {
     geometry_type = POLYGON;
 }
@@ -28,6 +28,19 @@ std::list<std::vector<double>> PolygonFeature::get_outer_vertices() {
     }
 
     return vertices;
+}
+
+void PolygonFeature::set_outer_vertices(std::list<std::vector<double>> vertices) {
+    OGRLinearRing *ring = polygon->getExteriorRing();
+    ring->setNumPoints(vertices.size());
+    
+    int counter = 0;
+    for (std::vector<double> vertex : vertices) {
+        ring->setPoint(counter, vertex[0], vertex[1]);
+        counter++;
+    }
+
+    ring->closeRings();
 }
 
 std::list<std::list<std::vector<double>>> PolygonFeature::get_holes() {

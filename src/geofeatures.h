@@ -99,6 +99,8 @@ class EXPORT GeoPolygon : public GeoFeature {
 
     void set_outer_vertices(PackedVector2Array vertices);
 
+    void set_offset_outer_vertices(int offset_x, int offset_y, PackedVector2Array vertices);
+
     /// Return a list with any number of PoolVector2Arrays. These represent
     /// polygons that
     ///  should be cut out of the base polygon retreived by get_outer_vertices.

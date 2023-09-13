@@ -17,16 +17,19 @@ class PolygonFeature : public Feature {
     /// Construct a PolygonFeature with a feature that can contain any geometry (usually used for
     /// MultiPolygons) - it is not accessed, the geometry is given as a separate PolygonFeature
     /// parameter instead.
-    PolygonFeature(OGRFeature *feature, const OGRGeometry *ogrPolygon);
+    PolygonFeature(OGRFeature *feature, OGRGeometry *ogrPolygon);
 
     /// Get the vertices of the base shape
     std::list<std::vector<double>> get_outer_vertices();
+
+    /// Replace the outer vertices with new geometry (holes, if any, are left unchanged)
+    void set_outer_vertices(std::list<std::vector<double>> vertices);
 
     /// Get all cutout shapes
     std::list<std::list<std::vector<double>>> get_holes();
 
   private:
-    const OGRPolygon *polygon;
+    OGRPolygon *polygon;
 };
 
 #endif // __POLYGONFEATURE_H__
