@@ -91,20 +91,23 @@ $(function() {
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>  <span class="keyword">public</span>:</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    <span class="keyword">explicit</span> <a class="code hl_class" href="classPolygonFeature.html">PolygonFeature</a>(OGRFeature *feature);</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <a class="code hl_class" href="classPolygonFeature.html">PolygonFeature</a>(OGRFeature *feature, <span class="keyword">const</span> OGRGeometry *ogrPolygon);</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <a class="code hl_class" href="classPolygonFeature.html">PolygonFeature</a>(OGRFeature *feature, OGRGeometry *ogrPolygon);</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    std::list&lt;std::vector&lt;double&gt;&gt; <a class="code hl_function" href="classPolygonFeature.html#af8c7af8d5954e600b46707db142f8caf">get_outer_vertices</a>();</div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    std::list&lt;std::list&lt;std::vector&lt;double&gt;&gt;&gt; <a class="code hl_function" href="classPolygonFeature.html#a3a514152a4f279ed4667e7fe438153e8">get_holes</a>();</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classPolygonFeature.html#a979369ce3f48649d3a9759d13ba62e25">set_outer_vertices</a>(std::list&lt;std::vector&lt;double&gt;&gt; vertices);</div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <span class="keyword">const</span> OGRPolygon *polygon;</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>};</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="preprocessor">#endif </span><span class="comment">// __POLYGONFEATURE_H__</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    std::list&lt;std::list&lt;std::vector&lt;double&gt;&gt;&gt; <a class="code hl_function" href="classPolygonFeature.html#a3a514152a4f279ed4667e7fe438153e8">get_holes</a>();</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>  <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    OGRPolygon *polygon;</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>};</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="preprocessor">#endif </span><span class="comment">// __POLYGONFEATURE_H__</span></div>
 <div class="ttc" id="aclassFeature_html"><div class="ttname"><a href="classFeature.html">Feature</a></div><div class="ttdef"><b>Definition:</b> Feature.h:12</div></div>
 <div class="ttc" id="aclassPolygonFeature_html"><div class="ttname"><a href="classPolygonFeature.html">PolygonFeature</a></div><div class="ttdef"><b>Definition:</b> PolygonFeature.h:12</div></div>
-<div class="ttc" id="aclassPolygonFeature_html_a3a514152a4f279ed4667e7fe438153e8"><div class="ttname"><a href="classPolygonFeature.html#a3a514152a4f279ed4667e7fe438153e8">PolygonFeature::get_holes</a></div><div class="ttdeci">std::list&lt; std::list&lt; std::vector&lt; double &gt; &gt; &gt; get_holes()</div><div class="ttdoc">Get all cutout shapes.</div><div class="ttdef"><b>Definition:</b> PolygonFeature.cpp:33</div></div>
+<div class="ttc" id="aclassPolygonFeature_html_a3a514152a4f279ed4667e7fe438153e8"><div class="ttname"><a href="classPolygonFeature.html#a3a514152a4f279ed4667e7fe438153e8">PolygonFeature::get_holes</a></div><div class="ttdeci">std::list&lt; std::list&lt; std::vector&lt; double &gt; &gt; &gt; get_holes()</div><div class="ttdoc">Get all cutout shapes.</div><div class="ttdef"><b>Definition:</b> PolygonFeature.cpp:46</div></div>
+<div class="ttc" id="aclassPolygonFeature_html_a979369ce3f48649d3a9759d13ba62e25"><div class="ttname"><a href="classPolygonFeature.html#a979369ce3f48649d3a9759d13ba62e25">PolygonFeature::set_outer_vertices</a></div><div class="ttdeci">void set_outer_vertices(std::list&lt; std::vector&lt; double &gt; &gt; vertices)</div><div class="ttdoc">Replace the outer vertices with new geometry (holes, if any, are left unchanged)</div><div class="ttdef"><b>Definition:</b> PolygonFeature.cpp:33</div></div>
 <div class="ttc" id="aclassPolygonFeature_html_af8c7af8d5954e600b46707db142f8caf"><div class="ttname"><a href="classPolygonFeature.html#af8c7af8d5954e600b46707db142f8caf">PolygonFeature::get_outer_vertices</a></div><div class="ttdeci">std::list&lt; std::vector&lt; double &gt; &gt; get_outer_vertices()</div><div class="ttdoc">Get the vertices of the base shape.</div><div class="ttdef"><b>Definition:</b> PolygonFeature.cpp:14</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

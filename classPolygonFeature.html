@@ -91,12 +91,16 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>PolygonFeature</b> (OGRFeature *feature)</td></tr>
 <tr class="memdesc:a1119734e0a08edf02578c16fa6ba8f6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a <a class="el" href="classPolygonFeature.html">PolygonFeature</a> with a feature which contains a Polygon. <br /></td></tr>
 <tr class="separator:a1119734e0a08edf02578c16fa6ba8f6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3fea759b8d324530363f5f584ff6687"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPolygonFeature.html#ab3fea759b8d324530363f5f584ff6687">PolygonFeature</a> (OGRFeature *feature, const OGRGeometry *ogrPolygon)</td></tr>
-<tr class="separator:ab3fea759b8d324530363f5f584ff6687"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a339b62245a9a5adae5da5219f06eddce"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPolygonFeature.html#a339b62245a9a5adae5da5219f06eddce">PolygonFeature</a> (OGRFeature *feature, OGRGeometry *ogrPolygon)</td></tr>
+<tr class="separator:a339b62245a9a5adae5da5219f06eddce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8c7af8d5954e600b46707db142f8caf"><td class="memItemLeft" align="right" valign="top"><a id="af8c7af8d5954e600b46707db142f8caf" name="af8c7af8d5954e600b46707db142f8caf"></a>
 std::list&lt; std::vector&lt; double &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_outer_vertices</b> ()</td></tr>
 <tr class="memdesc:af8c7af8d5954e600b46707db142f8caf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the vertices of the base shape. <br /></td></tr>
 <tr class="separator:af8c7af8d5954e600b46707db142f8caf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a979369ce3f48649d3a9759d13ba62e25"><td class="memItemLeft" align="right" valign="top"><a id="a979369ce3f48649d3a9759d13ba62e25" name="a979369ce3f48649d3a9759d13ba62e25"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_outer_vertices</b> (std::list&lt; std::vector&lt; double &gt; &gt; vertices)</td></tr>
+<tr class="memdesc:a979369ce3f48649d3a9759d13ba62e25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replace the outer vertices with new geometry (holes, if any, are left unchanged) <br /></td></tr>
+<tr class="separator:a979369ce3f48649d3a9759d13ba62e25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a514152a4f279ed4667e7fe438153e8"><td class="memItemLeft" align="right" valign="top"><a id="a3a514152a4f279ed4667e7fe438153e8" name="a3a514152a4f279ed4667e7fe438153e8"></a>
 std::list&lt; std::list&lt; std::vector&lt; double &gt; &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_holes</b> ()</td></tr>
 <tr class="memdesc:a3a514152a4f279ed4667e7fe438153e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get all cutout shapes. <br /></td></tr>
@@ -145,8 +149,8 @@ OGRFeature *&#160;</td><td class="memItemRight" valign="bottom"><b>feature</b></
 <tr class="separator:a8d1ab395869c19e7f327cbd60f08ffa4 inherit pub_attribs_classFeature"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ab3fea759b8d324530363f5f584ff6687" name="ab3fea759b8d324530363f5f584ff6687"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab3fea759b8d324530363f5f584ff6687">&#9670;&#160;</a></span>PolygonFeature()</h2>
+<a id="a339b62245a9a5adae5da5219f06eddce" name="a339b62245a9a5adae5da5219f06eddce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a339b62245a9a5adae5da5219f06eddce">&#9670;&#160;</a></span>PolygonFeature()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -160,7 +164,7 @@ OGRFeature *&#160;</td><td class="memItemRight" valign="bottom"><b>feature</b></
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const OGRGeometry *&#160;</td>
+          <td class="paramtype">OGRGeometry *&#160;</td>
           <td class="paramname"><em>ogrPolygon</em>&#160;</td>
         </tr>
         <tr>
