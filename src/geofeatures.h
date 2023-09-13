@@ -93,6 +93,10 @@ class EXPORT GeoPolygon : public GeoFeature {
 
     /// Return the vertices making up the base polygon in a PoolVector2Array.
     PackedVector2Array get_outer_vertices();
+
+    /// Same as get_outer_vertices, but a given offset is subtracted from all vertices.
+    PackedVector2Array get_offset_outer_vertices(int offset_x, int offset_y);
+
     void set_outer_vertices(PackedVector2Array vertices);
 
     /// Return a list with any number of PoolVector2Arrays. These represent

@@ -161,23 +161,28 @@ void GeoLine::add_point(Vector3 point) {
 
 void GeoPolygon::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_outer_vertices"), &GeoPolygon::get_outer_vertices);
+    ClassDB::bind_method(D_METHOD("get_offset_outer_vertices"), &GeoPolygon::get_offset_outer_vertices);
     ClassDB::bind_method(D_METHOD("set_outer_vertices", "vertices"),
                          &GeoPolygon::set_outer_vertices);
     ClassDB::bind_method(D_METHOD("get_holes"), &GeoPolygon::get_holes);
     ClassDB::bind_method(D_METHOD("add_hole", "hole"), &GeoPolygon::add_hole);
 }
 
-PackedVector2Array GeoPolygon::get_outer_vertices() {
+PackedVector2Array GeoPolygon::get_offset_outer_vertices(int offset_x, int offset_y) {
     PackedVector2Array vertices = PackedVector2Array();
     std::shared_ptr<PolygonFeature> polygon = std::dynamic_pointer_cast<PolygonFeature>(gdal_feature);
 
     std::list<std::vector<double>> raw_outer_vertices = polygon->get_outer_vertices();
 
     for (const std::vector<double> vertex : raw_outer_vertices) {
-        vertices.push_back(Vector2(vertex[0], vertex[1]));
+        vertices.push_back(Vector2(vertex[0] - static_cast<double>(offset_x), vertex[1] - static_cast<double>(offset_y)));
     }
 
     return vertices;
+}
+
+PackedVector2Array GeoPolygon::get_outer_vertices() {
+    return get_offset_outer_vertices(0, 0);
 }
 
 void GeoPolygon::set_outer_vertices(PackedVector2Array vertices) {
