@@ -331,38 +331,52 @@ int GeoRaster::get_pixel_size_y() {
 }
 
 uint64_t *GeoRaster::get_histogram() {
-    uint64_t *histogram = new uint64_t[256];
+    uint64_t *histogram = new uint64_t[1000];
 
     // Initialize array
-    for (int i = 0; i < 256; i++) {
+    for (int i = 0; i < 1000; i++) {
         histogram[i] = 0;
     }
 
-    uint8_t *array = reinterpret_cast<uint8_t *>(get_as_array());
+    if (format == RF) {
+        float *array = reinterpret_cast<float *>(get_as_array());
 
-    int array_size = 0;
-    int step;
+        for (int i = 0; i < get_pixel_size_x() * get_pixel_size_y(); i += 1) {
+            uint64_t value = static_cast<uint64_t>(array[i]);
 
-    // In the case of RGB and RGBA arrays, we only check the R value.
-    // This is because the function likely doesn't make sense on real RGB(A) images such as
-    // orthophotos, but BYTE images may present themselves as RGB images, e.g. in the case of
-    // GeoPackage rasters.
-    if (format == BYTE) {
-        array_size = get_pixel_size_x() * get_pixel_size_y();
-        step = 1;
-    } else if (format == RGB) {
-        array_size = get_pixel_size_x() * get_pixel_size_y() * 3;
-        step = 3;
-    } else if (format == RGBA) {
-        array_size = get_pixel_size_x() * get_pixel_size_y() * 4;
-        step = 4;
+            if (value < 1000) {
+                histogram[value]++;
+            }
+        }
+
+        delete[] array;
+    } else {
+        uint8_t *array = reinterpret_cast<uint8_t *>(get_as_array());
+
+        int array_size = 0;
+        int step;
+
+        // In the case of RGB and RGBA arrays, we only check the R value.
+        // This is because the function likely doesn't make sense on real RGB(A) images such as
+        // orthophotos, but BYTE images may present themselves as RGB images, e.g. in the case of
+        // GeoPackage rasters.
+        if (format == BYTE) {
+            array_size = get_pixel_size_x() * get_pixel_size_y();
+            step = 1;
+        } else if (format == RGB) {
+            array_size = get_pixel_size_x() * get_pixel_size_y() * 3;
+            step = 3;
+        } else if (format == RGBA) {
+            array_size = get_pixel_size_x() * get_pixel_size_y() * 4;
+            step = 4;
+        }
+
+        for (int i = 0; i < array_size; i += step) {
+            histogram[array[i]]++;
+        }
+
+        delete[] array;
     }
-
-    for (int i = 0; i < array_size; i += step) {
-        histogram[array[i]]++;
-    }
-
-    delete[] array;
 
     return histogram;
 }
@@ -433,7 +447,7 @@ int *GeoRaster::get_most_common(int number_of_elements) {
 
     for (int element_index = 0; element_index < number_of_elements; element_index++) {
         // Get the index of the currently highest value
-        int highest_index = get_index_of_highest_value(histogram, 256);
+        int highest_index = get_index_of_highest_value(histogram, 1000);
 
         // Add the currently highest index to the returned array
         // The index is used, not the value, since the value corresponds to the number of occurences
