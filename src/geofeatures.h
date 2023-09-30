@@ -53,8 +53,10 @@ class EXPORT GeoPoint : public GeoFeature {
     GeoPoint() = default;
     ~GeoPoint() = default;
 
-    Vector3 get_offset_vector3(int offset_x, int offset_y, int offset_z);
-    void set_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z);
+    Vector3 get_offset_vector3(double offset_x, double offset_y, double offset_z);
+    Vector3 get_int_offset_vector3(int offset_x, int offset_y, int offset_z);
+    void set_offset_vector3(Vector3 vector, double offset_x, double offset_y, double offset_z);
+    void set_int_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z);
 
     Vector3 get_vector3();
     void set_vector3(Vector3 vector);
@@ -71,8 +73,10 @@ class EXPORT GeoLine : public GeoFeature {
     GeoLine() = default;
     ~GeoLine() = default;
 
-    Ref<Curve3D> get_offset_curve3d(int offset_x, int offset_y, int offset_z);
-    void set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y, int offset_z);
+    Ref<Curve3D> get_offset_curve3d(double offset_x, double offset_y, double offset_z);
+    Ref<Curve3D> get_int_offset_curve3d(int offset_x, int offset_y, int offset_z);
+    void set_offset_curve3d(Ref<Curve3D> curve, double offset_x, double offset_y, double offset_z);
+    void set_int_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y, int offset_z);
 
     Ref<Curve3D> get_curve3d();
     void set_curve3d(Ref<Curve3D> curve);
@@ -95,16 +99,20 @@ class EXPORT GeoPolygon : public GeoFeature {
     PackedVector2Array get_outer_vertices();
 
     /// Same as get_outer_vertices, but a given offset is subtracted from all vertices.
-    PackedVector2Array get_offset_outer_vertices(int offset_x, int offset_y);
+    PackedVector2Array get_offset_outer_vertices(double offset_x, double offset_y);
+    PackedVector2Array get_int_offset_outer_vertices(int offset_x, int offset_y);
 
     void set_outer_vertices(PackedVector2Array vertices);
 
-    void set_offset_outer_vertices(int offset_x, int offset_y, PackedVector2Array vertices);
+    void set_offset_outer_vertices(double offset_x, double offset_y, PackedVector2Array vertices);
+    void set_int_offset_outer_vertices(int offset_x, int offset_y, PackedVector2Array vertices);
 
     /// Return a list with any number of PoolVector2Arrays. These represent
     /// polygons that
-    ///  should be cut out of the base polygon retreived by get_outer_vertices.
+    ///  should be cut out of the base polygon retrieved by get_outer_vertices.
     Array get_holes();
+    Array get_offset_holes(double offset_x, double offset_y);
+    Array get_int_offset_holes(int offset_x, int offset_y);
     void add_hole(PackedVector2Array hole);
 };
 
