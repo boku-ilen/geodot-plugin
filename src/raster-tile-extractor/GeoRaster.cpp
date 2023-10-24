@@ -32,16 +32,22 @@ RasterIOHelper GeoRaster::get_raster_io_helper() {
     // 1. Create array using size destination_window_size_pixels
     // 2. Extract into that array clamped offset and usable width/height, offset by x and y remainder
 
-    if (pixel_offset_x < 0) {
-        usable_width += pixel_offset_x;
-        remainder_x_left = (-pixel_offset_x) * source_destination_ratio;
-        clamped_pixel_offset_x = 0;
+    bool is_left_outside = pixel_offset_x < 0;
+    bool is_right_outside = pixel_offset_x + source_window_size_pixels > available_x;
 
-        target_width = usable_width * source_destination_ratio;
-    } else if (pixel_offset_x + source_window_size_pixels > available_x) {
-        usable_width -= pixel_offset_x + source_window_size_pixels - available_x;
+    if (is_left_outside || is_right_outside) {
+        if (is_left_outside) {
+            usable_width += pixel_offset_x;
+            remainder_x_left = (-pixel_offset_x) * source_destination_ratio;
+            clamped_pixel_offset_x = 0;
 
-        target_width = usable_width * source_destination_ratio;
+            target_width = usable_width * source_destination_ratio;
+        }
+        if (is_right_outside) {
+            usable_width -= pixel_offset_x + source_window_size_pixels - available_x;
+
+            target_width = usable_width * source_destination_ratio;
+        }
     } else {
         // Could be generalized as `target_width = usable_width * source_destination_ratio`, but
         // this can introduce a slight floating point error in cases where target_width should be
@@ -49,16 +55,22 @@ RasterIOHelper GeoRaster::get_raster_io_helper() {
         target_width = destination_window_size_pixels;
     }
 
-    if (pixel_offset_y < 0) {
-        usable_height += pixel_offset_y;
-        remainder_y_top = (-pixel_offset_y) * source_destination_ratio;
-        clamped_pixel_offset_y = 0;
+    bool is_up_outside = pixel_offset_y < 0;
+    bool is_down_outside = pixel_offset_y + source_window_size_pixels > available_y;
 
-        target_height = usable_height * source_destination_ratio;
-    } else if (pixel_offset_y + source_window_size_pixels > available_y) {
-        usable_height -= pixel_offset_y + source_window_size_pixels - available_y;
+    if (is_up_outside || is_down_outside) {
+        if (is_up_outside) {
+            usable_height += pixel_offset_y;
+            remainder_y_top = (-pixel_offset_y) * source_destination_ratio;
+            clamped_pixel_offset_y = 0;
 
-        target_height = usable_height * source_destination_ratio;
+            target_height = usable_height * source_destination_ratio;
+        }
+        if (is_down_outside) {
+            usable_height -= pixel_offset_y + source_window_size_pixels - available_y;
+
+            target_height = usable_height * source_destination_ratio;
+        }
     } else {
         target_height = destination_window_size_pixels;
     }
