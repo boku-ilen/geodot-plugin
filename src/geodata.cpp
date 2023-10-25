@@ -609,7 +609,7 @@ Ref<GeoRasterLayer> GeoRasterLayer::clone() {
 
 void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
     this->write_access = write_access;
-    dataset = VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access);
+    set_native_dataset(VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access));
 
     // TODO: Might be better to produce a hard crash here, but CRASH_COND doesn't have the desired
     // effect - see https://github.com/godotengine/godot-cpp/issues/521
