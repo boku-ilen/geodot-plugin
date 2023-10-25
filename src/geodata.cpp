@@ -333,7 +333,7 @@ Dictionary GeoRasterLayer::get_file_info() {
     // If origin_dataset is not set, this means that this layer is not a subdataset; therefore, the
     // name should only be the file name without the path. Otherwise, if this is a subdataset, the
     // name is just the name.
-    info["name"] = origin_dataset == nullptr ? name.get_file() : name;
+    info["name"] = origin_dataset == nullptr ? name.get_file().get_basename() : name;
 
     // If origin_dataset is not set, the name equals the path. Otherwise, the path comes from the
     // origin_dataset and is set in the `path` attribute.
@@ -616,6 +616,10 @@ void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
     if (!dataset->is_valid()) {
         UtilityFunctions::push_error("Could not load GeoRasterLayer from path '", file_path, "'!");
     }
+
+    // Cause of backwards compability the objects name needs to be the path
+    // Obtaining the name using get_file_info will give back the stem (filename without extension)
+    name = file_path;
 }
 
 void GeoRasterLayer::set_native_dataset(std::shared_ptr<NativeDataset> new_dataset) {
