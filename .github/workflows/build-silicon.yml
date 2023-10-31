@@ -1,0 +1,67 @@
+name: Compile Geodot for Apple Silicon
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master, godot3, silicon-action ]
+  pull_request:
+    branches: [ master, godot3 ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: macos-latest-xlarge
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Get godot-cpp commit hash
+        id: get-godot-cpp-hash
+        run: |
+          echo "hash=$(git submodule | head -n1 | awk '{print $1;}')" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Cache generated godot-cpp bindings
+        id: cache-bindings
+        uses: actions/cache@v2
+        env:
+          cache-name: godot-cpp-cache
+        with:
+          path: godot-cpp
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ github.ref_name }}-${{ steps.get-godot-cpp-hash.outputs.hash }}-silicon
+
+      - name: Initialize submodules
+        if: steps.cache-bindings.outputs.cache-hit != 'true'
+        run: git submodule update --init --recursive
+        
+      - name: Install dependencies
+        run: |
+          brew install gdal
+          brew install scons
+          brew install dylibbundler
+      
+      - name: Generate Godot-CPP bindings
+        if: steps.cache-bindings.outputs.cache-hit != 'true'
+        run: scons arch=arm64 generate_bindings=yes
+        working-directory: godot-cpp
+        
+      - name: Build Geodot
+        run: scons platform=macos arch=arm64 osgeo_path=$(brew info gdal | grep '/usr/local' | cut -d ' ' -f 1)
+        
+      - name: Bundle dependencies
+        run: dylibbundler -of -b -x ./demo/addons/geodot/macos/libgeodot.dylib -d ./demo/addons/geodot/macos/ -p @executable_path
+        
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: macos-build
+          path: |
+            demo
