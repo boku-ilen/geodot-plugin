@@ -54,22 +54,31 @@ bool GeoFeature::intersects_with(Ref<GeoFeature> other) {
 
 void GeoPoint::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_vector3"), &GeoPoint::get_vector3);
+    ClassDB::bind_method(D_METHOD("get_float_offset_vector3", "offset_x", "offset_y", "offset_z"),
+                         &GeoPoint::get_float_offset_vector3);
     ClassDB::bind_method(D_METHOD("get_offset_vector3", "offset_x", "offset_y", "offset_z"),
                          &GeoPoint::get_offset_vector3);
     ClassDB::bind_method(D_METHOD("set_vector3", "vector"), &GeoPoint::set_vector3);
+    ClassDB::bind_method(
+        D_METHOD("set_float_offset_vector3", "vector", "offset_x", "offset_y", "offset_z"),
+        &GeoPoint::set_float_offset_vector3);
     ClassDB::bind_method(
         D_METHOD("set_offset_vector3", "vector", "offset_x", "offset_y", "offset_z"),
         &GeoPoint::set_offset_vector3);
 }
 
-Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
+Vector3 GeoPoint::get_float_offset_vector3(double offset_x, double offset_y, double offset_z) {
     std::shared_ptr<PointFeature> point = std::dynamic_pointer_cast<PointFeature>(gdal_feature);
 
     return Vector3(point->get_x() + offset_x, point->get_z() + offset_y,
                    -point->get_y() - offset_z);
 }
 
-void GeoPoint::set_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z) {
+Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
+    return get_offset_vector3(offset_x, offset_y, offset_z);
+}
+
+void GeoPoint::set_float_offset_vector3(Vector3 vector, double offset_x, double offset_y, double offset_z) {
     std::shared_ptr<PointFeature> point = std::dynamic_pointer_cast<PointFeature>(gdal_feature);
 
     // Internally, a different coordinate system is used (Z up and reversed), which is why the
@@ -77,6 +86,10 @@ void GeoPoint::set_offset_vector3(Vector3 vector, int offset_x, int offset_y, in
     point->set_vector(offset_x + vector.x, offset_z - vector.z, offset_y + vector.y);
 
     emit_signal("feature_changed");
+}
+
+void GeoPoint::set_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z) {
+    set_offset_vector3(vector, offset_x, offset_y, offset_z);
 }
 
 Vector3 GeoPoint::get_vector3() {
@@ -93,14 +106,19 @@ void GeoLine::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_curve3d"), &GeoLine::get_curve3d);
     ClassDB::bind_method(D_METHOD("get_offset_curve3d", "offset_x", "offset_y", "offset_z"),
                          &GeoLine::get_offset_curve3d);
+    ClassDB::bind_method(D_METHOD("get_float_offset_curve3d", "offset_x", "offset_y", "offset_z"),
+                         &GeoLine::get_float_offset_curve3d);
     ClassDB::bind_method(D_METHOD("set_curve3d", "curve"), &GeoLine::set_curve3d);
+    ClassDB::bind_method(
+        D_METHOD("set_float_offset_curve3d", "curve", "offset_x", "offset_y", "offset_z"),
+        &GeoLine::set_float_offset_curve3d);
     ClassDB::bind_method(
         D_METHOD("set_offset_curve3d", "curve", "offset_x", "offset_y", "offset_z"),
         &GeoLine::set_offset_curve3d);
     ClassDB::bind_method(D_METHOD("add_point", "point"), &GeoLine::add_point);
 }
 
-Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
+Ref<Curve3D> GeoLine::get_float_offset_curve3d(double offset_x, double offset_y, double offset_z) {
     std::shared_ptr<LineFeature> line = std::dynamic_pointer_cast<LineFeature>(gdal_feature);
 
     Ref<Curve3D> curve;
@@ -111,9 +129,9 @@ Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_
     for (int i = 0; i < point_count; i++) {
         // Note: y and z are swapped because of differences in the coordinate
         // system!
-        double x = line->get_line_point_x(i) + static_cast<double>(offset_x);
-        double y = line->get_line_point_z(i) + static_cast<double>(offset_y);
-        double z = -line->get_line_point_y(i) - static_cast<double>(offset_z);
+        double x = line->get_line_point_x(i) + offset_x;
+        double y = line->get_line_point_z(i) + offset_y;
+        double z = -line->get_line_point_y(i) - offset_z;
 
         curve->add_point(Vector3(x, y, z));
     }
@@ -121,7 +139,11 @@ Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_
     return curve;
 }
 
-void GeoLine::set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y, int offset_z) {
+Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
+    return get_offset_curve3d(offset_x, offset_y, offset_z);
+}
+
+void GeoLine::set_float_offset_curve3d(Ref<Curve3D> curve, double offset_x, double offset_y, double offset_z) {
     std::shared_ptr<LineFeature> line = std::dynamic_pointer_cast<LineFeature>(gdal_feature);
     int point_count = curve->get_point_count();
 
@@ -131,12 +153,16 @@ void GeoLine::set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y,
     // Set all points in the LineFeature according to the Curve3D
     for (int i = 0; i < point_count; i++) {
         Vector3 position = curve->get_point_position(i);
-        line->set_line_point(i, position.x + static_cast<double>(offset_x),
-                             position.z + static_cast<double>(offset_z),
-                             -position.y - static_cast<double>(offset_y));
+        line->set_line_point(i, position.x + offset_x,
+                             position.z + offset_z,
+                             -position.y - offset_y);
     }
 
     emit_signal("feature_changed");
+}
+
+void GeoLine::set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y, int offset_z) {
+    set_offset_curve3d(curve, offset_x, offset_y, offset_z);
 }
 
 Ref<Curve3D> GeoLine::get_curve3d() {
@@ -161,37 +187,46 @@ void GeoLine::add_point(Vector3 point) {
 
 void GeoPolygon::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_outer_vertices"), &GeoPolygon::get_outer_vertices);
+    ClassDB::bind_method(D_METHOD("get_float_offset_outer_vertices"), &GeoPolygon::get_float_offset_outer_vertices);
     ClassDB::bind_method(D_METHOD("get_offset_outer_vertices"), &GeoPolygon::get_offset_outer_vertices);
     ClassDB::bind_method(D_METHOD("set_outer_vertices", "vertices"),
                          &GeoPolygon::set_outer_vertices);
+    ClassDB::bind_method(D_METHOD("set_float_offset_outer_vertices", "offset_x", "offset_y", "vertices"),
+                         &GeoPolygon::set_float_offset_outer_vertices);
     ClassDB::bind_method(D_METHOD("set_offset_outer_vertices", "offset_x", "offset_y", "vertices"),
                          &GeoPolygon::set_offset_outer_vertices);
     ClassDB::bind_method(D_METHOD("get_holes"), &GeoPolygon::get_holes);
+    ClassDB::bind_method(D_METHOD("get_float_offset_holes", "offset_x", "offset_y"), &GeoPolygon::get_float_offset_holes);
+    ClassDB::bind_method(D_METHOD("get_offset_holes", "offset_x", "offset_y"), &GeoPolygon::get_offset_holes);
     ClassDB::bind_method(D_METHOD("add_hole", "hole"), &GeoPolygon::add_hole);
 }
 
-PackedVector2Array GeoPolygon::get_offset_outer_vertices(int offset_x, int offset_y) {
+PackedVector2Array GeoPolygon::get_float_offset_outer_vertices(double offset_x, double offset_y) {
     PackedVector2Array vertices = PackedVector2Array();
     std::shared_ptr<PolygonFeature> polygon = std::dynamic_pointer_cast<PolygonFeature>(gdal_feature);
 
     std::list<std::vector<double>> raw_outer_vertices = polygon->get_outer_vertices();
 
     for (const std::vector<double> vertex : raw_outer_vertices) {
-        vertices.push_back(Vector2(vertex[0] + static_cast<double>(offset_x), vertex[1] + static_cast<double>(offset_y)));
+        vertices.push_back(Vector2(vertex[0] + offset_x, vertex[1] + offset_y));
     }
 
     return vertices;
 }
 
+PackedVector2Array GeoPolygon::get_offset_outer_vertices(int offset_x, int offset_y) {
+    return get_offset_outer_vertices(offset_x, offset_y);
+}
+
 PackedVector2Array GeoPolygon::get_outer_vertices() {
-    return get_offset_outer_vertices(0, 0);
+    return get_offset_outer_vertices(0.0, 0.0);
 }
 
 void GeoPolygon::set_outer_vertices(PackedVector2Array vertices) {
-    set_offset_outer_vertices(0, 0, vertices);
+    set_offset_outer_vertices(0.0, 0.0, vertices);
 }
 
-void GeoPolygon::set_offset_outer_vertices(int offset_x, int offset_y, PackedVector2Array vertices) {
+void GeoPolygon::set_float_offset_outer_vertices(double offset_x, double offset_y, PackedVector2Array vertices) {
     std::list<std::vector<double>> new_outer_vertices;
 
     for (int i = 0; i < vertices.size(); i += 1) {
@@ -202,7 +237,15 @@ void GeoPolygon::set_offset_outer_vertices(int offset_x, int offset_y, PackedVec
     polygon->set_outer_vertices(new_outer_vertices);
 }
 
+void GeoPolygon::set_offset_outer_vertices(int offset_x, int offset_y, PackedVector2Array vertices) {
+    set_offset_outer_vertices(offset_x, offset_y, vertices);
+}
+
 Array GeoPolygon::get_holes() {
+    return get_offset_holes(0.0, 0.0);
+}
+
+Array GeoPolygon::get_float_offset_holes(double offset_x, double offset_y) {
     Array holes = Array();
     std::shared_ptr<PolygonFeature> polygon = std::dynamic_pointer_cast<PolygonFeature>(gdal_feature);
 
@@ -212,13 +255,17 @@ Array GeoPolygon::get_holes() {
         PackedVector2Array hole_vertices = PackedVector2Array();
 
         for (const std::vector<double> vertex : raw_hole_vertices) {
-            hole_vertices.push_back(Vector2(vertex[0], vertex[1]));
+            hole_vertices.push_back(Vector2(vertex[0] + offset_x, vertex[1] + offset_y));
         }
 
         holes.push_back(hole_vertices);
     }
 
     return holes;
+}
+
+Array GeoPolygon::get_offset_holes(int offset_x, int offset_y) {
+    return get_offset_holes(offset_x, offset_y);
 }
 
 void GeoPolygon::add_hole(PackedVector2Array hole) {
