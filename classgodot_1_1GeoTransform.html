@@ -74,7 +74,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pro-static-methods">Static Protected Member Functions</a> &#124;
 <a href="classgodot_1_1GeoTransform-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">godot::GeoTransform Class Reference</div></div>
@@ -87,10 +87,13 @@ Inheritance diagram for godot::GeoTransform:</div>
   <img src="classgodot_1_1GeoTransform.png" alt=""/>
  </div></div>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
-Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a10ec0596b433635b5671794175b2780c"><td class="memItemLeft" align="right" valign="top">static Vector3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoTransform.html#a10ec0596b433635b5671794175b2780c">transform_coordinates</a> (Vector3 coordinates, int from, int to)</td></tr>
-<tr class="separator:a10ec0596b433635b5671794175b2780c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:ac1ca17033823a92ee9560dd75419810f"><td class="memItemLeft" align="right" valign="top"><a id="ac1ca17033823a92ee9560dd75419810f" name="ac1ca17033823a92ee9560dd75419810f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_transform</b> (int from, int to)</td></tr>
+<tr class="separator:ac1ca17033823a92ee9560dd75419810f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac735d2d3541b87ed486cff4ff1daa1c7"><td class="memItemLeft" align="right" valign="top">Vector3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoTransform.html#ac735d2d3541b87ed486cff4ff1daa1c7">transform_coordinates</a> (Vector3 coordinates)</td></tr>
+<tr class="separator:ac735d2d3541b87ed486cff4ff1daa1c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-static-methods" name="pro-static-methods"></a>
 Static Protected Member Functions</h2></td></tr>
@@ -99,46 +102,22 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>_bind_methods<
 <tr class="separator:a2ac8ecc7ad24168effe219d0670af993"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a10ec0596b433635b5671794175b2780c" name="a10ec0596b433635b5671794175b2780c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a10ec0596b433635b5671794175b2780c">&#9670;&#160;</a></span>transform_coordinates()</h2>
+<a id="ac735d2d3541b87ed486cff4ff1daa1c7" name="ac735d2d3541b87ed486cff4ff1daa1c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac735d2d3541b87ed486cff4ff1daa1c7">&#9670;&#160;</a></span>transform_coordinates()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">Vector3 GeoTransform::transform_coordinates </td>
           <td>(</td>
           <td class="paramtype">Vector3&#160;</td>
-          <td class="paramname"><em>coordinates</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"><em>coordinates</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>from</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>to</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
-<p >Interprets the given vector as a point in the coordinate system defined by the given "from" EPSG code and converts it to the coordinate system defined by the given "to" EPSG code. </p>
+<p >Interprets the given vector as a point in the coordinate system defined by "from" in a previous <code>set_transform</code> call and converts it to the coordinate system described by "to" in a previous <code>set_transform</code> call. </p>
 
 </div>
 </div>

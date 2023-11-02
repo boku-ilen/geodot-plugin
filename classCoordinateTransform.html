@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.5"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Geodot Plugin: VectorExtractor Class Reference</title>
+<title>Geodot Plugin: CoordinateTransform Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -70,59 +70,21 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
-<a href="classVectorExtractor-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">VectorExtractor Class Reference</div></div>
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="classCoordinateTransform-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">CoordinateTransform Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
-Static Public Member Functions</h2></td></tr>
-<tr class="memitem:abe116aff96fc4ac3180352e74a1900cf"><td class="memItemLeft" align="right" valign="top"><a id="abe116aff96fc4ac3180352e74a1900cf" name="abe116aff96fc4ac3180352e74a1900cf"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>initialize</b> ()</td></tr>
-<tr class="memdesc:abe116aff96fc4ac3180352e74a1900cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Must be called before any other function to initialize GDAL. <br /></td></tr>
-<tr class="separator:abe116aff96fc4ac3180352e74a1900cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8ec30c3b0d6d2c09dd6fa4d8bb139cee"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="classNativeDataset.html">NativeDataset</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classVectorExtractor.html#a8ec30c3b0d6d2c09dd6fa4d8bb139cee">open_dataset</a> (const char *path, bool write_access)</td></tr>
-<tr class="separator:a8ec30c3b0d6d2c09dd6fa4d8bb139cee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a9a32592b9776de8731bd68f04e02bcc4"><td class="memItemLeft" align="right" valign="top"><a id="a9a32592b9776de8731bd68f04e02bcc4" name="a9a32592b9776de8731bd68f04e02bcc4"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CoordinateTransform</b> (int from, int to)</td></tr>
+<tr class="separator:a9a32592b9776de8731bd68f04e02bcc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39bfa957521274f803e19519c066e5cc"><td class="memItemLeft" align="right" valign="top"><a id="a39bfa957521274f803e19519c066e5cc" name="a39bfa957521274f803e19519c066e5cc"></a>
+std::vector&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>transform_coordinates</b> (double input_x, double input_z)</td></tr>
+<tr class="separator:a39bfa957521274f803e19519c066e5cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="a8ec30c3b0d6d2c09dd6fa4d8bb139cee" name="a8ec30c3b0d6d2c09dd6fa4d8bb139cee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8ec30c3b0d6d2c09dd6fa4d8bb139cee">&#9670;&#160;</a></span>open_dataset()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::shared_ptr&lt; <a class="el" href="classNativeDataset.html">NativeDataset</a> &gt; VectorExtractor::open_dataset </td>
-          <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>path</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>write_access</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p >Returns the GDALDataset at the given path, or null. TODO: This could also be in the RasterExtractor, it's not raster- or vector-specific... </p>
-
-</div>
-</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>/github/workspace/src/vector-extractor/<a class="el" href="VectorExtractor_8h_source.html">VectorExtractor.h</a></li>
 <li>/github/workspace/src/vector-extractor/VectorExtractor.cpp</li>

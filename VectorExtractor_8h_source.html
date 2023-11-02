@@ -93,12 +93,21 @@ $(function() {
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code hl_function" href="classVectorExtractor.html#abe116aff96fc4ac3180352e74a1900cf">initialize</a>();</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <span class="keyword">static</span> std::shared_ptr&lt;NativeDataset&gt; <a class="code hl_function" href="classVectorExtractor.html#a8ec30c3b0d6d2c09dd6fa4d8bb139cee">open_dataset</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *path, <span class="keywordtype">bool</span> write_access);</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <span class="keyword">static</span> std::vector&lt;double&gt; transform_coordinates(<span class="keywordtype">double</span> input_x, <span class="keywordtype">double</span> input_z,</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>                                                     <span class="keywordtype">int</span> from, <span class="keywordtype">int</span> to);</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>};</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#endif </span><span class="comment">// VECTOREXTRACTOR_VECTOREXTRACTOR_H</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>};</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="classCoordinateTransform.html">   23</a></span><span class="keyword">class </span><a class="code hl_class" href="classCoordinateTransform.html">CoordinateTransform</a> {</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <a class="code hl_class" href="classCoordinateTransform.html">CoordinateTransform</a>(<span class="keywordtype">int</span> from, <span class="keywordtype">int</span> to);</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    std::vector&lt;double&gt; transform_coordinates(<span class="keywordtype">double</span> input_x, <span class="keywordtype">double</span> input_z);</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  </div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    OGRSpatialReference source_reference, target_reference;</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    OGRCoordinateTransformation *transformation;</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>};</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="preprocessor">#endif </span><span class="comment">// VECTOREXTRACTOR_VECTOREXTRACTOR_H</span></div>
+<div class="ttc" id="aclassCoordinateTransform_html"><div class="ttname"><a href="classCoordinateTransform.html">CoordinateTransform</a></div><div class="ttdef"><b>Definition:</b> VectorExtractor.h:23</div></div>
 <div class="ttc" id="aclassVectorExtractor_html"><div class="ttname"><a href="classVectorExtractor.html">VectorExtractor</a></div><div class="ttdef"><b>Definition:</b> VectorExtractor.h:13</div></div>
 <div class="ttc" id="aclassVectorExtractor_html_a8ec30c3b0d6d2c09dd6fa4d8bb139cee"><div class="ttname"><a href="classVectorExtractor.html#a8ec30c3b0d6d2c09dd6fa4d8bb139cee">VectorExtractor::open_dataset</a></div><div class="ttdeci">static std::shared_ptr&lt; NativeDataset &gt; open_dataset(const char *path, bool write_access)</div><div class="ttdef"><b>Definition:</b> VectorExtractor.cpp:14</div></div>
 <div class="ttc" id="aclassVectorExtractor_html_abe116aff96fc4ac3180352e74a1900cf"><div class="ttname"><a href="classVectorExtractor.html#abe116aff96fc4ac3180352e74a1900cf">VectorExtractor::initialize</a></div><div class="ttdeci">static void initialize()</div><div class="ttdoc">Must be called before any other function to initialize GDAL.</div><div class="ttdef"><b>Definition:</b> VectorExtractor.cpp:10</div></div>

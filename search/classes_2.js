@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['feature_0',['Feature',['../classFeature.html',1,'']]]
+  ['extentdata_0',['ExtentData',['../structExtentData.html',1,'']]]
 ];

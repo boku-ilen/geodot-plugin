@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['extentdata_0',['ExtentData',['../structExtentData.html',1,'']]]
+  ['datasetpositiondata_0',['DatasetPositionData',['../classDatasetPositionData.html',1,'']]]
 ];
