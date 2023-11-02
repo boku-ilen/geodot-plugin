@@ -12,6 +12,8 @@ class NativeLayer {
 
     bool is_valid() const;
 
+    void write_feature_cache_to_ram_layer();
+
     void save_override();
 
     void save_modified_layer(std::string path);

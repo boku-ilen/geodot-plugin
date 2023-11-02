@@ -16,13 +16,20 @@ NativeLayer::NativeLayer(OGRLayer *layer) : layer(layer) {
     ram_feature_count = 0;
 }
 
-void NativeLayer::save_override() {
-    // Write cached features to RAM layer
+void NativeLayer::write_feature_cache_to_ram_layer() {
     for (auto feature_list : feature_cache) {
-        if (!feature_list.second.front()->is_deleted) {
-            OGRErr error = ram_layer->SetFeature(feature_list.second.front()->feature);
+        auto feature = feature_list.second.front();
+
+        if (!feature->is_deleted) {
+            if (ram_layer->GetFeature(feature->feature->GetFID())) {
+                OGRErr error = ram_layer->SetFeature(feature->feature);
+            }
         }
     }
+}
+
+void NativeLayer::save_override() {
+    write_feature_cache_to_ram_layer();
 
     // Write changes from RAM layer into this layer
     ram_layer->ResetReading();            // Reset the reading cursor
@@ -262,17 +269,19 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_features_inside_geometry(O
     // Also check the RAM layer
     // FIXME: Take care of max_amount here too
     // TODO: Code duplication (similar as in `get_features`)
+    write_feature_cache_to_ram_layer();
+
     ram_layer->SetSpatialFilter(nullptr);
     ram_layer->ResetReading();
 
-    // FIXME: In this case, we need to copy the cached features into the RAM dataset with
-    // layer->CreateFeature because otherwise, the spatial filter doesn't return them! So we should
-    // iterate over the values in cached_features and call CreateFeature with them, and perhaps
-    // optimize it by checking if there was a change first?
-
     for (int i = 0; i < ram_layer->GetFeatureCount(); i++) {
-        // Add the Feature objects from the next OGRFeature in the layer to the list
-        list.splice(list.end(), get_feature_for_ogrfeature(ram_layer->GetNextFeature()));
+        auto feature = ram_layer->GetNextFeature();
+
+        // TODO: Ideally we would just do SetSpatialFilter(geometry) again above, but for some reason,
+        //  that returns faulty features (with identical geometry). This check works.
+        if (feature->GetGeometryRef()->Intersects(geometry)) {
+            list.splice(list.end(), get_feature_for_ogrfeature(feature));
+        }
     }
 
     return list;
