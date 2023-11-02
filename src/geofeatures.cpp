@@ -75,7 +75,7 @@ Vector3 GeoPoint::get_float_offset_vector3(double offset_x, double offset_y, dou
 }
 
 Vector3 GeoPoint::get_offset_vector3(int offset_x, int offset_y, int offset_z) {
-    return get_offset_vector3(offset_x, offset_y, offset_z);
+    return get_float_offset_vector3(offset_x, offset_y, offset_z);
 }
 
 void GeoPoint::set_float_offset_vector3(Vector3 vector, double offset_x, double offset_y, double offset_z) {
@@ -89,7 +89,7 @@ void GeoPoint::set_float_offset_vector3(Vector3 vector, double offset_x, double 
 }
 
 void GeoPoint::set_offset_vector3(Vector3 vector, int offset_x, int offset_y, int offset_z) {
-    set_offset_vector3(vector, offset_x, offset_y, offset_z);
+    set_float_offset_vector3(vector, offset_x, offset_y, offset_z);
 }
 
 Vector3 GeoPoint::get_vector3() {
@@ -140,7 +140,7 @@ Ref<Curve3D> GeoLine::get_float_offset_curve3d(double offset_x, double offset_y,
 }
 
 Ref<Curve3D> GeoLine::get_offset_curve3d(int offset_x, int offset_y, int offset_z) {
-    return get_offset_curve3d(offset_x, offset_y, offset_z);
+    return get_float_offset_curve3d(offset_x, offset_y, offset_z);
 }
 
 void GeoLine::set_float_offset_curve3d(Ref<Curve3D> curve, double offset_x, double offset_y, double offset_z) {
@@ -162,7 +162,7 @@ void GeoLine::set_float_offset_curve3d(Ref<Curve3D> curve, double offset_x, doub
 }
 
 void GeoLine::set_offset_curve3d(Ref<Curve3D> curve, int offset_x, int offset_y, int offset_z) {
-    set_offset_curve3d(curve, offset_x, offset_y, offset_z);
+    set_float_offset_curve3d(curve, offset_x, offset_y, offset_z);
 }
 
 Ref<Curve3D> GeoLine::get_curve3d() {
@@ -215,7 +215,7 @@ PackedVector2Array GeoPolygon::get_float_offset_outer_vertices(double offset_x, 
 }
 
 PackedVector2Array GeoPolygon::get_offset_outer_vertices(int offset_x, int offset_y) {
-    return get_offset_outer_vertices(offset_x, offset_y);
+    return get_float_offset_outer_vertices(offset_x, offset_y);
 }
 
 PackedVector2Array GeoPolygon::get_outer_vertices() {
@@ -223,7 +223,7 @@ PackedVector2Array GeoPolygon::get_outer_vertices() {
 }
 
 void GeoPolygon::set_outer_vertices(PackedVector2Array vertices) {
-    set_offset_outer_vertices(0.0, 0.0, vertices);
+    set_float_offset_outer_vertices(0.0, 0.0, vertices);
 }
 
 void GeoPolygon::set_float_offset_outer_vertices(double offset_x, double offset_y, PackedVector2Array vertices) {
@@ -238,7 +238,7 @@ void GeoPolygon::set_float_offset_outer_vertices(double offset_x, double offset_
 }
 
 void GeoPolygon::set_offset_outer_vertices(int offset_x, int offset_y, PackedVector2Array vertices) {
-    set_offset_outer_vertices(offset_x, offset_y, vertices);
+    set_float_offset_outer_vertices(offset_x, offset_y, vertices);
 }
 
 Array GeoPolygon::get_holes() {
@@ -265,7 +265,7 @@ Array GeoPolygon::get_float_offset_holes(double offset_x, double offset_y) {
 }
 
 Array GeoPolygon::get_offset_holes(int offset_x, int offset_y) {
-    return get_offset_holes(offset_x, offset_y);
+    return get_float_offset_holes(offset_x, offset_y);
 }
 
 void GeoPolygon::add_hole(PackedVector2Array hole) {
