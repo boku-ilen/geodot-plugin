@@ -2,6 +2,7 @@
 #include "gdal-includes.h"
 #include <algorithm> // For std::clamp etc
 #include <cstring>
+#include <map>
 
 
 RasterIOHelper GeoRaster::get_raster_io_helper() {
@@ -343,10 +344,10 @@ int GeoRaster::get_pixel_size_y() {
 }
 
 uint64_t *GeoRaster::get_histogram() {
-    uint64_t *histogram = new uint64_t[1000];
+    uint64_t *histogram = new uint64_t[11000];
 
     // Initialize array
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 11000; i++) {
         histogram[i] = 0;
     }
 
@@ -356,7 +357,7 @@ uint64_t *GeoRaster::get_histogram() {
         for (int i = 0; i < get_pixel_size_x() * get_pixel_size_y(); i += 1) {
             uint64_t value = static_cast<uint64_t>(array[i]);
 
-            if (value < 1000) {
+            if (value < 11000) {
                 histogram[value]++;
             }
         }
@@ -459,7 +460,7 @@ int *GeoRaster::get_most_common(int number_of_elements) {
 
     for (int element_index = 0; element_index < number_of_elements; element_index++) {
         // Get the index of the currently highest value
-        int highest_index = get_index_of_highest_value(histogram, 1000);
+        int highest_index = get_index_of_highest_value(histogram, 11000);
 
         // Add the currently highest index to the returned array
         // The index is used, not the value, since the value corresponds to the number of occurences
