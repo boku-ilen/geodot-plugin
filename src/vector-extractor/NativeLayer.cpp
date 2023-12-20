@@ -203,10 +203,14 @@ ExtentData NativeLayer::get_extent() {
     OGREnvelope *envelope = new OGREnvelope();
     OGRErr error = layer->GetExtent(envelope);
 
-    ExtentData extent(envelope->MinX, envelope->MaxX, envelope->MinY, envelope->MaxY);
+    if (error == OGRERR_NONE) {
+        ExtentData extent(envelope->MinX, envelope->MaxX, envelope->MinY, envelope->MaxY);
 
-    delete envelope;
-    return extent;
+        delete envelope;
+        return extent;
+    } else {
+        return ExtentData();
+    }
 }
 
 std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_by_id(int id) {
