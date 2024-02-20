@@ -17,14 +17,18 @@ NativeLayer::NativeLayer(OGRLayer *layer) : layer(layer) {
 }
 
 void NativeLayer::write_feature_cache_to_ram_layer() {
-    for (auto feature_list : feature_cache) {
-        auto feature = feature_list.second.front();
+    ram_layer->ResetReading();
 
-        if (!feature->is_deleted) {
-            if (ram_layer->GetFeature(feature->feature->GetFID())) {
-                OGRErr error = ram_layer->SetFeature(feature->feature);
-            }
+    // Iterate over RAM layer, update with cached features
+    // Not the other way around because we'll usually have far more cached features than total features in the RAM layer
+    OGRFeature *feature = ram_layer->GetNextFeature();
+
+    while (feature != nullptr) {
+        if (feature_cache.find(feature->GetFID()) != feature_cache.end()) {
+            OGRErr error = ram_layer->SetFeature(feature_cache[feature->GetFID()].front()->feature);
         }
+
+        auto feature = ram_layer->GetNextFeature();
     }
 }
 
@@ -263,6 +267,7 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_features_inside_geometry(O
     // unless they're more
     //  than the given max_amount.
     int num_features = layer->GetFeatureCount();
+
     int iterations = std::min(num_features, max_amount);
 
     for (int i = 0; i < iterations; i++) {
