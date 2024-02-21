@@ -116,6 +116,8 @@ Array&#160;</td><td class="memItemRight" valign="bottom"><b>get_all_features</b>
 <tr class="separator:a47477798c09482c18d80cb99913aa830"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b224a1bd2f4c353afdf1001c62d2cb0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoFeatureLayer.html#a8b224a1bd2f4c353afdf1001c62d2cb0">remove_feature</a> (Ref&lt; <a class="el" href="classgodot_1_1GeoFeature.html">GeoFeature</a> &gt; feature)</td></tr>
 <tr class="separator:a8b224a1bd2f4c353afdf1001c62d2cb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01af602f041b65ea424f42211041731d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoFeatureLayer.html#a01af602f041b65ea424f42211041731d">clear_cache</a> ()</td></tr>
+<tr class="separator:a01af602f041b65ea424f42211041731d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a678ec54929db6e20af6bbb20804e2fcc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoFeatureLayer.html#a678ec54929db6e20af6bbb20804e2fcc">save_override</a> ()</td></tr>
 <tr class="separator:a678ec54929db6e20af6bbb20804e2fcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad9bac43f6b8af39943e1431abcd5dd0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoFeatureLayer.html#aad9bac43f6b8af39943e1431abcd5dd0">save_new</a> (String file_path)</td></tr>
@@ -146,6 +148,24 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>_bind_methods<
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >A layer which contains any number of features. These features consist of attributes and usually (but not necessarily) vector geometry. This layer provides access to these features through various filters. Corresponds to OGRLayer. Its <code>name</code> property corresponds to the layer name. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a01af602f041b65ea424f42211041731d" name="a01af602f041b65ea424f42211041731d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a01af602f041b65ea424f42211041731d">&#9670;&#160;</a></span>clear_cache()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void godot::GeoFeatureLayer::clear_cache </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Clears all cached features. Note that this will cause newly returned features not to have shared signals and changes with previously returned features. </p>
+
+</div>
+</div>
 <a id="a47477798c09482c18d80cb99913aa830" name="a47477798c09482c18d80cb99913aa830"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a47477798c09482c18d80cb99913aa830">&#9670;&#160;</a></span>create_feature()</h2>
 

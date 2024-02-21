@@ -79,9 +79,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5e3e66fbefff96dc8b372d7ed6a13975"><td class="memItemLeft" align="right" valign="top"><a id="a5e3e66fbefff96dc8b372d7ed6a13975" name="a5e3e66fbefff96dc8b372d7ed6a13975"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>NativeLayer</b> (OGRLayer *layer)</td></tr>
-<tr class="separator:a5e3e66fbefff96dc8b372d7ed6a13975"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9403c716d4a5aa8c694d40b6cdb2319"><td class="memItemLeft" align="right" valign="top"><a id="ad9403c716d4a5aa8c694d40b6cdb2319" name="ad9403c716d4a5aa8c694d40b6cdb2319"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NativeLayer</b> (OGRLayer *new_layer)</td></tr>
+<tr class="separator:ad9403c716d4a5aa8c694d40b6cdb2319"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3462f17c2221ef99cbe1d1502042dca8"><td class="memItemLeft" align="right" valign="top"><a id="a3462f17c2221ef99cbe1d1502042dca8" name="a3462f17c2221ef99cbe1d1502042dca8"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_valid</b> () const</td></tr>
 <tr class="separator:a3462f17c2221ef99cbe1d1502042dca8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -117,6 +117,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>remove_field</b> (std
 std::list&lt; std::shared_ptr&lt; <a class="el" href="classFeature.html">Feature</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_feature_by_id</b> (int id)</td></tr>
 <tr class="memdesc:a65794cabe9a07d2000c6fb3752641b74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the feature corresponding to the given ID. <br /></td></tr>
 <tr class="separator:a65794cabe9a07d2000c6fb3752641b74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a5e9b5d6026303f9998be78f310f718"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNativeLayer.html#a5a5e9b5d6026303f9998be78f310f718">clear_feature_cache</a> ()</td></tr>
+<tr class="separator:a5a5e9b5d6026303f9998be78f310f718"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -136,6 +138,24 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>ram_feature_count</b><
 <tr class="separator:ad05013f37f8d6cb5db23efa38ffbdb79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a5a5e9b5d6026303f9998be78f310f718" name="a5a5e9b5d6026303f9998be78f310f718"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a5e9b5d6026303f9998be78f310f718">&#9670;&#160;</a></span>clear_feature_cache()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NativeLayer::clear_feature_cache </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Removes all entries from the feature cache. Make sure this is not called when features exist which need to remain synchronized (signals across different origins) </p>
+
+</div>
+</div>
 <a id="a57efe65cd9b14d7b1d7505b7c849e513" name="a57efe65cd9b14d7b1d7505b7c849e513"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a57efe65cd9b14d7b1d7505b7c849e513">&#9670;&#160;</a></span>create_feature()</h2>
 
