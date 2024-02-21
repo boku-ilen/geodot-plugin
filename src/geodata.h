@@ -59,6 +59,10 @@ class EXPORT GeoFeatureLayer : public RefCounted {
     /// This change has no effect on the dataset on disk unless save_override or save_new is called.
     void remove_feature(Ref<GeoFeature> feature);
 
+    /// Clears all cached features.
+    /// Note that this will cause newly returned features not to have shared signals and changes with previously returned features.
+    void clear_cache();
+
     /// Applies all changes made to the layer to this layer, overriding the previous data
     /// permanently.
     void save_override();

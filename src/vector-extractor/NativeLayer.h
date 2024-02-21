@@ -6,7 +6,7 @@
 
 class NativeLayer {
   public:
-    NativeLayer(OGRLayer *layer);
+    NativeLayer(OGRLayer *new_layer);
 
     ~NativeLayer() = default;
 
@@ -62,6 +62,10 @@ class NativeLayer {
 
     /// Returns the feature corresponding to the given ID
     std::list<std::shared_ptr<Feature> > get_feature_by_id(int id);
+
+    /// Removes all entries from the feature cache. Make sure this is not called when features exist
+    /// which need to remain synchronized (signals across different origins)
+    void clear_feature_cache();
 
     OGRLayer *layer;
     OGRLayer *ram_layer;

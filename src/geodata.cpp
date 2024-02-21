@@ -113,6 +113,7 @@ void GeoFeatureLayer::_bind_methods() {
                          &GeoFeatureLayer::get_features_in_square);
     ClassDB::bind_method(D_METHOD("create_feature"), &GeoFeatureLayer::create_feature);
     ClassDB::bind_method(D_METHOD("remove_feature", "feature"), &GeoFeatureLayer::remove_feature);
+    ClassDB::bind_method(D_METHOD("clear_cache"), &GeoFeatureLayer::clear_cache);
     ClassDB::bind_method(D_METHOD("save_override"), &GeoFeatureLayer::save_override);
     ClassDB::bind_method(D_METHOD("save_new", "file_path"), &GeoFeatureLayer::save_new);
 
@@ -221,6 +222,10 @@ void GeoFeatureLayer::remove_feature(Ref<GeoFeature> feature) {
     feature->set_deleted(true);
 
     emit_signal("feature_removed", feature);
+}
+
+void GeoFeatureLayer::clear_cache() {
+    layer->clear_feature_cache();
 }
 
 void GeoFeatureLayer::save_override() {

@@ -217,6 +217,11 @@ ExtentData NativeLayer::get_extent() {
     }
 }
 
+void NativeLayer::clear_feature_cache() {
+    write_feature_cache_to_ram_layer();
+    feature_cache.clear();
+}
+
 std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_by_id(int id) {
     OGRFeature *feature = layer->GetFeature(id);
 
