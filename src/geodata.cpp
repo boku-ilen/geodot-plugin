@@ -442,7 +442,9 @@ float GeoRasterLayer::get_value_at_position_with_resolution(double pos_x, double
     if (raster->get_format() == GeoRaster::FORMAT::RF) {
         float *array = (float *)raster->get_as_array();
 
-        return array[0];
+        float value = array[0];
+        delete[] array;
+        return value;
     }
 
     return -1.0;

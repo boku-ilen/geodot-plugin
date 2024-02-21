@@ -335,6 +335,8 @@ Ref<HeightMapShape3D> GeoImage::get_shape_for_heightmap() {
         // Copy all bytes from the raw raster array into the PackedFloat32Array
         memcpy(array.ptrw(), data, raster->get_pixel_size_x() * raster->get_pixel_size_y() * 4);
 
+        delete[] data;
+
         shape->set_map_width(raster->get_pixel_size_x());
         shape->set_map_depth(raster->get_pixel_size_y());
         shape->set_map_data(array);
