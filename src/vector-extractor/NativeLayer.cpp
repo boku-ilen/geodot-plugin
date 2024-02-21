@@ -28,7 +28,7 @@ void NativeLayer::write_feature_cache_to_ram_layer() {
             OGRErr error = ram_layer->SetFeature(feature_cache[feature->GetFID()].front()->feature);
         }
 
-        auto feature = ram_layer->GetNextFeature();
+        feature = ram_layer->GetNextFeature();
     }
 }
 
