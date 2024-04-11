@@ -15,7 +15,7 @@ void GeoFeature::_bind_methods() {
 }
 
 String GeoFeature::get_attribute(String name) const {
-    return gdal_feature->get_attribute(name.utf8().get_data());
+    return String::utf8(gdal_feature->get_attribute(name.utf8().get_data()));
 }
 
 void GeoFeature::set_attribute(String name, String value) {
@@ -32,7 +32,7 @@ Dictionary GeoFeature::get_attributes() const {
     std::map<std::string, std::string> attribute_map = gdal_feature->get_attributes();
 
     for (const auto &attribute : attribute_map) {
-        attributes[attribute.first.c_str()] = attribute.second.c_str();
+        attributes[attribute.first.c_str()] = String::utf8(attribute.second.c_str());
     }
 
     return attributes;
