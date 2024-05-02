@@ -20,6 +20,7 @@ String GeoFeature::get_attribute(String name) const {
 
 void GeoFeature::set_attribute(String name, String value) {
     gdal_feature->set_attribute(name.utf8().get_data(), value.utf8().get_data());
+    emit_signal("feature_changed");
 }
 
 int GeoFeature::get_id() const {
