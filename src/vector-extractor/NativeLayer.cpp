@@ -71,14 +71,21 @@ void NativeLayer::save_modified_layer(std::string path) {
     OGRFeature *current_feature = ram_layer->GetNextFeature();
 
     while (current_feature != nullptr) {
-        if (current_feature->GetFID() <= out_layer->GetFeatureCount()) {
-            OGRErr error = out_layer->SetFeature(current_feature);
-        } else {
-            OGRErr error = out_layer->CreateFeature(current_feature);
+        // Check if this feature is deleted
+        auto features = get_feature_for_ogrfeature(current_feature);
+        if (features.size() > 0) {
+            auto feature = features.front()->feature;
+            
+            if (feature->GetFID() <= out_layer->GetFeatureCount()) {
+                OGRErr error = out_layer->SetFeature(feature);
+            } else {
+                OGRErr error = out_layer->CreateFeature(feature);
+            }
         }
 
         current_feature = ram_layer->GetNextFeature();
     }
+
 
     out_layer->SyncToDisk();
     delete out_dataset;
