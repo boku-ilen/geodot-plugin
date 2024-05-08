@@ -3,6 +3,8 @@
 #include "PointFeature.h"
 #include "PolygonFeature.h"
 
+#include <iostream>
+
 NativeLayer::NativeLayer(OGRLayer *layer) : layer(layer) {
     // We want users to be able to create and modify features, but we also don't necessarily want to
     // write those changes to disk. So we create a in-RAM layer with the same footprint as this
@@ -58,12 +60,7 @@ void NativeLayer::save_modified_layer(std::string path) {
     GDALDataset *out_dataset = out_driver->Create(path.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
     OGRLayer *out_layer = out_dataset->CopyLayer(layer, layer->GetName());
 
-    // Write cached features to RAM layer
-    for (auto feature_list : feature_cache) {
-        if (!feature_list.second.front()->is_deleted) {
-            OGRErr error = ram_layer->SetFeature(feature_list.second.front()->feature);
-        }
-    }
+    write_feature_cache_to_ram_layer();
 
     // Write changes from RAM layer into the layer copied from the original
     ram_layer->ResetReading();            // Reset the reading cursor
@@ -75,12 +72,16 @@ void NativeLayer::save_modified_layer(std::string path) {
         auto features = get_feature_for_ogrfeature(current_feature);
         if (features.size() > 0) {
             auto feature = features.front()->feature;
+
+            OGRErr error;
             
             if (feature->GetFID() <= out_layer->GetFeatureCount()) {
-                OGRErr error = out_layer->SetFeature(feature);
+                error = out_layer->SetFeature(feature);
             } else {
-                OGRErr error = out_layer->CreateFeature(feature);
+                error = out_layer->CreateFeature(feature);
             }
+
+            if (error > 0) std::cout << "Error saving feature: " << error << std::endl;
         }
 
         current_feature = ram_layer->GetNextFeature();
