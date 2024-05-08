@@ -74,10 +74,11 @@ void NativeLayer::save_modified_layer(std::string path) {
             auto feature = features.front()->feature;
 
             OGRErr error;
-            
-            if (feature->GetFID() <= out_layer->GetFeatureCount()) {
-                error = out_layer->SetFeature(feature);
-            } else {
+
+            // First try updating the feature, then create it if unsuccessful
+            error = out_layer->SetFeature(feature);
+
+            if (error > 0) {
                 error = out_layer->CreateFeature(feature);
             }
 
