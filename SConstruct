@@ -115,6 +115,7 @@ if env['platform'] == "macos":
 
     env.Append(LIBS=['libgdal.dylib'])
     env.Append(LIBPATH=[os.path.join(env['osgeo_path'], "lib")])
+    env.Append(CPPPATH=[os.path.join(env['osgeo_path'], "include")])
 
 elif env['platform'] in ('x11', 'linux'):
     env['target_path'] += 'x11/'
