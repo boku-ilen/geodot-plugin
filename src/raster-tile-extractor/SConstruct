@@ -61,7 +61,7 @@ elif env['platform'] == 'macos':
     gdal_lib_name = "libgdal.dylib"
 
     if not os.path.exists(gdal_include_path) or not os.path.exists(gdal_lib_path):
-        print("OSGeo paths are invalid!")
+        print(f"OSGeo paths are invalid! Should be: {env['osgeo_path']}")
         quit()
 
 env.Append(CPPPATH=[gdal_include_path])
