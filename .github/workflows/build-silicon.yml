@@ -1,10 +1,10 @@
-name: Compile Geodot for Mac OS
+name: Compile Geodot for Apple Silicon
 
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master, godot3 ]
+    branches: [ master, godot3, silicon-action ]
   pull_request:
     branches: [ master, godot3 ]
 
@@ -16,7 +16,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: macos-12
+    runs-on: macos-14
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -36,7 +36,7 @@ jobs:
           cache-name: godot-cpp-cache
         with:
           path: godot-cpp
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ github.ref_name }}-${{ steps.get-godot-cpp-hash.outputs.hash }}-macos
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ github.ref_name }}-${{ steps.get-godot-cpp-hash.outputs.hash }}-silicon
 
       - name: Initialize submodules
         if: steps.cache-bindings.outputs.cache-hit != 'true'
@@ -50,11 +50,11 @@ jobs:
       
       - name: Generate Godot-CPP bindings
         if: steps.cache-bindings.outputs.cache-hit != 'true'
-        run: scons platform=macos generate_bindings=yes
+        run: scons arch=arm64 generate_bindings=yes
         working-directory: godot-cpp
         
       - name: Build Geodot
-        run: scons platform=macos  osgeo_path=$(brew info gdal | grep '/usr/local' | cut -d ' ' -f 1)
+        run: scons platform=macos arch=arm64 osgeo_path=$(brew info gdal | grep '/opt/homebrew/Cellar/' | cut -d ' ' -f 1)
         
       - name: Bundle dependencies
         run: dylibbundler -of -b -x ./demo/addons/geodot/macos/libgeodot.dylib -d ./demo/addons/geodot/macos/ -p @executable_path

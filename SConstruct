@@ -44,6 +44,7 @@ opts.Add(EnumVariable('target', "Compilation target",
          'debug', ['d', 'debug', 'r', 'release']))
 opts.Add(EnumVariable('platform', 'Compilation platform', host_platform,
                       allowed_values=('linux', 'macos', 'windows'), ignorecase=2))
+opts.Add(EnumVariable('arch', 'Compilation architecture (for Apple Silicon)', 'x86_64', ['x86_64', 'arm64']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
 opts.Add(BoolVariable('compiledb',
          "Build a Compilation Database, e.g. for live error reporting in VSCodium", 'no'))
@@ -102,15 +103,16 @@ if env['platform'] == "macos":
     cpp_library += '.macos'
     gdal_lib_name = 'gdal'
 
-    env.Append(LINKFLAGS=['-arch', 'x86_64'])
+    env.Append(LINKFLAGS=['-arch', env['arch']])
 
     if env['target'] in ('debug', 'd'):
-        env.Append(CCFLAGS=['-g', '-O2', '-arch', 'x86_64'])
+        env.Append(CCFLAGS=['-g', '-O2'])
     else:
-        env.Append(CCFLAGS=['-g', '-O3', '-arch', 'x86_64'])
+        env.Append(CCFLAGS=['-g', '-O3'])
 
     env.Append(LIBS=['libgdal.dylib'])
     env.Append(LIBPATH=[os.path.join(env['osgeo_path'], "lib")])
+    env.Append(CPPPATH=[os.path.join(env['osgeo_path'], "include")])
 
 elif env['platform'] in ('x11', 'linux'):
     env['target_path'] += 'x11/'
@@ -151,7 +153,10 @@ else:
     cpp_library += '.release'
 
 if env['platform'] == "macos":
-    cpp_library += ".universal"
+    if env['arch'] == "x86_64":
+        cpp_library += ".universal"
+    else:
+        cpp_library += ".arm64"
 else:
     cpp_library += '.x86_' + str(bits)
 
