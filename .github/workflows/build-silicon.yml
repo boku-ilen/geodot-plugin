@@ -47,12 +47,6 @@ jobs:
           brew install gdal
           brew install scons
           brew install dylibbundler
-        
-      - name: Debug info
-        run: brew info gdal
-      
-      - name: Debug info 2
-        run: ls /usr/local
       
       - name: Generate Godot-CPP bindings
         if: steps.cache-bindings.outputs.cache-hit != 'true'
