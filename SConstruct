@@ -39,15 +39,12 @@ elif sys.platform == 'win32' or sys.platform == 'msys':
 else:
     host_platform = "Unknown platform: " + sys.platform
 
-host_architecture = "x86_64"
-
 # Define our options
 opts.Add(EnumVariable('target', "Compilation target",
          'debug', ['d', 'debug', 'r', 'release']))
 opts.Add(EnumVariable('platform', 'Compilation platform', host_platform,
                       allowed_values=('linux', 'macos', 'windows'), ignorecase=2))
-opts.Add(EnumVariable('arch', 'Compilation architecture (for Apple Silicon)', host_architecture,
-                      allowed_values=('x86_64', 'arm64')))
+opts.Add(EnumVariable('arch', 'Compilation architecture (for Apple Silicon)', 'x86_64', ['x86_64', 'arm64']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
 opts.Add(BoolVariable('compiledb',
          "Build a Compilation Database, e.g. for live error reporting in VSCodium", 'no'))
@@ -106,7 +103,7 @@ if env['platform'] == "macos":
     cpp_library += '.macos'
     gdal_lib_name = 'gdal'
 
-    env.Append(LINKFLAGS=['-arch', host_architecture])
+    env.Append(LINKFLAGS=['-arch', env['arch']])
 
     if env['target'] in ('debug', 'd'):
         env.Append(CCFLAGS=['-g', '-O2'])
@@ -156,7 +153,7 @@ else:
     cpp_library += '.release'
 
 if env['platform'] == "macos":
-    if host_architecture == "x86_64":
+    if env['arch'] == "x86_64":
         cpp_library += ".universal"
     else:
         cpp_library += ".arm64"
