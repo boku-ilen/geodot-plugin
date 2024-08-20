@@ -11,6 +11,6 @@ RUN dnf install -y python-distro
 COPY ./ /geodot
 
 WORKDIR /geodot
-ENTRYPOINT scons platform=windows osgeo_path=/usr/x86_64-w64-mingw32/sys-root/mingw
+ENTRYPOINT cd godot-cpp && scons platform=windows generate_bindings=yes && cd .. && scons platform=windows osgeo_path=/usr/x86_64-w64-mingw32/sys-root/mingw
 
 # Then: docker cp a96d86493418:/geodot Downloads/geodot

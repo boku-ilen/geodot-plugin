@@ -42,16 +42,6 @@ jobs:
         if: steps.cache-bindings.outputs.cache-hit != 'true'
         run: git submodule update --init --recursive
         
-      - name: Install Python and SCons
-        run: |
-          sudo apt-get update && sudo apt-get install python3 python3-pip g++-mingw-w64-x86-64
-          sudo pip3 install scons
-      
-      - name: Generate Godot-CPP bindings
-        if: steps.cache-bindings.outputs.cache-hit != 'true'
-        run: scons platform=windows generate_bindings=yes
-        working-directory: godot-cpp
-        
       - name: Create the build container
         run: docker build -f DockerfileMinGW -t gdal-mingw .
         
