@@ -15,7 +15,9 @@ NativeLayer::NativeLayer(OGRLayer *layer) : layer(layer) {
                                                   layer->GetGeomType());
 
     for (const OGRFieldDefn *defn : layer->GetLayerDefn()->GetFields()) {
-        ram_layer->CreateField(defn);
+        // FIXME: the const_cast can be removed once all build scripts refer to GDAL 3.9, where the CreateField parameter
+        // was changed to const OGRFieldDefn* - see https://github.com/OSGeo/gdal/blob/v3.9.0/NEWS.md#core-1
+        ram_layer->CreateField(const_cast<OGRFieldDefn*>(defn));
     }
 
     disk_feature_count = layer->GetFeatureCount();
