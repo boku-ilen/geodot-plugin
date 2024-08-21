@@ -44,8 +44,7 @@ jobs:
         
       - name: Install dependencies
         run: |
-          sudo apt-get update && sudo apt-get install libgdal-dev python3 python3-pip
-          sudo pip3 install scons
+          sudo apt-get update && sudo apt-get install libgdal-dev scons
       
       - name: Generate Godot-CPP bindings
         if: steps.cache-bindings.outputs.cache-hit != 'true'
