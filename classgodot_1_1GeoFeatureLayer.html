@@ -128,6 +128,8 @@ Array&#160;</td><td class="memItemRight" valign="bottom"><b>get_all_features</b>
 Array&#160;</td><td class="memItemRight" valign="bottom"><b>get_features_in_square</b> (double top_left_x, double top_left_y, double size_meters, int max_features)</td></tr>
 <tr class="memdesc:ae8dad108f656810122dc535e9376db7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns all features which intersect with the square constructed by the given top-left and size. <br /></td></tr>
 <tr class="separator:ae8dad108f656810122dc535e9376db7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad551111e7206e9651128d4cce75bd7e1"><td class="memItemLeft" align="right" valign="top">Array&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoFeatureLayer.html#ad551111e7206e9651128d4cce75bd7e1">get_features_by_attribute_filter</a> (String filter)</td></tr>
+<tr class="separator:ad551111e7206e9651128d4cce75bd7e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a15263c89edbf932f6dd4328db8a03b28"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoFeatureLayer.html#a15263c89edbf932f6dd4328db8a03b28">set_native_layer</a> (std::shared_ptr&lt; <a class="el" href="classNativeLayer.html">NativeLayer</a> &gt; new_layer)</td></tr>
 <tr class="separator:a15263c89edbf932f6dd4328db8a03b28"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a45f77fa3a58b280815e1a38b7ef159fb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoFeatureLayer.html#a45f77fa3a58b280815e1a38b7ef159fb">set_origin_dataset</a> (Ref&lt; <a class="el" href="classgodot_1_1GeoDataset.html">GeoDataset</a> &gt; dataset)</td></tr>
@@ -199,6 +201,25 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>_bind_methods<
       </table>
 </div><div class="memdoc">
 <p >Returns the point in the center of the layer in projected meters. The y-component is 0.0. </p>
+
+</div>
+</div>
+<a id="ad551111e7206e9651128d4cce75bd7e1" name="ad551111e7206e9651128d4cce75bd7e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad551111e7206e9651128d4cce75bd7e1">&#9670;&#160;</a></span>get_features_by_attribute_filter()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Array godot::GeoFeatureLayer::get_features_by_attribute_filter </td>
+          <td>(</td>
+          <td class="paramtype">String&#160;</td>
+          <td class="paramname"><em>filter</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Returns all features which fulfill the given SQL-WHERE-like attribute filter, e.g. "attributename &lt; 1000" Note that syntax errors are printed to the console by GDAL. </p>
 
 </div>
 </div>
