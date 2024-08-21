@@ -14,6 +14,10 @@ NativeLayer::NativeLayer(OGRLayer *layer) : layer(layer) {
     ram_layer = intersection_dataset->CreateLayer(layer->GetName(), layer->GetSpatialRef(),
                                                   layer->GetGeomType());
 
+    for (const OGRFieldDefn *defn : layer->GetLayerDefn()->GetFields()) {
+        ram_layer->CreateField(defn);
+    }
+
     disk_feature_count = layer->GetFeatureCount();
     ram_feature_count = 0;
 }
@@ -235,6 +239,42 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_by_id(int id) {
     OGRFeature *feature = layer->GetFeature(id);
 
     return get_feature_for_ogrfeature(feature);
+}
+
+std::list<std::shared_ptr<Feature> > NativeLayer::get_features_by_attribute_filter(std::string filter) {
+    auto list = std::list<std::shared_ptr<Feature> >();
+
+    layer->ResetReading();            // Reset the reading cursor
+    layer->SetAttributeFilter(filter.c_str()); // Set the attribute filter
+    OGRFeature *current_feature = layer->GetNextFeature();
+
+    while (current_feature != nullptr) {
+        // Add the Feature objects from the next OGRFeature in the layer to the list
+        list.splice(list.end(), get_feature_for_ogrfeature(current_feature));
+
+        current_feature = layer->GetNextFeature();
+    }
+
+    // Reset attribute filter
+    layer->SetAttributeFilter(nullptr);
+
+    // Same as above but for in-RAM data
+    // TODO: Remove code duplication
+    ram_layer->ResetReading();            // Reset the reading cursor
+    ram_layer->SetAttributeFilter(filter.c_str()); // Set the attribute filter
+    current_feature = ram_layer->GetNextFeature();
+
+    while (current_feature != nullptr) {
+        // Add the Feature objects from the next OGRFeature in the layer to the list
+        list.splice(list.end(), get_feature_for_ogrfeature(current_feature));
+
+        current_feature = ram_layer->GetNextFeature();
+    }
+
+    // Reset attribute filter
+    ram_layer->SetAttributeFilter(nullptr);
+
+    return list;
 }
 
 std::list<std::shared_ptr<Feature> > NativeLayer::get_features() {

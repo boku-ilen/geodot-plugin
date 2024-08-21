@@ -79,6 +79,10 @@ class EXPORT GeoFeatureLayer : public RefCounted {
     Array get_features_in_square(double top_left_x, double top_left_y, double size_meters,
                                int max_features);
 
+    /// Returns all features which fulfill the given SQL-WHERE-like attribute filter, e.g. "attributename < 1000"
+    /// Note that syntax errors are printed to the console by GDAL.
+    Array get_features_by_attribute_filter(String filter);
+
     /// Set the OGRLayer object directly.
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this
     /// is only for internal use.

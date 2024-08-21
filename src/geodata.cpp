@@ -111,6 +111,7 @@ void GeoFeatureLayer::_bind_methods() {
                          &GeoFeatureLayer::get_features_near_position);
     ClassDB::bind_method(D_METHOD("get_features_in_square", "top_left_x", "top_left_x", "size_meters"),
                          &GeoFeatureLayer::get_features_in_square);
+    ClassDB::bind_method(D_METHOD("get_features_by_attribute_filter", "filter"), &GeoFeatureLayer::get_features_by_attribute_filter);
     ClassDB::bind_method(D_METHOD("create_feature"), &GeoFeatureLayer::create_feature);
     ClassDB::bind_method(D_METHOD("remove_feature", "feature"), &GeoFeatureLayer::remove_feature);
     ClassDB::bind_method(D_METHOD("clear_cache"), &GeoFeatureLayer::clear_cache);
@@ -257,6 +258,19 @@ Array GeoFeatureLayer::get_features_in_square(double top_left_x, double top_left
 
     std::list<std::shared_ptr<Feature> > raw_features =
         layer->get_features_in_square(top_left_x, top_left_y, size_meters, max_features);
+
+    for (std::shared_ptr<Feature> raw_feature : raw_features) {
+        features.push_back(get_specialized_feature(raw_feature));
+    }
+
+    return features;
+}
+
+Array GeoFeatureLayer::get_features_by_attribute_filter(String filter) {
+    Array features = Array();
+    
+    std::list<std::shared_ptr<Feature> > raw_features =
+        layer->get_features_by_attribute_filter(filter.utf8().get_data());
 
     for (std::shared_ptr<Feature> raw_feature : raw_features) {
         features.push_back(get_specialized_feature(raw_feature));

@@ -63,6 +63,9 @@ class NativeLayer {
     /// Returns the feature corresponding to the given ID
     std::list<std::shared_ptr<Feature> > get_feature_by_id(int id);
 
+    /// Filter the features of the layer by a given SQL-like query, e.g. "attributename < 1000"
+    std::list<std::shared_ptr<Feature> > get_features_by_attribute_filter(std::string filter);
+
     /// Removes all entries from the feature cache. Make sure this is not called when features exist
     /// which need to remain synchronized (signals across different origins)
     void clear_feature_cache();
