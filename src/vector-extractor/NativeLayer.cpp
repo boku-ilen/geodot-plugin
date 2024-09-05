@@ -62,7 +62,7 @@ void NativeLayer::save_override() {
 }
 
 void NativeLayer::save_modified_layer(std::string path) {
-    GDALDriver *out_driver = (GDALDriver *)GDALGetDriverByName("ESRI Shapefile");
+    GDALDriver *out_driver = (GDALDriver *)GDALGetDriverByName("GPKG");
     GDALDataset *out_dataset = out_driver->Create(path.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
     OGRLayer *out_layer = out_dataset->CopyLayer(layer, layer->GetName());
 
