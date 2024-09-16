@@ -85,12 +85,16 @@ void NativeLayer::save_modified_layer(std::string path) {
 
             OGRErr error;
 
+            auto id_before = feature->GetFID();
+
             // First try updating the feature, then create it if unsuccessful
             error = out_layer->SetFeature(feature);
 
             if (error > 0) {
                 error = out_layer->CreateFeature(feature);
             }
+
+            feature->SetFID(id_before);
 
             if (error > 0) std::cout << "Error saving feature: " << error << std::endl;
         }
