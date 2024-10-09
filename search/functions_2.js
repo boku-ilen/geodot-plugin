@@ -45,8 +45,9 @@ var searchData=
   ['get_5fraster_5flayers_42',['get_raster_layers',['../classgodot_1_1GeoDataset.html#adf7c8e787f4b18465ed4a4a9efc27f31',1,'godot::GeoDataset']]],
   ['get_5fshape_5ffor_5fheightmap_43',['get_shape_for_heightmap',['../classgodot_1_1GeoImage.html#a2271398f9a571f9fe9161373a30939b3',1,'godot::GeoImage']]],
   ['get_5fsize_5fin_5fbytes_44',['get_size_in_bytes',['../classGeoRaster.html#a75e633d6578e14de342773e527ece9eb',1,'GeoRaster']]],
-  ['get_5ftile_5ffrom_5fdataset_45',['get_tile_from_dataset',['../classRasterTileExtractor.html#a86a83b70c03866ae8c3bea05ecf30858',1,'RasterTileExtractor']]],
-  ['get_5fvalue_5fat_5fposition_46',['get_value_at_position',['../classgodot_1_1GeoRasterLayer.html#ae493dd3fe2475fe535350c933f90670b',1,'godot::GeoRasterLayer']]],
-  ['get_5fvalue_5fat_5fposition_5fwith_5fresolution_47',['get_value_at_position_with_resolution',['../classgodot_1_1GeoRasterLayer.html#a02e0ac34f21807ff75f0ec05c2a9d194',1,'godot::GeoRasterLayer']]],
-  ['get_5fx_48',['get_x',['../classPointFeature.html#a8120b2902676ae0b76aa9eb47798d7a6',1,'PointFeature']]]
+  ['get_5fspecialized_5ffeature_45',['get_specialized_feature',['../classgodot_1_1GeoFeatureLayer.html#a71900a60691847cceb06cedfa72bbf8d',1,'godot::GeoFeatureLayer']]],
+  ['get_5ftile_5ffrom_5fdataset_46',['get_tile_from_dataset',['../classRasterTileExtractor.html#a86a83b70c03866ae8c3bea05ecf30858',1,'RasterTileExtractor']]],
+  ['get_5fvalue_5fat_5fposition_47',['get_value_at_position',['../classgodot_1_1GeoRasterLayer.html#ae493dd3fe2475fe535350c933f90670b',1,'godot::GeoRasterLayer']]],
+  ['get_5fvalue_5fat_5fposition_5fwith_5fresolution_48',['get_value_at_position_with_resolution',['../classgodot_1_1GeoRasterLayer.html#a02e0ac34f21807ff75f0ec05c2a9d194',1,'godot::GeoRasterLayer']]],
+  ['get_5fx_49',['get_x',['../classPointFeature.html#a8120b2902676ae0b76aa9eb47798d7a6',1,'PointFeature']]]
 ];
