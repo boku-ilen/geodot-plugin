@@ -145,7 +145,15 @@ Vector3 GeoFeatureLayer::get_center() {
 }
 
 // Utility function for converting a Processing Library Feature to the appropriate GeoFeature
-Ref<GeoFeature> get_specialized_feature(std::shared_ptr<Feature> raw_feature) {
+Ref<GeoFeature> GeoFeatureLayer::get_specialized_feature(std::shared_ptr<Feature> raw_feature) {
+    if (feature_cache.count(raw_feature)) {
+        return feature_cache[raw_feature];
+    }
+
+    // Not cached -> instantiate and cache
+
+    Ref<GeoFeature> new_feature;
+
     // Check which geometry this feature has, and cast it to the according
     // specialized class
     if (raw_feature->geometry_type == raw_feature->POINT) {
@@ -156,7 +164,7 @@ Ref<GeoFeature> get_specialized_feature(std::shared_ptr<Feature> raw_feature) {
 
         point->set_gdal_feature(point_feature);
 
-        return point;
+        new_feature = point;
     } else if (raw_feature->geometry_type == raw_feature->LINE) {
         Ref<GeoLine> line;
         line.instantiate();
@@ -165,7 +173,7 @@ Ref<GeoFeature> get_specialized_feature(std::shared_ptr<Feature> raw_feature) {
 
         line->set_gdal_feature(line_feature);
 
-        return line;
+        new_feature = line;
     } else if (raw_feature->geometry_type == raw_feature->POLYGON) {
         Ref<GeoPolygon> polygon;
         polygon.instantiate();
@@ -174,7 +182,7 @@ Ref<GeoFeature> get_specialized_feature(std::shared_ptr<Feature> raw_feature) {
 
         polygon->set_gdal_feature(polygon_feature);
 
-        return polygon;
+        new_feature = polygon;
     } else {
         // Geometry type is NONE or unknown
         Ref<GeoFeature> feature;
@@ -182,8 +190,12 @@ Ref<GeoFeature> get_specialized_feature(std::shared_ptr<Feature> raw_feature) {
 
         feature->set_gdal_feature(raw_feature);
 
-        return feature;
+        new_feature = feature;
     }
+
+    feature_cache[raw_feature] = new_feature;
+
+    return new_feature;
 }
 
 Ref<GeoFeature> GeoFeatureLayer::get_feature_by_id(int id) {

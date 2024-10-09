@@ -83,6 +83,9 @@ class EXPORT GeoFeatureLayer : public RefCounted {
     /// Note that syntax errors are printed to the console by GDAL.
     Array get_features_by_attribute_filter(String filter);
 
+    /// Returns the (cached) specialized feature of the given raw feature
+    Ref<GeoFeature> get_specialized_feature(std::shared_ptr<Feature> raw_feature);
+
     /// Set the OGRLayer object directly.
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this
     /// is only for internal use.
@@ -96,6 +99,7 @@ class EXPORT GeoFeatureLayer : public RefCounted {
 
   private:
     std::shared_ptr<NativeLayer> layer;
+    std::map<std::shared_ptr<Feature>, Ref<GeoFeature>> feature_cache;
     Ref<GeoDataset> origin_dataset;
     ExtentData extent_data;
 };
