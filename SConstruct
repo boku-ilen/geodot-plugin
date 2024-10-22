@@ -143,6 +143,8 @@ elif env['platform'] == "windows":
     # Set the compiler to MinGW (is this command valid on native Windows too?)
     env.Replace(CXX=['x86_64-w64-mingw32-g++'])
 
+    env.Append(CCFLAGS=['-fPIC', '-g'])
+
     gdal_include_path = os.path.join(env['osgeo_path'], "include")
     env.Append(CPPPATH=[gdal_include_path])
 
