@@ -27,6 +27,9 @@ class NativeDataset {
 
     bool is_valid() const;
 
+    // Return the epsg integer code of the spatial reference system if avaialble, -1 otherwise
+    int get_epsg_code() const;
+
     std::string path;
 
     bool write_access;

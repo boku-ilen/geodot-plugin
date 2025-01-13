@@ -103,6 +103,7 @@ void GeoDataset::set_native_dataset(std::shared_ptr<NativeDataset> new_dataset) 
 void GeoFeatureLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoFeatureLayer::is_valid);
     ClassDB::bind_method(D_METHOD("get_file_info"), &GeoFeatureLayer::get_file_info);
+    ClassDB::bind_method(D_METHOD("get_epsg_code"), &GeoFeatureLayer::get_epsg_code);
     ClassDB::bind_method(D_METHOD("get_dataset"), &GeoFeatureLayer::get_dataset);
     ClassDB::bind_method(D_METHOD("get_center"), &GeoFeatureLayer::get_center);
     ClassDB::bind_method(D_METHOD("get_feature_by_id", "id"), &GeoFeatureLayer::get_feature_by_id);
@@ -133,6 +134,10 @@ Dictionary GeoFeatureLayer::get_file_info() {
     info["path"] = origin_dataset->dataset->path.c_str();
 
     return info;
+}
+
+int GeoFeatureLayer::get_epsg_code() {
+    return origin_dataset->dataset->get_epsg_code();
 }
 
 Ref<GeoDataset> GeoFeatureLayer::get_dataset() {
@@ -304,6 +309,7 @@ void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_valid"), &GeoRasterLayer::is_valid);
     ClassDB::bind_method(D_METHOD("has_write_access"), &GeoRasterLayer::has_write_access);
     ClassDB::bind_method(D_METHOD("get_file_info"), &GeoRasterLayer::get_file_info);
+    ClassDB::bind_method(D_METHOD("get_epsg_code"), &GeoRasterLayer::get_epsg_code);
     ClassDB::bind_method(D_METHOD("get_format"), &GeoRasterLayer::get_format);
     ClassDB::bind_method(D_METHOD("get_band_count"), &GeoRasterLayer::get_band_count);
     ClassDB::bind_method(D_METHOD("get_band_descriptions"), &GeoRasterLayer::get_band_descriptions);
@@ -371,6 +377,10 @@ Dictionary GeoRasterLayer::get_file_info() {
     info["path"] = origin_dataset == nullptr ? name : dataset->path.c_str();
 
     return info;
+}
+
+int GeoRasterLayer::get_epsg_code() {
+    return origin_dataset->dataset->get_epsg_code();
 }
 
 Image::Format GeoRasterLayer::get_format() {

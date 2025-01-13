@@ -75,3 +75,20 @@ bool NativeDataset::is_valid() const {
 
     return true;
 }
+
+int NativeDataset::get_epsg_code() const {
+    if (!dataset) return -1;
+    const OGRSpatialReference* sr = dataset->GetSpatialRef();
+    if (!sr) return -1;
+
+    // Attempt to compute EPSG codes
+    
+    OGRSpatialReference srCopy(*sr);
+    srCopy.AutoIdentifyEPSG();
+    const char* authName = srCopy.GetAuthorityName(nullptr);
+    const char* authCode = srCopy.GetAuthorityCode(nullptr);
+
+    if (authName && authCode && std::string(authName) == "EPSG")
+        return (int)*authCode;
+    return -1;
+}

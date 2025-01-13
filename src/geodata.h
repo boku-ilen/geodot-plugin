@@ -41,6 +41,9 @@ class EXPORT GeoFeatureLayer : public RefCounted {
     /// Returns the dataset which this layer was opened from. Never `null` because feature layers must have an underlying dataset.
     Ref<GeoDataset> get_dataset();
 
+    /// Returns the spatial reference of the underlying dataset.
+    int get_epsg_code();
+
     /// Returns the point in the center of the layer in projected meters.
     /// The y-component is 0.0.
     Vector3 get_center();
@@ -129,6 +132,9 @@ class EXPORT GeoRasterLayer : public RefCounted {
     /// `path`: the path to the underlying dataset (e.g. the GeoTIFF, or the GeoPackage which this layer was opened from).
     /// `name`: the name of the layer (if `is_subdataset` is true) or the name of the file (otherwise).
     Dictionary get_file_info();
+
+    /// Returns the spatial reference of the underlying dataset.
+    int get_epsg_code();
 
     /// Returns the Image format which corresponds to the data within this raster layer.
     Image::Format get_format();
