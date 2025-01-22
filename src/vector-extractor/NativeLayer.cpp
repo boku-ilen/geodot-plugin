@@ -68,17 +68,34 @@ void NativeLayer::save_modified_layer(std::string path) {
     auto options = CPLStringList();
     options.AddString("GEOMETRY_NAME=geometry");
 
+    layer->SetSpatialFilter(nullptr); // This is also required for CopyLayer to copy everything
+    layer->ResetReading();
     OGRLayer *out_layer = out_dataset->CopyLayer(layer, layer->GetName(), options);
+
+    // Delete pre-existing, but now deleted features
+    layer->SetSpatialFilter(nullptr); // This is also required for CopyLayer to copy everything
+    layer->ResetReading();
+    OGRFeature *current_feature = layer->GetNextFeature();
+
+    while (current_feature != nullptr) {
+        if (is_feature_deleted(current_feature)) {
+            OGRErr error = out_layer->DeleteFeature(current_feature->GetFID());
+            std::cout << "Deleted feature" << std::endl;
+        } else {
+            std::cout << "Not Deleted feature" << std::endl;
+        }
+
+        current_feature = layer->GetNextFeature();
+    }
 
     write_feature_cache_to_ram_layer();
 
     // Write changes from RAM layer into the layer copied from the original
-    ram_layer->ResetReading();            // Reset the reading cursor
     ram_layer->SetSpatialFilter(nullptr); // Reset the spatial filter
-    OGRFeature *current_feature = ram_layer->GetNextFeature();
+    ram_layer->ResetReading();            // Reset the reading cursor
+    current_feature = ram_layer->GetNextFeature();
 
     while (current_feature != nullptr) {
-        // Check if this feature is deleted
         auto features = get_feature_for_ogrfeature(current_feature);
         if (features.size() > 0) {
             auto feature = features.front()->feature;
@@ -156,6 +173,26 @@ std::shared_ptr<Feature> NativeLayer::create_feature() {
     feature_cache[id] = std::list<std::shared_ptr<Feature> >{feature};
 
     return feature;
+}
+
+bool NativeLayer::is_feature_deleted(OGRFeature *feature) {
+    std::list<std::shared_ptr<Feature> > list = std::list<std::shared_ptr<Feature> >();
+
+    // FIXME: This should never happen - would be better to throw an error towards Godot here
+    if (feature == nullptr) { return true; }
+
+    if (feature_cache.count(feature->GetFID())) {
+        // The feature is already cached, return that
+        std::list<std::shared_ptr<Feature> > cached_feature = feature_cache[feature->GetFID()];
+
+        for (const auto feature : cached_feature) {
+            if (feature->is_deleted) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_for_ogrfeature(OGRFeature *feature) {

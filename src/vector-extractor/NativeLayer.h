@@ -70,6 +70,8 @@ class NativeLayer {
     /// which need to remain synchronized (signals across different origins)
     void clear_feature_cache();
 
+    bool is_feature_deleted(OGRFeature *feature);
+
     OGRLayer *layer;
     OGRLayer *ram_layer;
 
