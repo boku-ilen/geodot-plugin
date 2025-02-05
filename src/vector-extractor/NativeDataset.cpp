@@ -89,6 +89,6 @@ int NativeDataset::get_epsg_code() const {
     const char* authCode = srCopy.GetAuthorityCode(nullptr);
 
     if (authName && authCode && std::string(authName) == "EPSG")
-        return (int)*authCode;
+        return std::stoi(authCode);
     return -1;
 }

@@ -380,7 +380,7 @@ Dictionary GeoRasterLayer::get_file_info() {
 }
 
 int GeoRasterLayer::get_epsg_code() {
-    return origin_dataset->dataset->get_epsg_code();
+    return dataset->get_epsg_code();
 }
 
 Image::Format GeoRasterLayer::get_format() {
