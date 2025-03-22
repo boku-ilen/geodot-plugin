@@ -6,6 +6,12 @@ NativeDataset::NativeDataset(std::string path, bool write_access)
     : path(path), write_access(write_access) {
     unsigned int open_access = write_access ? GDAL_OF_UPDATE : GDAL_OF_READONLY;
 
+    // Open Raster subdatasets explicitly as thread safe
+    // TODO: Generalize
+    if (path.rfind("GPKG:", 0) == 0) {
+        open_access |= GDAL_OF_THREAD_SAFE;
+    }
+
     dataset = (GDALDataset *)GDALOpenEx(path.c_str(), open_access, nullptr, nullptr, nullptr);
 }
 
