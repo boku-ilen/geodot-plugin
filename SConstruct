@@ -136,7 +136,7 @@ elif env['platform'] in ('x11', 'linux'):
 elif env['platform'] == "windows":
     env['target_path'] += 'win64/'
     env['target_name'] += ".dll"
-    env.Append(LINKFLAGS=['-static'])
+    env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++', '-static'])
     cpp_library += '.windows'
     gdal_lib_name = 'gdal.dll'
 
