@@ -110,7 +110,6 @@ if env['platform'] == "macos":
     else:
         env.Append(CCFLAGS=['-g', '-O3'])
 
-    env.Append(LIBS=['libgdal.dylib'])
     env.Append(LIBPATH=[os.path.join(env['osgeo_path'], "lib")])
     env.Append(CPPPATH=[os.path.join(env['osgeo_path'], "include")])
 
