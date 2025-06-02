@@ -55,6 +55,10 @@ std::vector<std::string> NativeDataset::get_raster_band_descriptions() {
     return result;
 }
 
+bool NativeDataset::has_layer(const char *name) const {
+    return dataset->GetLayerByName(name) != NULL;
+}
+
 std::shared_ptr<NativeLayer> NativeDataset::get_layer(const char *name) const {
     return std::make_shared<NativeLayer>(dataset->GetLayerByName(name));
 }

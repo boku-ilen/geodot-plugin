@@ -36,6 +36,10 @@ bool GeoDataset::is_valid() {
 Dictionary GeoDataset::get_file_info() {
     Dictionary info;
 
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!dataset->is_valid(), info, "Can't get file info of invalid GeoDataset!");
+#endif
+
     info["name"] = name;
     info["path"] = dataset->path.c_str();
 
@@ -48,6 +52,10 @@ bool GeoDataset::has_write_access() {
 
 Array GeoDataset::get_raster_layers() {
     Array layers = Array();
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!dataset->is_valid(), layers, "Can't get raster layers of invalid GeoDataset!");
+#endif
 
     std::vector<std::string> names = dataset->get_raster_layer_names();
     int total_names = names.size();
@@ -62,6 +70,10 @@ Array GeoDataset::get_raster_layers() {
 Array GeoDataset::get_feature_layers() {
     Array layers = Array();
 
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!dataset->is_valid(), layers, "Can't get feature layers of invalid GeoDataset!");
+#endif
+
     std::vector<std::string> names = dataset->get_feature_layer_names();
 
     for (std::string name : names) {
@@ -74,8 +86,19 @@ Array GeoDataset::get_feature_layers() {
 Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
     Ref<GeoRasterLayer> raster_layer;
     raster_layer.instantiate();
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!dataset->is_valid(), raster_layer, "Can't get raster layer of invalid GeoDataset!");
+#endif
+
+    std::shared_ptr<NativeDataset> subdataset = dataset->get_subdataset(name.utf8().get_data());
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!subdataset->is_valid(), raster_layer, "Raster layer does not exist in GeoDataset!");
+#endif
+
     raster_layer->name = name;
-    raster_layer->set_native_dataset(dataset->get_subdataset(name.utf8().get_data()));
+    raster_layer->set_native_dataset(subdataset);
     raster_layer->set_origin_dataset(this);
 
     return raster_layer;
@@ -84,6 +107,12 @@ Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
 Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
     Ref<GeoFeatureLayer> feature_layer;
     feature_layer.instantiate();
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!dataset->is_valid(), feature_layer, "Can't get feature layer of invalid GeoDataset!");
+    ERR_FAIL_COND_V_EDMSG(!dataset->has_layer(name.utf8().get_data()), feature_layer, "Feature layer does not exist in GeoDataset!");
+#endif
+
     feature_layer->name = name;
     feature_layer->set_native_layer(dataset->get_layer(name.utf8().get_data()));
     feature_layer->set_origin_dataset(this);
@@ -94,6 +123,10 @@ Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
 void GeoDataset::load_from_file(String file_path, bool write_access) {
     this->write_access = write_access;
     dataset = VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access);
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!dataset->is_valid(), , "Could not load dataset!");
+#endif
 }
 
 void GeoDataset::set_native_dataset(std::shared_ptr<NativeDataset> new_dataset) {
@@ -130,6 +163,10 @@ bool GeoFeatureLayer::is_valid() {
 Dictionary GeoFeatureLayer::get_file_info() {
     Dictionary info;
 
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), info, "Can't get file info of invalid GeoFeatureLayer!");
+#endif
+
     info["name"] = name;
     info["path"] = origin_dataset->dataset->path.c_str();
 
@@ -137,10 +174,20 @@ Dictionary GeoFeatureLayer::get_file_info() {
 }
 
 int GeoFeatureLayer::get_epsg_code() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), 0, "Can't get EPSG code of invalid GeoFeatureLayer!");
+    ERR_FAIL_COND_V_EDMSG(!origin_dataset.is_valid(), 0, "GeoFeatureLayer has no origin_dataset, can't get EPSG code!");
+#endif
+
     return origin_dataset->dataset->get_epsg_code();
 }
 
 Ref<GeoDataset> GeoFeatureLayer::get_dataset() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), 0, "Can't get EPSG code of invalid GeoFeatureLayer!");
+    ERR_FAIL_COND_V_EDMSG(!origin_dataset->is_valid(), origin_dataset, "Dataset behind GeoFeatureLayer is invalid!");
+#endif
+
     return origin_dataset;
 }
 
@@ -204,8 +251,16 @@ Ref<GeoFeature> GeoFeatureLayer::get_specialized_feature(std::shared_ptr<Feature
 }
 
 Ref<GeoFeature> GeoFeatureLayer::get_feature_by_id(int id) {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), nullptr, "Can't get feature in invalid GeoFeatureLayer!");
+#endif
+
     std::list<std::shared_ptr<Feature> > features = layer->get_feature_by_id(id);
-    if (features.empty()) return nullptr;
+    
+    if (features.empty()) {
+        WARN_PRINT_ED("Feature with given ID does not exist in GeoFeatureLayer!");
+        return nullptr;
+    }
 
     // TODO: How to deal with MultiFeatures? Currently we just use the first one
     Ref<GeoFeature> feature = get_specialized_feature(features.front());
@@ -215,6 +270,10 @@ Ref<GeoFeature> GeoFeatureLayer::get_feature_by_id(int id) {
 
 Array GeoFeatureLayer::get_all_features() {
     Array geofeatures = Array();
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), geofeatures, "Can't get features in invalid GeoFeatureLayer!");
+#endif
 
     std::list<std::shared_ptr<Feature> > gdal_features = layer->get_features();
     Array features = Array();
@@ -227,6 +286,10 @@ Array GeoFeatureLayer::get_all_features() {
 }
 
 Ref<GeoFeature> GeoFeatureLayer::create_feature() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), nullptr, "Can't create feature in invalid GeoFeatureLayer!");
+#endif
+
     std::shared_ptr<Feature> gdal_feature = layer->create_feature();
 
     Ref<GeoFeature> feature = get_specialized_feature(gdal_feature);
@@ -236,6 +299,10 @@ Ref<GeoFeature> GeoFeatureLayer::create_feature() {
 }
 
 void GeoFeatureLayer::remove_feature(Ref<GeoFeature> feature) {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), , "Can't remove feature in invalid GeoFeatureLayer!");
+#endif
+
     // Mark the feature for deletion
     feature->set_deleted(true);
 
@@ -243,22 +310,39 @@ void GeoFeatureLayer::remove_feature(Ref<GeoFeature> feature) {
 }
 
 void GeoFeatureLayer::clear_cache() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), , "Can't clear cache in invalid GeoFeatureLayer!");
+#endif
+
     layer->clear_feature_cache();
 }
 
 void GeoFeatureLayer::save_override() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), , "Can't save invalid GeoFeatureLayer!");
+    ERR_FAIL_COND_V_EDMSG(!origin_dataset->is_valid(), , "Can't save in GeoFeatureLayer with invalid origin dataset!");
     ERR_FAIL_COND_MSG(!origin_dataset->write_access,
-                      "Cannot override a layer whose dataset was not opened with write access!");
+        "Cannot override a layer whose dataset was not opened with write access!");
+#endif
+    
     layer->save_override();
 }
 
 void GeoFeatureLayer::save_new(String file_path) {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), , "Can't save invalid GeoFeatureLayer!");
+#endif
+    
     layer->save_modified_layer(file_path.utf8().get_data());
 }
 
 Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, double radius,
                                                   int max_features) {
     Array features = Array();
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), features, "Can't get features in invalid GeoFeatureLayer!");
+#endif
 
     std::list<std::shared_ptr<Feature> > raw_features =
         layer->get_features_near_position(pos_x, pos_y, radius, max_features);
@@ -273,6 +357,10 @@ Array GeoFeatureLayer::get_features_near_position(double pos_x, double pos_y, do
 Array GeoFeatureLayer::get_features_in_square(double top_left_x, double top_left_y, double size_meters, int max_features) {
     Array features = Array();
 
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), features, "Can't get features in invalid GeoFeatureLayer!");
+#endif
+
     std::list<std::shared_ptr<Feature> > raw_features =
         layer->get_features_in_square(top_left_x, top_left_y, size_meters, max_features);
 
@@ -285,6 +373,10 @@ Array GeoFeatureLayer::get_features_in_square(double top_left_x, double top_left
 
 Array GeoFeatureLayer::get_features_by_attribute_filter(String filter) {
     Array features = Array();
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), features, "Can't get features in invalid GeoFeatureLayer!");
+#endif
     
     std::list<std::shared_ptr<Feature> > raw_features =
         layer->get_features_by_attribute_filter(filter.utf8().get_data());
@@ -352,6 +444,10 @@ bool GeoRasterLayer::has_write_access() {
 Array GeoRasterLayer::get_band_descriptions() {
     Array result = Array();
 
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), result, "Can't get band descriptions in invalid GeoRasterLayer!");
+#endif
+
     std::vector<std::string> descriptions = dataset->get_raster_band_descriptions();
     for (int i = 0; i < descriptions.size(); i++) {
         std::string description = descriptions[i];
@@ -363,6 +459,10 @@ Array GeoRasterLayer::get_band_descriptions() {
 
 Dictionary GeoRasterLayer::get_file_info() {
     Dictionary info;
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), info, "Can't get file info in invalid GeoRasterLayer!");
+#endif
 
     // If this dataset comes from another dataset as a subdataset, the origin_dataset is set.
     info["is_subdataset"] = origin_dataset != nullptr;
@@ -380,10 +480,18 @@ Dictionary GeoRasterLayer::get_file_info() {
 }
 
 int GeoRasterLayer::get_epsg_code() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), 0, "Can't get EPSG code in invalid GeoRasterLayer!");
+#endif
+
     return dataset->get_epsg_code();
 }
 
 Image::Format GeoRasterLayer::get_format() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), Image::FORMAT_MAX, "Can't get format in invalid GeoRasterLayer!");
+#endif
+
     GeoRaster::FORMAT format = GeoRaster::get_format_for_dataset(dataset->dataset);
 
     switch (format) {
@@ -402,11 +510,19 @@ Image::Format GeoRasterLayer::get_format() {
 }
 
 int GeoRasterLayer::get_band_count() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), 0, "Can't get band count in invalid GeoRasterLayer!");
+#endif
+
     return dataset->dataset->GetRasterCount();
 }
 
 Ref<GeoDataset> GeoRasterLayer::get_dataset() {
-    return origin_dataset;
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), 0, "Can't get origin dataset in invalid GeoRasterLayer!");
+#endif
+    
+return origin_dataset;
 }
 
 Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, double size_meters,
@@ -415,22 +531,17 @@ Ref<GeoImage> GeoRasterLayer::get_image(double top_left_x, double top_left_y, do
     Ref<GeoImage> image;
     image.instantiate();
 
-    if (dataset == nullptr || !dataset->is_valid()) {
-        // TODO: Set validity to false
-        UtilityFunctions::push_error("Raster layer '", name,
-                                     "' is invalid, cannot perform get_image!");
-        return image;
-    }
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), image, "Can't get image in invalid GeoRasterLayer!");
+#endif
 
     GeoRaster *raster = RasterTileExtractor::get_tile_from_dataset(
         dataset->dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
-
-    if (raster == nullptr) {
-        // TODO: Set validity to false
-        UtilityFunctions::push_error("No valid data was available in the raster layer '",
-                                     name, "' at the requested position position!");
-        return image;
-    }
+    
+#ifdef DEBUG_ENABLED
+    // TODO: Set image to invalid
+    ERR_FAIL_COND_V_EDMSG((raster == nullptr), image, "get_image returned an invalid raster!");
+#endif
 
     image->set_raster(raster, interpolation_type);
 
@@ -441,29 +552,38 @@ Ref<GeoImage> GeoRasterLayer::get_band_image(double top_left_x, double top_left_
                                         int img_size, GeoImage::INTERPOLATION interpolation_type, int band_index) {
     Ref<GeoImage> image;
     image.instantiate();
-    if (dataset == nullptr || !dataset->is_valid()) {
-        UtilityFunctions::push_error("Raster layer '", name, "', index '",
-                band_index, "', is invalid. cannot get_band_image!");
-        return image;
-    }
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), 0, "Can't get band image in invalid GeoRasterLayer!");
+#endif
+
     GeoRaster *raster = RasterTileExtractor::get_tile_from_dataset(
         dataset->dataset, top_left_x, top_left_y, size_meters, img_size, interpolation_type);
-    if (raster == nullptr) {
-        UtilityFunctions::push_error("No valid data was available in the raster layer '",
-                name, "', index '", band_index, "', at the requested position position!");
-        return image;
-    }
+
+#ifdef DEBUG_ENABLED
+    // TODO: Set image to invalid
+    ERR_FAIL_COND_V_EDMSG((raster == nullptr), image, "get_band_image returned an invalid raster!");
+#endif
+    
     image->set_raster_from_band(raster, interpolation_type, band_index);
     return image;
 }
 
 float GeoRasterLayer::get_value_at_position(double pos_x, double pos_y) {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), 0.0, "Can't get value in invalid GeoRasterLayer!");
+#endif
+
     // 0.0001 meters are used for the size because it can't be 0, but should be a pinpoint value.
     return get_value_at_position_with_resolution(pos_x, pos_y, 0.0001);
 }
 
 float GeoRasterLayer::get_value_at_position_with_resolution(double pos_x, double pos_y,
                                                             double pixel_size_meters) {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), 0.0, "Can't get value in invalid GeoRasterLayer!");
+#endif
+
     // TODO: Figure out what exactly we need to clamp to for precise values
     // pos_x -= std::fmod(pos_x, pixel_size_meters);
     // pos_y -= std::fmod(pos_y, pixel_size_meters);
@@ -487,6 +607,10 @@ float GeoRasterLayer::get_value_at_position_with_resolution(double pos_x, double
 }
 
 void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant value) {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), , "Can't set value in invalid GeoRasterLayer!");
+#endif
+
     // Validate against Raster type to see whether the passed Variant is sensible
     if (value.get_type() == Variant::Type::FLOAT && get_format() == Image::FORMAT_RF) {
         float godot_float = static_cast<float>(value);
@@ -526,6 +650,10 @@ void GeoRasterLayer::set_value_at_position(double pos_x, double pos_y, Variant v
 
 void GeoRasterLayer::smooth_add_value_at_position(double pos_x, double pos_y, double summand,
                                                   double radius) {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), , "Can't set value in invalid GeoRasterLayer!");
+#endif
+
     // FIXME: Like overlay_image_at_position, this could be done much more efficiently by batch-reading and writing
 
     float resolution = get_pixel_size();
@@ -552,6 +680,10 @@ void GeoRasterLayer::smooth_add_value_at_position(double pos_x, double pos_y, do
 
 void GeoRasterLayer::overlay_image_at_position(double pos_x, double pos_y, Ref<Image> image,
                                                double scale) {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), , "Can't overlay image in invalid GeoRasterLayer!");
+#endif
+
     // FIXME: Rough initial implementation, it works but it is very inefficient!
     // Rather than constantly calling set_value_at_position, we'll want to set the entire image data at once.
 
@@ -615,24 +747,44 @@ void GeoRasterLayer::overlay_image_at_position(double pos_x, double pos_y, Ref<I
 }
 
 Rect2 GeoRasterLayer::get_extent() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), Rect2(), "Can't get extent in invalid GeoRasterLayer!");
+#endif
+
     return Rect2(extent_data.left, extent_data.top, extent_data.right - extent_data.left,
                  extent_data.down - extent_data.top);
 }
 
 Vector3 GeoRasterLayer::get_center() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), Vector3(), "Can't get center in invalid GeoRasterLayer!");
+#endif
+
     return Vector3(extent_data.left + (extent_data.right - extent_data.left) / 2.0, 0.0,
                    extent_data.top + (extent_data.down - extent_data.top) / 2.0);
 }
 
 float GeoRasterLayer::get_min() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), 0.0, "Can't get min in invalid GeoRasterLayer!");
+#endif
+
     return RasterTileExtractor::get_min(dataset->dataset);
 }
 
 float GeoRasterLayer::get_max() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), 0.0, "Can't get max in invalid GeoRasterLayer!");
+#endif
+
     return RasterTileExtractor::get_max(dataset->dataset);
 }
 
 float GeoRasterLayer::get_pixel_size() {
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), 0.0, "Can't get pixel size in invalid GeoRasterLayer!");
+#endif
+
     return RasterTileExtractor::get_pixel_size(dataset->dataset);
 }
 
@@ -643,6 +795,11 @@ void GeoRasterLayer::set_origin_dataset(Ref<GeoDataset> dataset) {
 Ref<GeoRasterLayer> GeoRasterLayer::clone() {
     Ref<GeoRasterLayer> layer_clone;
     layer_clone.instantiate();
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!is_valid(), layer_clone, "Can't clone invalid GeoRasterLayer!");
+#endif
+
     layer_clone->name = this->name;
     layer_clone->set_native_dataset(dataset->clone());
     layer_clone->set_origin_dataset(origin_dataset);
@@ -654,11 +811,9 @@ void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
     this->write_access = write_access;
     set_native_dataset(VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access));
 
-    // TODO: Might be better to produce a hard crash here, but CRASH_COND doesn't have the desired
-    // effect - see https://github.com/godotengine/godot-cpp/issues/521
-    if (!dataset->is_valid()) {
-        UtilityFunctions::push_error("Could not load GeoRasterLayer from path '", file_path, "'!");
-    }
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!dataset->is_valid(), , "Could not load GeoRasterLayer from path '" + file_path + "'!");
+#endif
 
     // Cause of backwards compability the objects name needs to be the path
     // Obtaining the name using get_file_info will give back the stem (filename without extension)
