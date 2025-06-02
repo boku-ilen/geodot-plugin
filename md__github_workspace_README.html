@@ -99,6 +99,7 @@ Usage</h1>
 <div class="line">var features = layer.get_features_near_position(pos_x, pos_y, radius, max_features)</div>
 </div><!-- fragment --><p ><b>If you want to add the Geodot addon to your own game</b>, copy the <code>addons/geodot</code> directory to your project.</p>
 <p ><b>You will need some sort of geodata to use this plugin.</b> The bundled demo scenes include small snippets of example data such as a raster heightmap and a vector street dataset.</p>
+<p ><b>Note:</b> We recommend running the Godot editor with a terminal window attached, since GDAL likes to print error output to <code>stdout</code> which does not show up in the editor itself.</p>
 <h1><a class="anchor" id="autotoc_md2"></a>
 Building</h1>
 <p >For building this project we need to install <a href="https://scons.org">Scons</a> by following one of the <a href="https://scons.org/documentation.html">User Guide</a> <em>Installing Scons</em> which is both used for Godot GDExtension and this project and we need the GDAL library which has different installation instruction listed below.</p>
