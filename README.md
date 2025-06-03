@@ -43,6 +43,8 @@ __If you want to add the Geodot addon to your own game__, copy the `addons/geodo
 
 __You will need some sort of geodata to use this plugin.__ The bundled demo scenes include small snippets of example data such as a raster heightmap and a vector street dataset.
 
+__Note:__ We recommend running the Godot editor with a terminal window attached, since GDAL likes to print error output to `stdout` which does not show up in the editor itself.
+
 # Building
 
 For building this project we need to install [Scons](https://scons.org) by following one of the [User Guide](https://scons.org/documentation.html) *Installing Scons* which is both used for Godot GDExtension and this project and we need the GDAL library which has different installation instruction listed below.
