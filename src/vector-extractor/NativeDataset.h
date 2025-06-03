@@ -20,6 +20,9 @@ class NativeDataset {
     /// Returns true if the dataset has a feature layer of the given name.
     bool has_layer(const char *name) const;
 
+    /// Returns a layer whose features are the result of a given SQL query.
+    std::shared_ptr<NativeLayer> get_sql_layer(const char *query) const;
+
     /// Returns the layer from this dataset with the given name, or null if there is no layer
     /// with that name.
     std::shared_ptr<NativeLayer> get_layer(const char *name) const;

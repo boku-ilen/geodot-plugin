@@ -25,6 +25,7 @@ void GeoDataset::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_feature_layers"), &GeoDataset::get_feature_layers);
     ClassDB::bind_method(D_METHOD("get_raster_layer", "name"), &GeoDataset::get_raster_layer);
     ClassDB::bind_method(D_METHOD("get_feature_layer", "name"), &GeoDataset::get_feature_layer);
+    ClassDB::bind_method(D_METHOD("get_sql_feature_layer", "query"), &GeoDataset::get_sql_feature_layer);
     ClassDB::bind_method(D_METHOD("load_from_file", "file_path", "write_access"),
                          &GeoDataset::load_from_file);
 }
@@ -115,6 +116,27 @@ Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
 
     feature_layer->name = name;
     feature_layer->set_native_layer(dataset->get_layer(name.utf8().get_data()));
+    feature_layer->set_origin_dataset(this);
+
+    return feature_layer;
+}
+
+Ref<GeoFeatureLayer> GeoDataset::get_sql_feature_layer(String query) {
+    Ref<GeoFeatureLayer> feature_layer;
+    feature_layer.instantiate();
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!dataset->is_valid(), feature_layer, "Can't get SQL feature layer of invalid GeoDataset!");
+#endif
+
+    std::shared_ptr<NativeLayer> sql_layer = dataset->get_sql_layer(query.utf8().get_data());
+
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_EDMSG(!sql_layer->is_valid(), feature_layer, "Executing SQL failed!");
+#endif
+
+    feature_layer->name = query;
+    feature_layer->set_native_layer(sql_layer);
     feature_layer->set_origin_dataset(this);
 
     return feature_layer;

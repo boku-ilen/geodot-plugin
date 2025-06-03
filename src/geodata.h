@@ -274,6 +274,11 @@ class EXPORT GeoDataset : public RefCounted {
     /// object with GeoFeatureLayer::is_valid().
     Ref<GeoFeatureLayer> get_feature_layer(String name);
 
+    /// Returns a virtual GeoFeatureLayer containing the results of the given SQL
+    /// query. It is recommended to check the validity of the returned
+    /// object with GeoFeatureLayer::is_valid().
+    Ref<GeoFeatureLayer> get_sql_feature_layer(String query);
+
     /// Load a dataset file such as a Geopackage or a Shapefile into this
     /// object.
     void load_from_file(String file_path, bool write_access);

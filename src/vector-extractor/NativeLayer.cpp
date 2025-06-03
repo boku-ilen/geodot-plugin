@@ -9,19 +9,21 @@ NativeLayer::NativeLayer(OGRLayer *layer) : layer(layer) {
     // We want users to be able to create and modify features, but we also don't necessarily want to
     // write those changes to disk. So we create a in-RAM layer with the same footprint as this
     // layer. It starts empty and is filled with new user-created features once they are created.
-    GDALDriver *out_driver = (GDALDriver *)GDALGetDriverByName("Memory");
-    GDALDataset *intersection_dataset = out_driver->Create("", 0, 0, 0, GDT_Unknown, nullptr);
-    ram_layer = intersection_dataset->CreateLayer(layer->GetName(), layer->GetSpatialRef(),
-                                                  layer->GetGeomType());
+    if (layer != nullptr) {
+        GDALDriver *out_driver = (GDALDriver *)GDALGetDriverByName("Memory");
+        GDALDataset *intersection_dataset = out_driver->Create("", 0, 0, 0, GDT_Unknown, nullptr);
+        ram_layer = intersection_dataset->CreateLayer(layer->GetName(), layer->GetSpatialRef(),
+                                                    layer->GetGeomType());
 
-    for (const OGRFieldDefn *defn : layer->GetLayerDefn()->GetFields()) {
-        // FIXME: the const_cast can be removed once all build scripts refer to GDAL 3.9, where the CreateField parameter
-        // was changed to const OGRFieldDefn* - see https://github.com/OSGeo/gdal/blob/v3.9.0/NEWS.md#core-1
-        ram_layer->CreateField(const_cast<OGRFieldDefn*>(defn));
+        for (const OGRFieldDefn *defn : layer->GetLayerDefn()->GetFields()) {
+            // FIXME: the const_cast can be removed once all build scripts refer to GDAL 3.9, where the CreateField parameter
+            // was changed to const OGRFieldDefn* - see https://github.com/OSGeo/gdal/blob/v3.9.0/NEWS.md#core-1
+            ram_layer->CreateField(const_cast<OGRFieldDefn*>(defn));
+        }
+
+        disk_feature_count = layer->GetFeatureCount();
+        ram_feature_count = 0;
     }
-
-    disk_feature_count = layer->GetFeatureCount();
-    ram_feature_count = 0;
 }
 
 void NativeLayer::write_feature_cache_to_ram_layer() {
@@ -293,6 +295,7 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_features_by_attribute_filt
 
     layer->ResetReading();            // Reset the reading cursor
     layer->SetAttributeFilter(filter.c_str()); // Set the attribute filter
+
     OGRFeature *current_feature = layer->GetNextFeature();
 
     while (current_feature != nullptr) {

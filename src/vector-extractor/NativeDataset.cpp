@@ -59,6 +59,10 @@ bool NativeDataset::has_layer(const char *name) const {
     return dataset->GetLayerByName(name) != NULL;
 }
 
+std::shared_ptr<NativeLayer> NativeDataset::get_sql_layer(const char *query) const {
+    return std::make_shared<NativeLayer>(dataset->ExecuteSQL(query, nullptr, nullptr));
+}
+
 std::shared_ptr<NativeLayer> NativeDataset::get_layer(const char *name) const {
     return std::make_shared<NativeLayer>(dataset->GetLayerByName(name));
 }
