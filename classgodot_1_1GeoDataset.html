@@ -116,6 +116,8 @@ Array&#160;</td><td class="memItemRight" valign="bottom"><b>get_feature_layers</
 <tr class="separator:a596a054ff171829d61504e16fca494df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae0c1decc70d9eaa96f66fa3d5290a47c"><td class="memItemLeft" align="right" valign="top">Ref&lt; <a class="el" href="classgodot_1_1GeoFeatureLayer.html">GeoFeatureLayer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoDataset.html#ae0c1decc70d9eaa96f66fa3d5290a47c">get_feature_layer</a> (String name)</td></tr>
 <tr class="separator:ae0c1decc70d9eaa96f66fa3d5290a47c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a945f96c7bc9d2d822d6fb5f098cf5a1e"><td class="memItemLeft" align="right" valign="top">Ref&lt; <a class="el" href="classgodot_1_1GeoFeatureLayer.html">GeoFeatureLayer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoDataset.html#a945f96c7bc9d2d822d6fb5f098cf5a1e">get_sql_feature_layer</a> (String query)</td></tr>
+<tr class="separator:a945f96c7bc9d2d822d6fb5f098cf5a1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53d01be78a5e3201416f71624b237351"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoDataset.html#a53d01be78a5e3201416f71624b237351">load_from_file</a> (String file_path, bool write_access)</td></tr>
 <tr class="separator:a53d01be78a5e3201416f71624b237351"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afccdda02c07587f171302e2458938e06"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoDataset.html#afccdda02c07587f171302e2458938e06">set_native_dataset</a> (std::shared_ptr&lt; <a class="el" href="classNativeDataset.html">NativeDataset</a> &gt; new_dataset)</td></tr>
@@ -177,6 +179,25 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>_bind_methods<
       </table>
 </div><div class="memdoc">
 <p >Returns a <a class="el" href="classgodot_1_1GeoRasterLayer.html">GeoRasterLayer</a> object of the layer within this dataset with the given name. It is recommended to check the validity of the returned object with <a class="el" href="classgodot_1_1GeoRasterLayer.html#a069b7ce4dedb9a70486c485c32418bb5" title="Returns true if the layer could successfully be loaded.">GeoRasterLayer::is_valid()</a>. </p>
+
+</div>
+</div>
+<a id="a945f96c7bc9d2d822d6fb5f098cf5a1e" name="a945f96c7bc9d2d822d6fb5f098cf5a1e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a945f96c7bc9d2d822d6fb5f098cf5a1e">&#9670;&#160;</a></span>get_sql_feature_layer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Ref&lt; <a class="el" href="classgodot_1_1GeoFeatureLayer.html">GeoFeatureLayer</a> &gt; godot::GeoDataset::get_sql_feature_layer </td>
+          <td>(</td>
+          <td class="paramtype">String&#160;</td>
+          <td class="paramname"><em>query</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Returns a virtual <a class="el" href="classgodot_1_1GeoFeatureLayer.html">GeoFeatureLayer</a> containing the results of the given SQL query. It is recommended to check the validity of the returned object with <a class="el" href="classgodot_1_1GeoFeatureLayer.html#a1587652792de4b303bef4003c5f2d701" title="Returns true if the layer could successfully be loaded.">GeoFeatureLayer::is_valid()</a>. </p>
 
 </div>
 </div>

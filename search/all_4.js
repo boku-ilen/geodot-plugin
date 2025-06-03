@@ -30,7 +30,7 @@ var searchData=
   ['get_5ffeature_5flayer_5fnames_27',['get_feature_layer_names',['../classNativeDataset.html#ad6e9fb63ccd01da011a18b3559cda334',1,'NativeDataset']]],
   ['get_5ffeature_5flayers_28',['get_feature_layers',['../classgodot_1_1GeoDataset.html#a284ddcfe65132bc3f41d1b8037e1f90b',1,'godot::GeoDataset']]],
   ['get_5ffeatures_29',['get_features',['../classNativeLayer.html#a50aa749c34811d4fc9f8b5c5295f728b',1,'NativeLayer']]],
-  ['get_5ffeatures_5fby_5fattribute_5ffilter_30',['get_features_by_attribute_filter',['../classgodot_1_1GeoFeatureLayer.html#ad551111e7206e9651128d4cce75bd7e1',1,'godot::GeoFeatureLayer::get_features_by_attribute_filter()'],['../classNativeLayer.html#ae86a2dad29a74cdcebe2a0773fea735e',1,'NativeLayer::get_features_by_attribute_filter()']]],
+  ['get_5ffeatures_5fby_5fattribute_5ffilter_30',['get_features_by_attribute_filter',['../classNativeLayer.html#ae86a2dad29a74cdcebe2a0773fea735e',1,'NativeLayer::get_features_by_attribute_filter()'],['../classgodot_1_1GeoFeatureLayer.html#ad551111e7206e9651128d4cce75bd7e1',1,'godot::GeoFeatureLayer::get_features_by_attribute_filter(String filter)']]],
   ['get_5ffeatures_5fin_5fsquare_31',['get_features_in_square',['../classgodot_1_1GeoFeatureLayer.html#ae8dad108f656810122dc535e9376db7f',1,'godot::GeoFeatureLayer::get_features_in_square()'],['../classNativeLayer.html#a1692412957586db4be77699998bf03e3',1,'NativeLayer::get_features_in_square()']]],
   ['get_5ffeatures_5fnear_5fposition_32',['get_features_near_position',['../classgodot_1_1GeoFeatureLayer.html#a3dba37203b856527fb9d2e1824bbee45',1,'godot::GeoFeatureLayer::get_features_near_position()'],['../classNativeLayer.html#a114cfef9bcc6380c31c65e9d86de950c',1,'NativeLayer::get_features_near_position()']]],
   ['get_5ffile_5finfo_33',['get_file_info',['../classgodot_1_1GeoDataset.html#a64df0be9386c542513018bb61284bd2d',1,'godot::GeoDataset::get_file_info()'],['../classgodot_1_1GeoFeatureLayer.html#a16d3251c046e0c208cb862f63f54ba46',1,'godot::GeoFeatureLayer::get_file_info()'],['../classgodot_1_1GeoRasterLayer.html#a43caacad4980b59cbdebb24444ce8fb2',1,'godot::GeoRasterLayer::get_file_info()']]],
@@ -58,8 +58,10 @@ var searchData=
   ['get_5fshape_5ffor_5fheightmap_55',['get_shape_for_heightmap',['../classgodot_1_1GeoImage.html#a2271398f9a571f9fe9161373a30939b3',1,'godot::GeoImage']]],
   ['get_5fsize_5fin_5fbytes_56',['get_size_in_bytes',['../classGeoRaster.html#a75e633d6578e14de342773e527ece9eb',1,'GeoRaster']]],
   ['get_5fspecialized_5ffeature_57',['get_specialized_feature',['../classgodot_1_1GeoFeatureLayer.html#a71900a60691847cceb06cedfa72bbf8d',1,'godot::GeoFeatureLayer']]],
-  ['get_5ftile_5ffrom_5fdataset_58',['get_tile_from_dataset',['../classRasterTileExtractor.html#a86a83b70c03866ae8c3bea05ecf30858',1,'RasterTileExtractor']]],
-  ['get_5fvalue_5fat_5fposition_59',['get_value_at_position',['../classgodot_1_1GeoRasterLayer.html#ae493dd3fe2475fe535350c933f90670b',1,'godot::GeoRasterLayer']]],
-  ['get_5fvalue_5fat_5fposition_5fwith_5fresolution_60',['get_value_at_position_with_resolution',['../classgodot_1_1GeoRasterLayer.html#a02e0ac34f21807ff75f0ec05c2a9d194',1,'godot::GeoRasterLayer']]],
-  ['get_5fx_61',['get_x',['../classPointFeature.html#a8120b2902676ae0b76aa9eb47798d7a6',1,'PointFeature']]]
+  ['get_5fsql_5ffeature_5flayer_58',['get_sql_feature_layer',['../classgodot_1_1GeoDataset.html#a945f96c7bc9d2d822d6fb5f098cf5a1e',1,'godot::GeoDataset']]],
+  ['get_5fsql_5flayer_59',['get_sql_layer',['../classNativeDataset.html#a3e69cde76d0650c12ec62cbdc4b3fae0',1,'NativeDataset']]],
+  ['get_5ftile_5ffrom_5fdataset_60',['get_tile_from_dataset',['../classRasterTileExtractor.html#a86a83b70c03866ae8c3bea05ecf30858',1,'RasterTileExtractor']]],
+  ['get_5fvalue_5fat_5fposition_61',['get_value_at_position',['../classgodot_1_1GeoRasterLayer.html#ae493dd3fe2475fe535350c933f90670b',1,'godot::GeoRasterLayer']]],
+  ['get_5fvalue_5fat_5fposition_5fwith_5fresolution_62',['get_value_at_position_with_resolution',['../classgodot_1_1GeoRasterLayer.html#a02e0ac34f21807ff75f0ec05c2a9d194',1,'godot::GeoRasterLayer']]],
+  ['get_5fx_63',['get_x',['../classPointFeature.html#a8120b2902676ae0b76aa9eb47798d7a6',1,'PointFeature']]]
 ];

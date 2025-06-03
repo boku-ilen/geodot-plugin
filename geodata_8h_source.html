@@ -244,20 +244,22 @@ $(function() {
 <div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span> </div>
 <div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    Ref&lt;GeoFeatureLayer&gt; get_feature_layer(String name);</div>
 <div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span> </div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <span class="keywordtype">void</span> load_from_file(String file_path, <span class="keywordtype">bool</span> write_access);</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span> </div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keywordtype">void</span> set_native_dataset(std::shared_ptr&lt;NativeDataset&gt; new_dataset);</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    Ref&lt;GeoFeatureLayer&gt; get_sql_feature_layer(String query);</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keywordtype">void</span> load_from_file(String file_path, <span class="keywordtype">bool</span> write_access);</div>
 <div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> </div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    <span class="keywordtype">bool</span> write_access;</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span> </div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    std::shared_ptr&lt;NativeDataset&gt; dataset;</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    String name;</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>};</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>    <span class="keywordtype">void</span> set_native_dataset(std::shared_ptr&lt;NativeDataset&gt; new_dataset);</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="keywordtype">bool</span> write_access;</div>
 <div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span> </div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>} <span class="comment">// namespace godot</span></div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    std::shared_ptr&lt;NativeDataset&gt; dataset;</div>
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span> </div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span><span class="preprocessor">#endif </span><span class="comment">// __GEODATA_H__</span></div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>    String name;</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>};</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>} <span class="comment">// namespace godot</span></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span><span class="preprocessor">#endif </span><span class="comment">// __GEODATA_H__</span></div>
 <div class="ttc" id="aclassgodot_1_1GeoDataset_html"><div class="ttname"><a href="classgodot_1_1GeoDataset.html">godot::GeoDataset</a></div><div class="ttdef"><b>Definition:</b> geodata.h:242</div></div>
 <div class="ttc" id="aclassgodot_1_1GeoFeatureLayer_html"><div class="ttname"><a href="classgodot_1_1GeoFeatureLayer.html">godot::GeoFeatureLayer</a></div><div class="ttdef"><b>Definition:</b> geodata.h:22</div></div>
 <div class="ttc" id="aclassgodot_1_1GeoRasterLayer_html"><div class="ttname"><a href="classgodot_1_1GeoRasterLayer.html">godot::GeoRasterLayer</a></div><div class="ttdef"><b>Definition:</b> geodata.h:114</div></div>

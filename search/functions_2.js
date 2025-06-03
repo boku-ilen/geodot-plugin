@@ -13,7 +13,7 @@ var searchData=
   ['get_5fdataset_10',['get_dataset',['../classgodot_1_1GeoFeatureLayer.html#a6733c98a4549cc03141ea383a19c765b',1,'godot::GeoFeatureLayer::get_dataset()'],['../classgodot_1_1GeoRasterLayer.html#aaa55ca73d539615453aa92694bf53e1e',1,'godot::GeoRasterLayer::get_dataset()']]],
   ['get_5fepsg_5fcode_11',['get_epsg_code',['../classgodot_1_1GeoFeatureLayer.html#a1fa46c287d6c64df2be56ac34c69fcb6',1,'godot::GeoFeatureLayer::get_epsg_code()'],['../classgodot_1_1GeoRasterLayer.html#a98c0706a8da596a9d0b95b6671800f2f',1,'godot::GeoRasterLayer::get_epsg_code()']]],
   ['get_5fextent_12',['get_extent',['../classgodot_1_1GeoRasterLayer.html#aab7bd2416f9d2f048b76b7024a3d1f46',1,'godot::GeoRasterLayer']]],
-  ['get_5ffeature_5fby_5fid_13',['get_feature_by_id',['../classNativeLayer.html#a65794cabe9a07d2000c6fb3752641b74',1,'NativeLayer::get_feature_by_id()'],['../classgodot_1_1GeoFeatureLayer.html#a76d6391820b7332bb5550090f55578ea',1,'godot::GeoFeatureLayer::get_feature_by_id()']]],
+  ['get_5ffeature_5fby_5fid_13',['get_feature_by_id',['../classgodot_1_1GeoFeatureLayer.html#a76d6391820b7332bb5550090f55578ea',1,'godot::GeoFeatureLayer::get_feature_by_id()'],['../classNativeLayer.html#a65794cabe9a07d2000c6fb3752641b74',1,'NativeLayer::get_feature_by_id(int id)']]],
   ['get_5ffeature_5ffor_5fogrfeature_14',['get_feature_for_ogrfeature',['../classNativeLayer.html#af34d3d86f023058736de706af71d2968',1,'NativeLayer']]],
   ['get_5ffeature_5flayer_15',['get_feature_layer',['../classgodot_1_1GeoDataset.html#ae0c1decc70d9eaa96f66fa3d5290a47c',1,'godot::GeoDataset']]],
   ['get_5ffeature_5flayer_5fnames_16',['get_feature_layer_names',['../classNativeDataset.html#ad6e9fb63ccd01da011a18b3559cda334',1,'NativeDataset']]],
@@ -24,7 +24,7 @@ var searchData=
   ['get_5ffeatures_5fnear_5fposition_21',['get_features_near_position',['../classgodot_1_1GeoFeatureLayer.html#a3dba37203b856527fb9d2e1824bbee45',1,'godot::GeoFeatureLayer::get_features_near_position()'],['../classNativeLayer.html#a114cfef9bcc6380c31c65e9d86de950c',1,'NativeLayer::get_features_near_position()']]],
   ['get_5ffile_5finfo_22',['get_file_info',['../classgodot_1_1GeoFeatureLayer.html#a16d3251c046e0c208cb862f63f54ba46',1,'godot::GeoFeatureLayer::get_file_info()'],['../classgodot_1_1GeoRasterLayer.html#a43caacad4980b59cbdebb24444ce8fb2',1,'godot::GeoRasterLayer::get_file_info()'],['../classgodot_1_1GeoDataset.html#a64df0be9386c542513018bb61284bd2d',1,'godot::GeoDataset::get_file_info()']]],
   ['get_5ffloat_5foffset_5fouter_5fvertices_23',['get_float_offset_outer_vertices',['../classgodot_1_1GeoPolygon.html#a8d0f88c09cd15c433b21146ed597d528',1,'godot::GeoPolygon']]],
-  ['get_5fformat_24',['get_format',['../classGeoRaster.html#ab35fc13314dbacace7f3378aff5594bb',1,'GeoRaster::get_format()'],['../classgodot_1_1GeoRasterLayer.html#a203f754b3e66ae641eb5f0f575982125',1,'godot::GeoRasterLayer::get_format()']]],
+  ['get_5fformat_24',['get_format',['../classgodot_1_1GeoRasterLayer.html#a203f754b3e66ae641eb5f0f575982125',1,'godot::GeoRasterLayer::get_format()'],['../classGeoRaster.html#ab35fc13314dbacace7f3378aff5594bb',1,'GeoRaster::get_format()']]],
   ['get_5fhistogram_25',['get_histogram',['../classGeoRaster.html#a374e54ed2e78fd2f05823e49e1dd5641',1,'GeoRaster']]],
   ['get_5fholes_26',['get_holes',['../classgodot_1_1GeoPolygon.html#a65e9a4046f7011a4c0e1ebfcf201072f',1,'godot::GeoPolygon::get_holes()'],['../classPolygonFeature.html#a3a514152a4f279ed4667e7fe438153e8',1,'PolygonFeature::get_holes()']]],
   ['get_5fimage_27',['get_image',['../classgodot_1_1GeoRasterLayer.html#a1fe72e673dd3cf58eee1763fa759209d',1,'godot::GeoRasterLayer::get_image()'],['../classgodot_1_1GeoImage.html#a9b69e83377790f8d5a311d3969d4d609',1,'godot::GeoImage::get_image()']]],
@@ -47,8 +47,10 @@ var searchData=
   ['get_5fshape_5ffor_5fheightmap_44',['get_shape_for_heightmap',['../classgodot_1_1GeoImage.html#a2271398f9a571f9fe9161373a30939b3',1,'godot::GeoImage']]],
   ['get_5fsize_5fin_5fbytes_45',['get_size_in_bytes',['../classGeoRaster.html#a75e633d6578e14de342773e527ece9eb',1,'GeoRaster']]],
   ['get_5fspecialized_5ffeature_46',['get_specialized_feature',['../classgodot_1_1GeoFeatureLayer.html#a71900a60691847cceb06cedfa72bbf8d',1,'godot::GeoFeatureLayer']]],
-  ['get_5ftile_5ffrom_5fdataset_47',['get_tile_from_dataset',['../classRasterTileExtractor.html#a86a83b70c03866ae8c3bea05ecf30858',1,'RasterTileExtractor']]],
-  ['get_5fvalue_5fat_5fposition_48',['get_value_at_position',['../classgodot_1_1GeoRasterLayer.html#ae493dd3fe2475fe535350c933f90670b',1,'godot::GeoRasterLayer']]],
-  ['get_5fvalue_5fat_5fposition_5fwith_5fresolution_49',['get_value_at_position_with_resolution',['../classgodot_1_1GeoRasterLayer.html#a02e0ac34f21807ff75f0ec05c2a9d194',1,'godot::GeoRasterLayer']]],
-  ['get_5fx_50',['get_x',['../classPointFeature.html#a8120b2902676ae0b76aa9eb47798d7a6',1,'PointFeature']]]
+  ['get_5fsql_5ffeature_5flayer_47',['get_sql_feature_layer',['../classgodot_1_1GeoDataset.html#a945f96c7bc9d2d822d6fb5f098cf5a1e',1,'godot::GeoDataset']]],
+  ['get_5fsql_5flayer_48',['get_sql_layer',['../classNativeDataset.html#a3e69cde76d0650c12ec62cbdc4b3fae0',1,'NativeDataset']]],
+  ['get_5ftile_5ffrom_5fdataset_49',['get_tile_from_dataset',['../classRasterTileExtractor.html#a86a83b70c03866ae8c3bea05ecf30858',1,'RasterTileExtractor']]],
+  ['get_5fvalue_5fat_5fposition_50',['get_value_at_position',['../classgodot_1_1GeoRasterLayer.html#ae493dd3fe2475fe535350c933f90670b',1,'godot::GeoRasterLayer']]],
+  ['get_5fvalue_5fat_5fposition_5fwith_5fresolution_51',['get_value_at_position_with_resolution',['../classgodot_1_1GeoRasterLayer.html#a02e0ac34f21807ff75f0ec05c2a9d194',1,'godot::GeoRasterLayer']]],
+  ['get_5fx_52',['get_x',['../classPointFeature.html#a8120b2902676ae0b76aa9eb47798d7a6',1,'PointFeature']]]
 ];
