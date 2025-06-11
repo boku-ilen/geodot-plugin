@@ -243,8 +243,12 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_for_ogrfeature(OGR
         // etc).
         OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
 
+        int feature_amount = 0;
+
         for (OGRGeometry *geometry : collection) {
-            list.emplace_back(new LineFeature(feature->Clone(), geometry));
+            auto new_feature = feature->Clone();
+            new_feature->SetFID(new_feature->GetFID() + 10000000 * feature_amount++);  // FIXME: How to get a proper unique FID here?
+            list.emplace_back(new LineFeature(new_feature, geometry));
         }
     } else if (geometry_type_name == "POLYGON") {
         list.emplace_back(new PolygonFeature(feature));
@@ -254,8 +258,12 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_for_ogrfeature(OGR
         // etc).
         OGRGeometryCollection *collection = feature->GetGeometryRef()->toGeometryCollection();
 
+        int feature_amount = 0;
+
         for (OGRGeometry *geometry : collection) {
-            list.emplace_back(new PolygonFeature(feature->Clone(), geometry));
+            auto new_feature = feature->Clone();
+            new_feature->SetFID(new_feature->GetFID() + 10000000 * feature_amount++);  // FIXME: How to get a proper unique FID here?
+            list.emplace_back(new PolygonFeature(new_feature, geometry));
         }
     }
 
