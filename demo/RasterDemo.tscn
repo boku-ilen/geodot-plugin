@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=3 uid="uid://bcskckor4f0cv"]
 
-[ext_resource type="Script" path="res://RasterDemo.gd" id="1"]
-[ext_resource type="Script" path="res://Camera.gd" id="3"]
+[ext_resource type="Script" uid="uid://cdyrjxdnjqeyn" path="res://RasterDemo.gd" id="1"]
+[ext_resource type="Script" uid="uid://c053i1rlaf3s" path="res://Camera.gd" id="3"]
 
 [sub_resource type="Shader" id="1"]
 code = "shader_type spatial;

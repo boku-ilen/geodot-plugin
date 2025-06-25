@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://knrd804j54kr"]
 
-[ext_resource type="Script" path="res://VectorDemo.gd" id="1"]
+[ext_resource type="Script" uid="uid://b80jpixrjofrp" path="res://VectorDemo.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://d0wvmhy5earot" path="res://WorldEnvironment.tscn" id="2"]
 
 [node name="VectorDemo" type="Node3D"]

@@ -3,15 +3,15 @@
 [sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_muenc"]
 
 [sub_resource type="Sky" id="1"]
-sky_material = SubResource( "PhysicalSkyMaterial_muenc" )
+sky_material = SubResource("PhysicalSkyMaterial_muenc")
 
 [sub_resource type="Environment" id="2"]
 background_mode = 2
 background_color = Color(0.713726, 0.807843, 0.796078, 1)
-sky = SubResource( "1" )
+sky = SubResource("1")
 
 [node name="WorldEnvironment" type="WorldEnvironment"]
-environment = SubResource( "2" )
+environment = SubResource("2")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.815906, 0.500723, 0.289093, 0, -0.5, 0.866025, 0.578185, -0.706595, -0.407953, 0, 0, 0)
