@@ -2,16 +2,15 @@
 
 [node name="Street" type="Path3D"]
 
-[node name="PathFollow3D" type="PathFollow3D" parent="."]
-
-[node name="CSGPolygon3D" type="CSGPolygon3D" parent="PathFollow3D"]
+[node name="CSGPolygon3D" type="CSGPolygon3D" parent="."]
 polygon = PackedVector2Array(-7, 0, -7, 1, 0, 1, 7, 1, 7, 0)
 mode = 2
-path_node = NodePath("../..")
+path_node = NodePath("..")
 path_interval_type = 0
 path_interval = 5.0
 path_simplify_angle = 0.0
 path_rotation = 2
+path_rotation_accurate = false
 path_local = false
 path_continuous_u = false
 path_u_distance = 1.0
