@@ -46,6 +46,7 @@ opts.Add(EnumVariable('platform', 'Compilation platform', host_platform,
                       allowed_values=('linux', 'macos', 'windows'), ignorecase=2))
 opts.Add(EnumVariable('arch', 'Compilation architecture (for Apple Silicon)', 'x86_64', ['x86_64', 'arm64']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
+opts.Add(EnumVariable('precision', "Float precision: single (32bit) or double (64bit)", '', allowed_values=('single', 'double')), default='single')
 opts.Add(BoolVariable('compiledb',
          "Build a Compilation Database, e.g. for live error reporting in VSCodium", 'no'))
 opts.Add(PathVariable('target_path',
@@ -96,6 +97,9 @@ env.Append(CXXFLAGS=['-std=c++17'])
 
 if env["target"] == "debug":
     env.Append(CPPDEFINES=["DEBUG_ENABLED", "DEBUG_METHODS_ENABLED"])
+
+if env["precision"] == "double":
+    env.Append(CPPDEFINES=["REAL_T_IS_DOUBLE"])
 
 # Check our platform specifics
 if env['platform'] == "macos":
@@ -152,6 +156,9 @@ if env['target'] in ('debug', 'd'):
     cpp_library += '.template_debug'
 else:
     cpp_library += '.release'
+
+if env['precision'] == "double":
+    cpp_library += '.double'
 
 if env['platform'] == "macos":
     if env['arch'] == "x86_64":

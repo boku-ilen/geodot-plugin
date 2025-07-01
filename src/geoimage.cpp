@@ -329,11 +329,20 @@ Ref<HeightMapShape3D> GeoImage::get_shape_for_heightmap() {
 
         if (data == nullptr) return shape;
 
+#ifdef REAL_T_IS_DOUBLE
+        PackedFloat64Array array;
+
+        for (int i; i < raster->get_pixel_size_x() * raster->get_pixel_size_y(); i++) {
+            array.append(data[i]);
+        }
+#else
         PackedFloat32Array array;
+
         array.resize(raster->get_pixel_size_x() * raster->get_pixel_size_y());
 
         // Copy all bytes from the raw raster array into the PackedFloat32Array
         memcpy(array.ptrw(), data, raster->get_pixel_size_x() * raster->get_pixel_size_y() * 4);
+#endif
 
         delete[] data;
 
