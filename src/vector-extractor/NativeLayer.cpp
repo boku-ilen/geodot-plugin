@@ -70,7 +70,7 @@ void NativeLayer::save_modified_layer(std::string path) {
     std::string geometry_column_string = std::string("GEOMETRY_NAME=") + std::string(layer->GetGeometryColumn());
 
     auto options = CPLStringList();
-    options.AddString(geometry_column_string);
+    options.AddString(geometry_column_string.c_str());
 
     layer->SetSpatialFilter(nullptr); // This is also required for CopyLayer to copy everything
     layer->ResetReading();
