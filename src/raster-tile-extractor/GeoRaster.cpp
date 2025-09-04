@@ -224,10 +224,7 @@ void *GeoRaster::get_band_as_array(int band_index) {
     INIT_RASTERIO_EXTRA_ARG(rasterio_args);
 
     int interpolation = interpolation_type;
-    // If we're requesting downscaled data, always use nearest neighbour scaling.
-    // TODO: Would be good if this could be overridden with an optional parameter, but any other
-    // scaling usually causes very long loading times so this is the default for now
-    if (destination_window_size_pixels < source_window_size_pixels) { interpolation = 0; }
+
     rasterio_args.eResampleAlg = static_cast<GDALRIOResampleAlg>(interpolation);
 
     RasterIOHelper helper = get_raster_io_helper();
