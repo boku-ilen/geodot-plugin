@@ -35,7 +35,7 @@ void NativeLayer::write_feature_cache_to_ram_layer() {
 
     while (feature != nullptr) {
         if (feature_cache.find(feature->GetFID()) != feature_cache.end()) {
-            OGRErr error = ram_layer->SetFeature(feature_cache[feature->GetFID()].front()->feature);
+            OGRErr error = ram_layer->UpsertFeature(feature_cache[feature->GetFID()].front()->feature);
         }
 
         feature = ram_layer->GetNextFeature();
@@ -67,11 +67,15 @@ void NativeLayer::save_modified_layer(std::string path) {
     GDALDriver *out_driver = (GDALDriver *)GDALGetDriverByName("GPKG");
     GDALDataset *out_dataset = out_driver->Create(path.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
 
+    std::string geometry_column_string = std::string("GEOMETRY_NAME=") + std::string(layer->GetGeometryColumn());
+
     auto options = CPLStringList();
-    options.AddString("GEOMETRY_NAME=geometry");
+    options.AddString(geometry_column_string);
 
     layer->SetSpatialFilter(nullptr); // This is also required for CopyLayer to copy everything
     layer->ResetReading();
+
+    // TODO: Consider copying ram_layer so that we get fields created/deleted there
     OGRLayer *out_layer = out_dataset->CopyLayer(layer, layer->GetName(), options);
 
     // Delete pre-existing, but now deleted features
@@ -82,9 +86,11 @@ void NativeLayer::save_modified_layer(std::string path) {
     while (current_feature != nullptr) {
         if (is_feature_deleted(current_feature)) {
             OGRErr error = out_layer->DeleteFeature(current_feature->GetFID());
-            std::cout << "Deleted feature" << std::endl;
-        } else {
-            std::cout << "Not Deleted feature" << std::endl;
+        }
+
+        // Update features which have been fetched (and therefore potentially modified)
+        if (feature_cache.count(current_feature->GetFID())) {
+            OGRErr error = out_layer->SetFeature(feature_cache[current_feature->GetFID()].front()->feature);
         }
 
         current_feature = layer->GetNextFeature();
@@ -95,6 +101,7 @@ void NativeLayer::save_modified_layer(std::string path) {
     // Write changes from RAM layer into the layer copied from the original
     ram_layer->SetSpatialFilter(nullptr); // Reset the spatial filter
     ram_layer->ResetReading();            // Reset the reading cursor
+
     current_feature = ram_layer->GetNextFeature();
 
     while (current_feature != nullptr) {
@@ -106,16 +113,11 @@ void NativeLayer::save_modified_layer(std::string path) {
 
             auto id_before = feature->GetFID();
 
-            // First try updating the feature, then create it if unsuccessful
-            error = out_layer->SetFeature(feature);
-
-            if (error > 0) {
-                error = out_layer->CreateFeature(feature);
-            }
+            // Create / update the feature
+            error = out_layer->UpsertFeature(feature);
+            if (error > 0) std::cout << "Error saving feature: " << error << std::endl;
 
             feature->SetFID(id_before);
-
-            if (error > 0) std::cout << "Error saving feature: " << error << std::endl;
         }
 
         current_feature = ram_layer->GetNextFeature();
@@ -201,7 +203,10 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_for_ogrfeature(OGR
     std::list<std::shared_ptr<Feature> > list = std::list<std::shared_ptr<Feature> >();
 
     // FIXME: This should never happen - would be better to throw an error towards Godot here
-    if (feature == nullptr) { return list; }
+    if (feature == nullptr) {
+        std::cout << "get_feature_forogrfeature was called with null feature!" << std::endl;
+        return list;
+    }
 
     if (feature_cache.count(feature->GetFID())) {
         // The feature is already cached, return that
