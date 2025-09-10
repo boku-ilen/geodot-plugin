@@ -50,6 +50,8 @@ void NativeLayer::save_override() {
     ram_layer->SetSpatialFilter(nullptr); // Reset the spatial filter
     OGRFeature *current_feature = ram_layer->GetNextFeature();
 
+    // TODO: Add/remove fields created/removed in ram_layer to layer
+
     while (current_feature != nullptr) {
         if (current_feature->GetFID() <= layer->GetFeatureCount()) {
             OGRErr error = layer->SetFeature(current_feature);
@@ -463,13 +465,33 @@ std::vector<std::string> NativeDataset::get_feature_layer_names() {
 }
 
 void NativeLayer::add_field(std::string name) {
+    // According to the docs, no feature objects may exist when altering field definitions, so clear the cache first
+    clear_feature_cache();
+
     OGRFieldDefn *field_definition = new OGRFieldDefn(name.c_str(), OGRFieldType::OFTString);
 
-    layer->CreateField(field_definition);
+    ram_layer->CreateField(field_definition);
 
     delete field_definition;
 }
 
 void NativeLayer::remove_field(std::string name) {
-    layer->DeleteField(layer->GetLayerDefn()->GetFieldIndex(name.c_str()));
+    // According to the docs, no feature objects may exist when altering field definitions, so clear the cache first
+    clear_feature_cache();
+
+    ram_layer->DeleteField(ram_layer->GetLayerDefn()->GetFieldIndex(name.c_str()));
+}
+
+bool NativeLayer::field_exists(std::string name) {
+    return (ram_layer->FindFieldIndex(name.c_str(), true) > -1);
+}
+
+std::list<std::string> NativeLayer::get_field_names() {
+    std::list<std::string> fields;
+
+    for(const OGRFieldDefn *field_definition : ram_layer->GetLayerDefn()->GetFields()) {
+        fields.emplace_back(field_definition->GetNameRef());
+    }
+
+    return fields;
 }

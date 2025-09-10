@@ -81,6 +81,12 @@ class EXPORT GeoFeatureLayer : public RefCounted {
     /// Returns all features which intersect with the square constructed by the given top-left and size.
     Array get_features_in_square(double top_left_x, double top_left_y, double size_meters,
                                int max_features);
+    
+    /// Returns an Array containing the names of all attributes in this layer and its features.
+    Array get_attribute_names();
+
+    /// Returns `true` if there is an attribute with the given name in the layer and its features.
+    bool has_attribute(String attribute_name);
 
     /// Returns all features which fulfill the given SQL-WHERE-like attribute filter, e.g. "attributename < 1000"
     /// Note that syntax errors are printed to the console by GDAL.

@@ -168,6 +168,8 @@ void GeoFeatureLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_features_in_square", "top_left_x", "top_left_x", "size_meters"),
                          &GeoFeatureLayer::get_features_in_square);
     ClassDB::bind_method(D_METHOD("get_features_by_attribute_filter", "filter"), &GeoFeatureLayer::get_features_by_attribute_filter);
+    ClassDB::bind_method(D_METHOD("has_attribute", "attribute_name"), &GeoFeatureLayer::has_attribute);
+    ClassDB::bind_method(D_METHOD("get_attribute_names"), &GeoFeatureLayer::get_attribute_names);
     ClassDB::bind_method(D_METHOD("create_feature"), &GeoFeatureLayer::create_feature);
     ClassDB::bind_method(D_METHOD("remove_feature", "feature"), &GeoFeatureLayer::remove_feature);
     ClassDB::bind_method(D_METHOD("clear_cache"), &GeoFeatureLayer::clear_cache);
@@ -217,6 +219,21 @@ Vector3 GeoFeatureLayer::get_center() {
     return Vector3(extent_data.left + (extent_data.right - extent_data.left) / 2.0, 0.0,
                    extent_data.top + (extent_data.down - extent_data.top) / 2.0);
 }
+
+Array GeoFeatureLayer::get_attribute_names() {
+    Array attribute_names = Array();
+
+    for (std::string field_name : layer->get_field_names()) {
+        attribute_names.append(String(field_name.c_str()));
+    }
+
+    return attribute_names;
+}
+
+bool GeoFeatureLayer::has_attribute(String attribute_name) {
+    return layer->field_exists(attribute_name.utf8().get_data());
+}
+
 
 // Utility function for converting a Processing Library Feature to the appropriate GeoFeature
 Ref<GeoFeature> GeoFeatureLayer::get_specialized_feature(std::shared_ptr<Feature> raw_feature) {

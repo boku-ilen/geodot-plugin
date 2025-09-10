@@ -29,6 +29,10 @@ class NativeLayer {
 
     void remove_field(std::string name);
 
+    bool field_exists(std::string name);
+
+    std::list<std::string> get_field_names();
+
     // TODO: Add something like `forget_feature(Feature)` so that the cache can be cleared (and the
     // memory freed) by the user
 
