@@ -10,6 +10,7 @@
 
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <vector>
+#include <iostream>
 
 namespace godot {
 

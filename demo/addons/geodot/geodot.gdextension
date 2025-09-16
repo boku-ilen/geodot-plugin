@@ -1,11 +1,12 @@
 [configuration]
 
 entry_symbol = "geodot_library_init"
-compatibility_minimum = "4.3"
+compatibility_minimum = "4.5"
 
 [libraries]
 
 linux.debug.x86_64 = "res://addons/geodot/x11/libgeodot.so"
+linux.debug.x86_64.double = "res://addons/geodot/x11/libgeodot.so"
 linux.release.x86_64 = "res://addons/geodot/x11/libgeodot.so"
 
 windows.debug.x86_64="res://addons/geodot/win64/libgeodot.dll"

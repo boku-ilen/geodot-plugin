@@ -96,7 +96,7 @@ subprocess.call(
 env.Append(CXXFLAGS=['-std=c++17'])
 
 if env["target"] == "debug":
-    env.Append(CPPDEFINES=["DEBUG_ENABLED", "DEBUG_METHODS_ENABLED"])
+    env.Append(CPPDEFINES=["DEBUG_ENABLED"])
 
 if env["precision"] == "double":
     env.Append(CPPDEFINES=["REAL_T_IS_DOUBLE"])
