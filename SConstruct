@@ -116,6 +116,8 @@ if env['platform'] == "macos":
 
     env.Append(LIBPATH=[os.path.join(env['osgeo_path'], "lib")])
     env.Append(CPPPATH=[os.path.join(env['osgeo_path'], "include")])
+    env.Append(CPPDEFINES=["MACOS_ENABLED"])
+    env.Append(CPPDEFINES=["HOT_RELOAD_ENABLED"])
 
 elif env['platform'] in ('x11', 'linux'):
     env['target_path'] += 'x11/'
