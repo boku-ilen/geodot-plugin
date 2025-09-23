@@ -43,6 +43,8 @@ void NativeLayer::write_feature_cache_to_ram_layer() {
 }
 
 void NativeLayer::save_override() {
+    layer_mutex.lock();
+
     write_feature_cache_to_ram_layer();
 
     // Write changes from RAM layer into this layer
@@ -63,9 +65,13 @@ void NativeLayer::save_override() {
     }
 
     layer->SyncToDisk();
+
+    layer_mutex.unlock();
 }
 
 void NativeLayer::save_modified_layer(std::string path) {
+    layer_mutex.lock();
+
     GDALDriver *out_driver = (GDALDriver *)GDALGetDriverByName("GPKG");
     GDALDataset *out_dataset = out_driver->Create(path.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
 
@@ -128,6 +134,8 @@ void NativeLayer::save_modified_layer(std::string path) {
 
     out_layer->SyncToDisk();
     delete out_dataset;
+
+    layer_mutex.unlock();
 }
 
 bool NativeLayer::is_valid() const {
@@ -158,6 +166,8 @@ std::shared_ptr<Feature> NativeLayer::create_feature() {
         feature = std::make_shared<Feature>(new_feature);
     }
 
+    layer_mutex.lock();
+
     // Generate a new ID based on the highest ID within the original data plus the highest added ID
     GUIntBig id = disk_feature_count + ram_feature_count;
 
@@ -177,6 +187,8 @@ std::shared_ptr<Feature> NativeLayer::create_feature() {
     // (No need to check that error, we're in a self-owned in-RAM dataset)
 
     feature_cache[id] = std::list<std::shared_ptr<Feature> >{feature};
+
+    layer_mutex.unlock();
 
     return feature;
 }
@@ -295,17 +307,28 @@ ExtentData NativeLayer::get_extent() {
 }
 
 void NativeLayer::clear_feature_cache() {
+    layer_mutex.lock();
+
     write_feature_cache_to_ram_layer();
     feature_cache.clear();
+    
+    layer_mutex.unlock();
 }
 
 std::list<std::shared_ptr<Feature> > NativeLayer::get_feature_by_id(int id) {
-    OGRFeature *feature = layer->GetFeature(id);
+    layer_mutex.lock();
 
-    return get_feature_for_ogrfeature(feature);
+    OGRFeature *ogr_feature = layer->GetFeature(id);
+    auto feature = get_feature_for_ogrfeature(ogr_feature);
+
+    layer_mutex.unlock();
+
+    return feature;
 }
 
 std::list<std::shared_ptr<Feature> > NativeLayer::get_features_by_attribute_filter(std::string filter) {
+    layer_mutex.lock();
+
     auto list = std::list<std::shared_ptr<Feature> >();
 
     layer->ResetReading();            // Reset the reading cursor
@@ -339,10 +362,14 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_features_by_attribute_filt
     // Reset attribute filter
     ram_layer->SetAttributeFilter(nullptr);
 
+    layer_mutex.unlock();
+
     return list;
 }
 
 std::list<std::shared_ptr<Feature> > NativeLayer::get_features() {
+    layer_mutex.lock();
+
     auto list = std::list<std::shared_ptr<Feature> >();
 
     layer->ResetReading();            // Reset the reading cursor
@@ -369,10 +396,14 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_features() {
         current_feature = ram_layer->GetNextFeature();
     }
 
+    layer_mutex.unlock();
+
     return list;
 }
 
 std::list<std::shared_ptr<Feature> > NativeLayer::get_features_inside_geometry(OGRGeometry *geometry, int max_amount) {
+    layer_mutex.lock();
+
     std::list<std::shared_ptr<Feature> > list = std::list<std::shared_ptr<Feature> >();
 
     // We want to extract the features within the given geometry.
@@ -383,15 +414,18 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_features_inside_geometry(O
     layer->ResetReading();
 
     // Put the resulting features into the returned list. We add as many features as were returned
-    // unless they're more
-    //  than the given max_amount.
-    int num_features = layer->GetFeatureCount();
+    // unless they're more than the given max_amount.
+    OGRFeature *current_feature = layer->GetNextFeature();
+    int i = 0;
 
-    int iterations = std::min(num_features, max_amount);
-
-    for (int i = 0; i < iterations; i++) {
+    while (current_feature != nullptr) {
         // Add the Feature objects from the next OGRFeature in the layer to the list
-        list.splice(list.end(), get_feature_for_ogrfeature(layer->GetNextFeature()));
+        list.splice(list.end(), get_feature_for_ogrfeature(current_feature));
+
+        current_feature = layer->GetNextFeature();
+
+        // Exit condition: stop if we've already added the maximum amount of features desired by the caller
+        if (i >= max_amount) break;
     }
 
     // Also check the RAM layer
@@ -402,15 +436,16 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_features_inside_geometry(O
     ram_layer->SetSpatialFilter(nullptr);
     ram_layer->ResetReading();
 
-    for (int i = 0; i < ram_layer->GetFeatureCount(); i++) {
-        auto feature = ram_layer->GetNextFeature();
+    current_feature = ram_layer->GetNextFeature();
 
-        // TODO: Ideally we would just do SetSpatialFilter(geometry) again above, but for some reason,
-        //  that returns faulty features (with identical geometry). This check works.
-        if (feature->GetGeometryRef()->Intersects(geometry)) {
-            list.splice(list.end(), get_feature_for_ogrfeature(feature));
-        }
+    while (current_feature != nullptr) {
+        // Add the Feature objects from the next OGRFeature in the layer to the list
+        list.splice(list.end(), get_feature_for_ogrfeature(current_feature));
+
+        current_feature = ram_layer->GetNextFeature();
     }
+
+    layer_mutex.unlock();
 
     return list;
 }
@@ -470,7 +505,9 @@ void NativeLayer::add_field(std::string name) {
 
     OGRFieldDefn *field_definition = new OGRFieldDefn(name.c_str(), OGRFieldType::OFTString);
 
+    layer_mutex.lock();
     ram_layer->CreateField(field_definition);
+    layer_mutex.unlock();
 
     delete field_definition;
 }
@@ -479,7 +516,9 @@ void NativeLayer::remove_field(std::string name) {
     // According to the docs, no feature objects may exist when altering field definitions, so clear the cache first
     clear_feature_cache();
 
+    layer_mutex.lock();
     ram_layer->DeleteField(ram_layer->GetLayerDefn()->GetFieldIndex(name.c_str()));
+    layer_mutex.unlock();
 }
 
 bool NativeLayer::field_exists(std::string name) {
@@ -489,9 +528,13 @@ bool NativeLayer::field_exists(std::string name) {
 std::list<std::string> NativeLayer::get_field_names() {
     std::list<std::string> fields;
 
+    layer_mutex.lock();
+
     for(const OGRFieldDefn *field_definition : ram_layer->GetLayerDefn()->GetFields()) {
         fields.emplace_back(field_definition->GetNameRef());
     }
+
+    layer_mutex.unlock();
 
     return fields;
 }

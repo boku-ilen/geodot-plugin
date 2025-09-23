@@ -9,6 +9,7 @@
 #include "vector-extractor/VectorExtractor.h"
 
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <godot_cpp/classes/resource_loader.hpp>
 #include <vector>
 #include <iostream>
 
@@ -86,6 +87,13 @@ Array GeoDataset::get_feature_layers() {
 }
 
 Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
+    String resource_path = get_path() + ":" + name;
+
+    // If we already have this raster layer in the resource cache, return that
+    if (ResourceLoader::get_singleton()->has_cached(resource_path)) {
+        return ResourceLoader::get_singleton()->get_cached_ref(resource_path);
+    }
+
     Ref<GeoRasterLayer> raster_layer;
     raster_layer.instantiate();
 
@@ -102,11 +110,19 @@ Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
     raster_layer->name = name;
     raster_layer->set_native_dataset(subdataset);
     raster_layer->set_origin_dataset(this);
+    raster_layer->take_over_path(resource_path);
 
     return raster_layer;
 }
 
 Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
+    String resource_path = get_path() + ":" + name;
+
+    // If we already have this feature layer in the resource cache, return that
+    if (ResourceLoader::get_singleton()->has_cached(resource_path)) {
+        return ResourceLoader::get_singleton()->get_cached_ref(resource_path);
+    }
+
     Ref<GeoFeatureLayer> feature_layer;
     feature_layer.instantiate();
 
@@ -118,11 +134,19 @@ Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
     feature_layer->name = name;
     feature_layer->set_native_layer(dataset->get_layer(name.utf8().get_data()));
     feature_layer->set_origin_dataset(this);
+    feature_layer->take_over_path(resource_path);
 
     return feature_layer;
 }
 
 Ref<GeoFeatureLayer> GeoDataset::get_sql_feature_layer(String query) {
+    String resource_path = get_path() + ":" + query;
+
+    // If we already have this SQL layer in the resource cache, return that
+    if (ResourceLoader::get_singleton()->has_cached(resource_path)) {
+        return ResourceLoader::get_singleton()->get_cached_ref(resource_path);
+    }
+
     Ref<GeoFeatureLayer> feature_layer;
     feature_layer.instantiate();
 
@@ -139,13 +163,20 @@ Ref<GeoFeatureLayer> GeoDataset::get_sql_feature_layer(String query) {
     feature_layer->name = query;
     feature_layer->set_native_layer(sql_layer);
     feature_layer->set_origin_dataset(this);
+    feature_layer->take_over_path(resource_path);
 
     return feature_layer;
 }
 
 void GeoDataset::load_from_file(String file_path, bool write_access) {
+    String resource_path = file_path + (write_access ? "w" : "");
+
     this->write_access = write_access;
     dataset = VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access);
+
+    // For Godot resource caching
+    // Note that we don't check the cache here, so make sure this is only called if there is nothing in the cache already!
+    take_over_path(resource_path);
 
 #ifdef DEBUG_ENABLED
     ERR_FAIL_COND_V_EDMSG(!dataset->is_valid(), , "Could not load dataset!");
@@ -848,6 +879,8 @@ Ref<GeoRasterLayer> GeoRasterLayer::clone() {
 }
 
 void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
+    String resource_path = file_path + (write_access ? "w" : "");
+    
     this->write_access = write_access;
     set_native_dataset(VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access));
 
@@ -858,6 +891,10 @@ void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
     // Cause of backwards compability the objects name needs to be the path
     // Obtaining the name using get_file_info will give back the stem (filename without extension)
     name = file_path;
+
+    // For Godot resource caching
+    // Note that we don't check the cache here, so make sure this is only called if there is nothing in the cache already!
+    take_over_path(resource_path);
 }
 
 void GeoRasterLayer::set_native_dataset(std::shared_ptr<NativeDataset> new_dataset) {

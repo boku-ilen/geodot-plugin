@@ -3,6 +3,7 @@
 #include "gdal-includes.h"
 #include "util.h"
 #include <list>
+#include <mutex>
 
 class NativeLayer {
   public:
@@ -94,4 +95,6 @@ class NativeLayer {
 
   private:
     std::list<std::shared_ptr<Feature> > get_features_inside_geometry(OGRGeometry *geometry, int max_amount);
+
+    std::mutex layer_mutex;
 };

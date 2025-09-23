@@ -3,6 +3,7 @@
 
 #include "defines.h"
 #include <cstdint>
+#include <mutex>
 
 struct RasterIOHelper {
     int clamped_pixel_offset_x;
@@ -14,6 +15,12 @@ struct RasterIOHelper {
     int target_width;
     int usable_height;
     int usable_width;
+
+    static std::mutex rasterio_mutex;
+
+    RasterIOHelper();
+
+    ~RasterIOHelper();
 };
 
 // Forward declaration of GDALDataset from <gdal/gdal_priv.h>

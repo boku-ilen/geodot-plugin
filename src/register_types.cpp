@@ -4,10 +4,12 @@
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
+#include <godot_cpp/classes/resource_loader.hpp>
 
 #include "geodata.h"
 #include "geoimage.h"
 #include "geotransform.h"
+#include "loaders.h"
 
 using namespace godot;
 
@@ -22,6 +24,19 @@ void register_geodot_types(ModuleInitializationLevel p_level) {
     ClassDB::register_class<GeoFeatureLayer>();
     ClassDB::register_class<GeoRasterLayer>();
     ClassDB::register_class<GeoTransform>();
+    ClassDB::register_class<GeoDatasetLoader>();
+    ClassDB::register_class<GeoRasterLayerLoader>();
+
+    // Register resource loaders
+    Ref<GeoDatasetLoader> loader;
+    loader.instantiate();
+
+    ResourceLoader::get_singleton()->add_resource_format_loader(loader);
+
+    Ref<GeoRasterLayerLoader> raster_loader;
+    raster_loader.instantiate();
+
+    ResourceLoader::get_singleton()->add_resource_format_loader(raster_loader);
 }
 
 void unregister_geodot_types(ModuleInitializationLevel p_level) {

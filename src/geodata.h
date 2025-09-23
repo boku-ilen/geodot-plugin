@@ -19,8 +19,8 @@ class EXPORT GeoDataset;
 /// vector geometry. This layer provides access to these features through
 /// various filters. Corresponds to OGRLayer.
 /// Its `name` property corresponds to the layer name.
-class EXPORT GeoFeatureLayer : public RefCounted {
-    GDCLASS(GeoFeatureLayer, RefCounted)
+class EXPORT GeoFeatureLayer : public Resource {
+    GDCLASS(GeoFeatureLayer, Resource)
 
   protected:
     static void _bind_methods();
@@ -117,8 +117,8 @@ class EXPORT GeoFeatureLayer : public RefCounted {
 /// Corresponds to a Raster GDALDataset or Subdataset.
 /// Its `name` property is either the layer name, or the full path if it wasn't opened from a
 /// dataset (i.e. get_dataset() returns null).
-class EXPORT GeoRasterLayer : public RefCounted {
-    GDCLASS(GeoRasterLayer, RefCounted)
+class EXPORT GeoRasterLayer : public Resource {
+    GDCLASS(GeoRasterLayer, Resource)
 
   protected:
     static void _bind_methods();
@@ -245,8 +245,8 @@ class EXPORT GeoRasterLayer : public RefCounted {
 
 /// A dataset which contains layers of geodata.
 /// Corresponds to GDALDataset.
-class EXPORT GeoDataset : public RefCounted {
-    GDCLASS(GeoDataset, RefCounted)
+class EXPORT GeoDataset : public Resource {
+    GDCLASS(GeoDataset, Resource)
 
   protected:
     static void _bind_methods();

@@ -3,7 +3,17 @@
 #include <algorithm> // For std::clamp etc
 #include <cstring>
 #include <map>
+#include <mutex>
 
+std::mutex RasterIOHelper::rasterio_mutex = std::mutex();
+
+RasterIOHelper::RasterIOHelper() {
+    rasterio_mutex.lock();
+}
+
+RasterIOHelper::~RasterIOHelper() {
+    rasterio_mutex.unlock();
+}
 
 RasterIOHelper GeoRaster::get_raster_io_helper() {
     RasterIOHelper result;
