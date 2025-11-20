@@ -428,12 +428,15 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_features_inside_geometry(O
         if (i >= max_amount) break;
     }
 
+    // Reset spatial filter
+    layer->SetSpatialFilter(nullptr);
+
     // Also check the RAM layer
     // FIXME: Take care of max_amount here too
     // TODO: Code duplication (similar as in `get_features`)
     write_feature_cache_to_ram_layer();
 
-    ram_layer->SetSpatialFilter(nullptr);
+    ram_layer->SetSpatialFilter(geometry);
     ram_layer->ResetReading();
 
     current_feature = ram_layer->GetNextFeature();
@@ -444,6 +447,9 @@ std::list<std::shared_ptr<Feature> > NativeLayer::get_features_inside_geometry(O
 
         current_feature = ram_layer->GetNextFeature();
     }
+
+    // Reset spatial filter
+    ram_layer->SetSpatialFilter(nullptr);
 
     layer_mutex.unlock();
 
