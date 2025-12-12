@@ -3,7 +3,7 @@ extends EditorPlugin
 
 
 func _enter_tree():
-	add_autoload_singleton("Geodot", "res://addons/geodot/geodot.gd")
+	pass
 
 
 func _exit_tree():
