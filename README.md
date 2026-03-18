@@ -45,6 +45,18 @@ __You will need some sort of geodata to use this plugin.__ The bundled demo scen
 
 __Note:__ We recommend running the Godot editor with a terminal window attached, since GDAL likes to print error output to `stdout` which does not show up in the editor itself.
 
+## Multithreading
+
+Since loading data can take some time, it should usually not be done on the main thread, but on separate threads (e.g. Godot's `Thread` objects or `WorkerThreadPool` tasks). Geodot supports multithreading with some thread safety caveats:
+
+__Opening datasets and layers__: `GeoDataset`, `GeoRasterLayer`, and `GeoFeatureLayer` all inherit from Godot's `Resource` type. Therefore, they are unique per underlying dataset; loading the same data always returns the same object. According to the [Godot Docs](https://docs.godotengine.org/en/stable/tutorials/performance/thread_safe_apis.html#resources), loading the same resource from multiple threads at the same time can be problematic. We therefore recommend creating these objects on the main thread, since no real and costly loading is done when opening datasets or layers.
+
+__Vector data__: We use a Mutex around the loading and modification of data in feature layers. Therefore, all vector operations should be safe to call from multiple threads.
+
+__Raster data__: According to the [GDAL Docs](https://gdal.org/en/stable/user/multithreading.html), reading raster data from the same dataset object is not necessarily thread safe. However, we have done extensive testing calling `GeoRasterLayer.get_image(...).get_image_texture()` from multiple threads and have not run into problems. If you do, you can create a unique dataset object with `GeoRasterLayer.clone()`.
+
+Although we've gone through quite a lot of testing, we can't guarantee that Geodot is free from edge cases which are not thread safe. If you find any, please report it!
+
 # Building
 
 For building this project we need to install [Scons](https://scons.org) by following one of the [User Guide](https://scons.org/documentation.html) *Installing Scons* which is both used for Godot GDExtension and this project and we need the GDAL library which has different installation instruction listed below.
