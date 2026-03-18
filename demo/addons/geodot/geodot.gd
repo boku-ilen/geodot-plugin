@@ -1,5 +1,6 @@
 @tool
-extends Node
+extends Object
+class_name Geodot
 
 
 static func get_dataset(path: String, write_access=false) -> GeoDataset:
