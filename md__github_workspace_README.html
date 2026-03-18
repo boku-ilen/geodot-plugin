@@ -101,6 +101,13 @@ Usage</h1>
 <p ><b>You will need some sort of geodata to use this plugin.</b> The bundled demo scenes include small snippets of example data such as a raster heightmap and a vector street dataset.</p>
 <p ><b>Note:</b> We recommend running the Godot editor with a terminal window attached, since GDAL likes to print error output to <code>stdout</code> which does not show up in the editor itself.</p>
 <h1><a class="anchor" id="autotoc_md2"></a>
+Multithreading</h1>
+<p >Since loading data can take some time, it should usually not be done on the main thread, but on separate threads (e.g. Godot's <code>Thread</code> objects or <code>WorkerThreadPool</code> tasks). Geodot supports multithreading with some thread safety caveats:</p>
+<p ><b>Opening datasets and layers</b>: <code>GeoDataset</code>, <code>GeoRasterLayer</code>, and <code>GeoFeatureLayer</code> all inherit from Godot's <code>Resource</code> type. Therefore, they are unique per underlying dataset; loading the same data always returns the same object. According to the <a href="https://docs.godotengine.org/en/stable/tutorials/performance/thread_safe_apis.html#resources">Godot Docs</a>, loading the same resource from multiple threads at the same time can be problematic. We therefore recommend creating these objects on the main thread, since no real and costly loading is done when opening datasets or layers.</p>
+<p ><b>Vector data</b>: We use a Mutex around the loading and modification of data in feature layers. Therefore, all vector operations should be safe to call from multiple threads.</p>
+<p ><b>Raster data</b>: According to the <a href="https://gdal.org/en/stable/user/multithreading.html">GDAL Docs</a>, reading raster data from the same dataset object is not necessarily thread safe. However, we have done extensive testing calling <code>GeoRasterLayer.get_image(...).get_image_texture()</code> from multiple threads and have not run into problems. If you do, you can create a unique dataset object with <code>GeoRasterLayer.clone()</code>.</p>
+<p >Although we've gone through quite a lot of testing, we can't guarantee that Geodot is free from edge cases which are not thread safe. If you find any, please report it!</p>
+<h1><a class="anchor" id="autotoc_md3"></a>
 Building</h1>
 <p >For building this project we need to install <a href="https://scons.org">Scons</a> by following one of the <a href="https://scons.org/documentation.html">User Guide</a> <em>Installing Scons</em> which is both used for Godot GDExtension and this project and we need the GDAL library which has different installation instruction listed below.</p>
 <ul>
@@ -108,26 +115,26 @@ Building</h1>
 <li>Windows</li>
 <li>MacOS</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md3"></a>
+<h2><a class="anchor" id="autotoc_md4"></a>
 Building on Linux</h2>
-<h3><a class="anchor" id="autotoc_md4"></a>
+<h3><a class="anchor" id="autotoc_md5"></a>
 Preparation</h3>
 <ol type="1">
 <li>Install GDAL. (With apt: <code>sudo apt install libgdal-dev</code>)</li>
 <li>Initialize all git submodules: <code>git submodule update --init --recursive</code></li>
 <li>Generate the GDExtension C++ bindings: <code>cd godot-cpp; scons platform=linux generate_bindings=yes</code></li>
 </ol>
-<h3><a class="anchor" id="autotoc_md5"></a>
+<h3><a class="anchor" id="autotoc_md6"></a>
 Compiling</h3>
 <p >Everything is built via SConstruct. Running <code>scons platform=linux</code> in the root directory will compile everything: First the processing libraries, then the finished GDExtension plugin.</p>
 <p >If you're working on a processing library, you can also only compile this library with the same <code>scons platform=linux</code> command in that library's directory (e.g. in <code>src/raster-tile-extractor</code>).</p>
-<h3><a class="anchor" id="autotoc_md6"></a>
+<h3><a class="anchor" id="autotoc_md7"></a>
 Packaging</h3>
 <p >For building a self-contained plugin for use in other projects, it is recommended to move <code>libgdal</code> into the same directory as <code>libgeodot</code> and the other libraries (<code>demo/addons/geodot/x11/</code>).</p>
-<h2><a class="anchor" id="autotoc_md7"></a>
+<h2><a class="anchor" id="autotoc_md8"></a>
 Building on Windows</h2>
 <p >Because of very inconsistent results with native Visual Studio compilation, we use Docker to create Windows builds from a Linux environment using MinGW. This means that Windows builds are also created on a Linux machine. We recommend the following process <b>on Linux or on WSL</b> (they will not work on native Windows):</p>
-<h3><a class="anchor" id="autotoc_md8"></a>
+<h3><a class="anchor" id="autotoc_md9"></a>
 Preparation</h3>
 <ol type="1">
 <li>Install Docker, SCons, and MinGW</li>
@@ -135,23 +142,23 @@ Preparation</h3>
 <li>Generate the GDExtension C++ bindings: <code>cd godot-cpp; scons platform=windows generate_bindings=yes</code></li>
 <li>Create the build container: <code>docker build -f DockerfileMinGW -t gdal-mingw .</code></li>
 </ol>
-<h3><a class="anchor" id="autotoc_md9"></a>
+<h3><a class="anchor" id="autotoc_md10"></a>
 Compiling</h3>
 <p >Build Geodot on the container: <code>docker run --name mingw-builder gdal-mingw:latest</code></p>
-<h3><a class="anchor" id="autotoc_md10"></a>
+<h3><a class="anchor" id="autotoc_md11"></a>
 Packaging</h3>
 <p >Copy the resulting Geodot library: <code>docker cp mingw-builder:/geodot/demo/addons/geodot/win64 ./demo/addons/geodot</code></p>
 <p >Copy the DLLs for GDAL and all dependencies: <code>docker cp mingw-builder:/usr/x86_64-w64-mingw32/sys-root/mingw/bin ./tmp</code> and <code>cp ./tmp/*.dll ./demo/addons/geodot/win64/</code></p>
-<h2><a class="anchor" id="autotoc_md11"></a>
+<h2><a class="anchor" id="autotoc_md12"></a>
 Building on MacOS</h2>
-<h3><a class="anchor" id="autotoc_md12"></a>
+<h3><a class="anchor" id="autotoc_md13"></a>
 Notes</h3>
 <ul>
 <li>The current implementation only has support for x86 and <b>not for</b> the new M1 processor.</li>
 <li><a class="el" href="classVectorExtractor.html">VectorExtractor</a> is causing the game to crash. See #51</li>
 <li>You have to move some generated files. See #52</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md13"></a>
+<h3><a class="anchor" id="autotoc_md14"></a>
 Preparation</h3>
 <ol type="1">
 <li>Install using <code>brew install gdal</code> or manually <a href="https://github.com/OSGeo/gdal">https://github.com/OSGeo/gdal</a>.<ol type="a">
@@ -174,7 +181,7 @@ Preparation</h3>
 <div class="line">cd ..</div>
 </div><!-- fragment --></li>
 </ol>
-<h3><a class="anchor" id="autotoc_md14"></a>
+<h3><a class="anchor" id="autotoc_md15"></a>
 Compiling</h3>
 <ol type="1">
 <li>Compile the project itself using the GDAL location like <code>scons target=release osgeo_path=/usr/local/Cellar/gdal/3.2.1</code><ol type="a">
@@ -188,41 +195,41 @@ Compiling</h3>
 </ol>
 </li>
 </ol>
-<h1><a class="anchor" id="autotoc_md15"></a>
+<h1><a class="anchor" id="autotoc_md16"></a>
 Developing</h1>
 <p >We recommend VSCodium for developing. For on-the-fly code completion, error reporting, etc., install the <code>clangd</code> extension in VSCodium and run <code>scons compiledb=yes</code> in order to generate the required compilation database.</p>
-<h1><a class="anchor" id="autotoc_md16"></a>
+<h1><a class="anchor" id="autotoc_md17"></a>
 Project structure</h1>
-<h2><a class="anchor" id="autotoc_md17"></a>
+<h2><a class="anchor" id="autotoc_md18"></a>
 Demo</h2>
 <p >A minimal Godot project which the plugin is compiled into by default. Used to test its functionality.</p>
-<h2><a class="anchor" id="autotoc_md18"></a>
+<h2><a class="anchor" id="autotoc_md19"></a>
 godot-cpp</h2>
 <p >Git submodule with everything that's required for building a GDExtension plugin with C++.</p>
-<h2><a class="anchor" id="autotoc_md19"></a>
+<h2><a class="anchor" id="autotoc_md20"></a>
 Geodot</h2>
 <p ><code>geodot.h</code>, <code><a class="el" href="geodata_8h_source.html">geodata.h</a></code>, etc. - the GDExtension C++ code for the actual plugin. It mainly acts as an interface from Godot-compatible types to custom libraries and classes - it is kept as simple as possible so that adapting it to changes in Godot is easy.</p>
-<h2><a class="anchor" id="autotoc_md20"></a>
+<h2><a class="anchor" id="autotoc_md21"></a>
 Processing Libraries</h2>
 <p >Processing Libraries handle calls to external libraries and convert the results to generic custom classes (independent and unaware of Godot). This way, Godot and external libraries are decoupled, with only one dependency per project.</p>
 <p >The reason for this layer of abstraction is ease of compilation and extendibility: The libraries can remain the same, only the core Geodot must be kept consistent with Godot. Similarly, changes in external libraries only affect the corresponding processing library, not the Geodot layer.</p>
-<h3><a class="anchor" id="autotoc_md21"></a>
+<h3><a class="anchor" id="autotoc_md22"></a>
 RasterTileExtractor</h3>
 <p >Processing library called by Geodot. Wraps GDAL's Raster functionality, primarily the extraction of Raster data into an array.</p>
-<h3><a class="anchor" id="autotoc_md22"></a>
+<h3><a class="anchor" id="autotoc_md23"></a>
 VectorExtractor</h3>
 <p >Another processing library like the <a class="el" href="classRasterTileExtractor.html">RasterTileExtractor</a>. Also uses GDAL internally, but for vector data functionality, as well as general database and layer handling.</p>
-<h1><a class="anchor" id="autotoc_md23"></a>
+<h1><a class="anchor" id="autotoc_md24"></a>
 Contributing</h1>
 <p >Help is greatly appreciated! You can test and report bugs, fix known <a href="https://github.com/boku-ilen/geodot-plugin/issues">issues</a> or submit new functionality.</p>
-<h2><a class="anchor" id="autotoc_md24"></a>
+<h2><a class="anchor" id="autotoc_md25"></a>
 Adding a new feature</h2>
 <ul>
 <li>Actual processing code and external library calls should be put into a separate project (a processing library) which compiles to a library and is independent from Godot.</li>
 <li>Geodot should only translate Godot calls and types to calls to this custom library. Its only dependencies should be Godot and custom libraries.</li>
 </ul>
 <p >Summed up, dependencies should only go in this direction: Godot + Geodot -&gt; Processing Library -&gt; External Libraries</p>
-<h1><a class="anchor" id="autotoc_md25"></a>
+<h1><a class="anchor" id="autotoc_md26"></a>
 Credits</h1>
 <p >The provided Linux build ships with libgdal.so, a build of the GDAL library. All credits for this library go to <a href="https://github.com/OSGeo/gdal/">OSGeo/gdal</a> (<a href="https://raw.githubusercontent.com/OSGeo/gdal/master/gdal/LICENSE.TXT">license</a>).</p>
 <p >The RasterDemo ships with a small sample of <a href="https://data.wien.gv.at/">Viennese test data</a> (CC BY 4.0); the VectorDemo uses a sample of edges from the <a href="http://www.gip.gv.at/#ogd">GIP dataset</a> (CC BY 4.0). </p>
