@@ -26,7 +26,14 @@ class EXPORT GeoFeature : public Resource {
     virtual ~GeoFeature() = default;
 
     String get_attribute(String name) const;
+
+    ///Gets a binary data attribute as a PackedByteArray
+    PackedByteArray get_binary_attribute(String name) const;
+
     void set_attribute(String name, String value);
+
+    ///Sets a binary data attribute to the PackedByteArray provided
+    void set_binary_attribute(String name, PackedByteArray value);
 
     int get_id() const;
 

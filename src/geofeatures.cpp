@@ -6,7 +6,9 @@ using namespace godot;
 
 void GeoFeature::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_attribute", "name"), &GeoFeature::get_attribute);
+    ClassDB::bind_method(D_METHOD("get_binary_attribute", "name"), &GeoFeature::get_binary_attribute);
     ClassDB::bind_method(D_METHOD("set_attribute", "name", "value"), &GeoFeature::set_attribute);
+    ClassDB::bind_method(D_METHOD("set_binary_attribute", "name", "value"), &GeoFeature::set_binary_attribute);
     ClassDB::bind_method(D_METHOD("get_attributes"), &GeoFeature::get_attributes);
     ClassDB::bind_method(D_METHOD("get_id"), &GeoFeature::get_id);
     ClassDB::bind_method(D_METHOD("intersects_with", "other"), &GeoFeature::intersects_with);
@@ -18,9 +20,28 @@ String GeoFeature::get_attribute(String name) const {
     return String::utf8(gdal_feature->get_attribute(name.utf8().get_data()));
 }
 
+PackedByteArray GeoFeature::get_binary_attribute(String name) const
+{
+    PackedByteArray ret;
+    int n_bytes;
+    const uint8_t *bin_data = gdal_feature->get_binary_attribute(name.utf8().get_data(), &n_bytes);
+    ret.resize(n_bytes);
+    memcpy((void*) ret.ptr(), bin_data, n_bytes);
+    delete bin_data;
+    return ret;
+}
+
 void GeoFeature::set_attribute(String name, String value) {
     gdal_feature->set_attribute(name.utf8().get_data(), value.utf8().get_data());
     emit_signal("feature_changed");
+}
+
+void GeoFeature::set_binary_attribute(String name, PackedByteArray value)
+{
+    uint8_t *arr = new uint8_t[value.size()];
+    memcpy((void*)arr, value.ptr(), value.size());
+    gdal_feature->set_binary_attribute(name.utf8().get_data(), arr, (int) value.size());
+    delete[] arr;
 }
 
 int GeoFeature::get_id() const {
