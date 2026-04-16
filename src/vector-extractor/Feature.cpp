@@ -29,8 +29,7 @@ const char *Feature::get_attribute(const char *name) {
 }
 
 
-const uint8_t *Feature::get_binary_attribute(const char *name, int* n_bytes)
-{
+const uint8_t *Feature::get_binary_attribute(const char *name, int* n_bytes) {
     int field = feature->GetFieldIndex(name);
     // temporary return value
     GByte *data = feature->GetFieldAsBinary(field, n_bytes);
@@ -43,10 +42,8 @@ void Feature::set_attribute(const char *name, const char *value) {
     feature->SetField(name, value);
 }
 
-void Feature::set_binary_attribute(const char *name, uint8_t *value, int n_bytes)
-{
+void Feature::set_binary_attribute(const char *name, uint8_t *value, int n_bytes) {
     feature->SetField(feature->GetFieldIndex(name), n_bytes, value);
-    // where should the free happen?
 }
 
 
