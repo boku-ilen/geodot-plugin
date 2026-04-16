@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <ogr_feature.h>
 
 #include "gdal-includes.h"
 
