@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <cstdint>
 
 class OGRFeature;
 class OGRGeometry;
@@ -30,7 +31,11 @@ class Feature {
     /// A field with the given name must exist.
     const char *get_attribute(const char *name);
 
+    const uint8_t *get_binary_attribute(const char *name, int *n_bytes);
+
     void set_attribute(const char *name, const char *value);
+
+    void set_binary_attribute(const char *name, uint8_t *value, int n_bytes);
 
     int get_id() const;
 
