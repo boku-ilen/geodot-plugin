@@ -7,8 +7,7 @@ static func get_dataset(path: String, write_access=false) -> GeoDataset:
 	if not FileAccess.file_exists(path):
 		push_error("Trying to load non existent file at '%s'" % [path])
 
-	var dataset := GeoDataset.new()
-	dataset.load_from_file(path, write_access)
+	var dataset := load(path)
 	
 	return dataset
 

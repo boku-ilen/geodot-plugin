@@ -17,7 +17,7 @@ NativeDataset::~NativeDataset() {
 std::vector<std::string> NativeDataset::get_raster_layer_names() {
     std::vector<std::string> names;
 
-    char **subdataset_metadata = dataset->GetMetadata("SUBDATASETS");
+    CSLConstList subdataset_metadata = dataset->GetMetadata("SUBDATASETS");
 
     // This metadata is formated like this:
     // SUBDATASET_1_NAME=GPKG:/path/to/geopackage.gpkg:dhm

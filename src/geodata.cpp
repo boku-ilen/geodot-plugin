@@ -131,8 +131,13 @@ Ref<GeoFeatureLayer> GeoDataset::get_feature_layer(String name) {
     ERR_FAIL_COND_V_EDMSG(!dataset->has_layer(name.utf8().get_data()), feature_layer, "Feature layer does not exist in GeoDataset!");
 #endif
 
+    // Accessing data of multiple layers from the same dataset is not thread-safe.
+    // Therefore, we give each layer a new dataset object for the same underlying file.
+    std::shared_ptr<NativeDataset> new_dataset = VectorExtractor::open_dataset(path.utf8().get_data(), write_access);
+
     feature_layer->name = name;
-    feature_layer->set_native_layer(dataset->get_layer(name.utf8().get_data()));
+    feature_layer->set_native_layer(new_dataset->get_layer(name.utf8().get_data()));
+    feature_layer->set_origin_native_dataset(new_dataset);
     feature_layer->set_origin_dataset(this);
     feature_layer->take_over_path(resource_path);
 
@@ -172,7 +177,8 @@ void GeoDataset::load_from_file(String file_path, bool write_access) {
     String resource_path = file_path + (write_access ? "w" : "");
 
     this->write_access = write_access;
-    dataset = VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access);
+    path = file_path;
+    dataset = VectorExtractor::open_dataset(path.utf8().get_data(), write_access);
 
     // For Godot resource caching
     // Note that we don't check the cache here, so make sure this is only called if there is nothing in the cache already!
@@ -466,6 +472,10 @@ void GeoFeatureLayer::set_native_layer(std::shared_ptr<NativeLayer> new_layer) {
 
 void GeoFeatureLayer::set_origin_dataset(Ref<GeoDataset> dataset) {
     this->origin_dataset = dataset;
+}
+
+void GeoFeatureLayer::set_origin_native_dataset(std::shared_ptr<NativeDataset> new_dataset) {
+    this->dataset = new_dataset;
 }
 
 void GeoRasterLayer::_bind_methods() {

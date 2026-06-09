@@ -104,10 +104,13 @@ class EXPORT GeoFeatureLayer : public Resource {
     /// Not exposed to Godot since it should never construct GeoFeatureLayers by hand.
     void set_origin_dataset(Ref<GeoDataset> dataset);
 
+    void set_origin_native_dataset(std::shared_ptr<NativeDataset> dataset);
+
     String name;
 
   private:
     std::shared_ptr<NativeLayer> layer;
+    std::shared_ptr<NativeDataset> dataset;
     std::map<std::shared_ptr<Feature>, Ref<GeoFeature>> feature_cache;
     Ref<GeoDataset> origin_dataset;
     ExtentData extent_data;
@@ -299,6 +302,7 @@ class EXPORT GeoDataset : public Resource {
     std::shared_ptr<NativeDataset> dataset;
 
     String name;
+    String path;
 };
 
 } // namespace godot
