@@ -67,10 +67,10 @@ std::shared_ptr<NativeLayer> NativeDataset::get_layer(const char *name) const {
     return std::make_shared<NativeLayer>(dataset->GetLayerByName(name));
 }
 
-std::shared_ptr<NativeDataset> NativeDataset::get_subdataset(const char *name) const {
+std::shared_ptr<NativeDataset> NativeDataset::get_subdataset(const char *name, bool subdataset_write_access) const {
     // TODO: Hardcoded for the way GeoPackages work - do we want to support others too?
     return std::make_shared<NativeDataset> (("GPKG:" + path + std::string(":") + std::string(name)).c_str(),
-                             write_access);
+                             subdataset_write_access);
 }
 
 std::shared_ptr<NativeDataset> NativeDataset::clone() {

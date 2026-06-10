@@ -127,7 +127,7 @@ class EXPORT GeoRasterLayer : public Resource {
     static void _bind_methods();
 
   public:
-    GeoRasterLayer() : origin_dataset(nullptr) {}
+    GeoRasterLayer() : origin_dataset(nullptr), write_access(false) {}
     ~GeoRasterLayer() = default;
 
     /// Returns true if the layer could successfully be loaded.
@@ -225,7 +225,11 @@ class EXPORT GeoRasterLayer : public Resource {
     float get_pixel_size();
 
     /// Load a raster dataset file such as a GeoTIFF into this object.
-    void load_from_file(String file_path, bool write_access);
+    void set_file(String file_path);
+
+    /// Define whether layers of this dataset should be loaded in read-only or
+    /// update mode.
+    void set_write_access(bool write_access);
 
     /// Set the GDALDataset object for this layer. Must be a valid raster
     /// dataset. Not exposed to Godot since Godot doesn't know about
@@ -255,7 +259,7 @@ class EXPORT GeoDataset : public Resource {
     static void _bind_methods();
 
   public:
-    GeoDataset() = default;
+    GeoDataset() : write_access(false) {}
     ~GeoDataset();
 
     /// Returns true if the GeoDataset could successfully be loaded.
@@ -290,7 +294,11 @@ class EXPORT GeoDataset : public Resource {
 
     /// Load a dataset file such as a Geopackage or a Shapefile into this
     /// object.
-    void load_from_file(String file_path, bool write_access);
+    void set_file(String file_path);
+
+    /// Define whether layers of this dataset should be loaded in read-only or
+    /// update mode.
+    void set_write_access(bool write_access);
 
     /// Set the GDALDataset object directly.
     /// Not exposed to Godot since Godot doesn't know about GDALDatasets - this

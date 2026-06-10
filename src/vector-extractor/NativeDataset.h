@@ -27,7 +27,7 @@ class NativeDataset {
     /// with that name.
     std::shared_ptr<NativeLayer> get_layer(const char *name) const;
 
-    std::shared_ptr<NativeDataset> get_subdataset(const char *name) const;
+    std::shared_ptr<NativeDataset> get_subdataset(const char *name, bool subdataset_write_access) const;
 
     std::shared_ptr<NativeDataset> clone();
 

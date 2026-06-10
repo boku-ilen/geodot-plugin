@@ -14,7 +14,7 @@ func _ready():
 	print(' layer_name        : ', layer_name)
 
 	print(' fetching dataset  : ', path)
-	var dataset = Geodot.get_dataset(path)
+	var dataset = load(path)
 
 	print(' fetching layer    : ', layer_name)
 	var layer = dataset.get_feature_layer(layer_name)

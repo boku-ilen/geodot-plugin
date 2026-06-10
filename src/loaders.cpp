@@ -22,6 +22,8 @@ PackedStringArray GeoDatasetLoader::_get_recognized_extensions() const {
     // FIXME: Use https://gis.stackexchange.com/questions/175610/list-of-gdal-raster-file-extensions to generate this list
 
     extensions.append("gpkg");
+    extensions.append("shp");
+    extensions.append("geojson");
 
     return extensions;
 }
@@ -42,9 +44,7 @@ Variant GeoDatasetLoader::_load(const String &p_path, const String &p_original_p
     Ref<GeoDataset> dataset;
     dataset.instantiate();
     
-    dataset->load_from_file(p_path, 0);
-
-    std::cout << "LOADED>" << std::endl;
+    dataset->set_file(ProjectSettings::get_singleton()->globalize_path(p_path));
     
     return dataset;
 }
@@ -61,6 +61,7 @@ PackedStringArray GeoRasterLayerLoader::_get_recognized_extensions() const {
     // FIXME: Use https://gis.stackexchange.com/questions/175610/list-of-gdal-raster-file-extensions to generate this list
 
     extensions.append("tif");
+    extensions.append("jpg");
     extensions.append("mbtiles");
 
     return extensions;
@@ -83,7 +84,7 @@ Variant GeoRasterLayerLoader::_load(const String &p_path, const String &p_origin
     Ref<GeoRasterLayer> layer;
     layer.instantiate();
     
-    layer->load_from_file(ProjectSettings::get_singleton()->globalize_path(p_path), 0);
+    layer->set_file(ProjectSettings::get_singleton()->globalize_path(p_path));
     
     return layer;
 }

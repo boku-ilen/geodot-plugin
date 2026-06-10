@@ -28,8 +28,7 @@ void GeoDataset::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_raster_layer", "name"), &GeoDataset::get_raster_layer);
     ClassDB::bind_method(D_METHOD("get_feature_layer", "name"), &GeoDataset::get_feature_layer);
     ClassDB::bind_method(D_METHOD("get_sql_feature_layer", "query"), &GeoDataset::get_sql_feature_layer);
-    ClassDB::bind_method(D_METHOD("load_from_file", "file_path", "write_access"),
-                         &GeoDataset::load_from_file);
+    ClassDB::bind_method(D_METHOD("set_write_access", "write_access"), &GeoDataset::set_write_access);
 }
 
 bool GeoDataset::is_valid() {
@@ -101,7 +100,7 @@ Ref<GeoRasterLayer> GeoDataset::get_raster_layer(String name) {
     ERR_FAIL_COND_V_EDMSG(!dataset->is_valid(), raster_layer, "Can't get raster layer of invalid GeoDataset!");
 #endif
 
-    std::shared_ptr<NativeDataset> subdataset = dataset->get_subdataset(name.utf8().get_data());
+    std::shared_ptr<NativeDataset> subdataset = dataset->get_subdataset(name.utf8().get_data(), write_access);
 
 #ifdef DEBUG_ENABLED
     ERR_FAIL_COND_V_EDMSG(!subdataset->is_valid(), raster_layer, "Raster layer does not exist in GeoDataset!");
@@ -173,20 +172,21 @@ Ref<GeoFeatureLayer> GeoDataset::get_sql_feature_layer(String query) {
     return feature_layer;
 }
 
-void GeoDataset::load_from_file(String file_path, bool write_access) {
-    String resource_path = file_path + (write_access ? "w" : "");
-
-    this->write_access = write_access;
+void GeoDataset::set_file(String file_path) {
     path = file_path;
-    dataset = VectorExtractor::open_dataset(path.utf8().get_data(), write_access);
+    dataset = VectorExtractor::open_dataset(path.utf8().get_data(), false);
 
     // For Godot resource caching
     // Note that we don't check the cache here, so make sure this is only called if there is nothing in the cache already!
-    take_over_path(resource_path);
+    take_over_path(file_path);
 
 #ifdef DEBUG_ENABLED
     ERR_FAIL_COND_V_EDMSG(!dataset->is_valid(), , "Could not load dataset!");
 #endif
+}
+
+void GeoDataset::set_write_access(bool write_access) {
+    this->write_access = write_access;
 }
 
 void GeoDataset::set_native_dataset(std::shared_ptr<NativeDataset> new_dataset) {
@@ -510,8 +510,7 @@ void GeoRasterLayer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_max"), &GeoRasterLayer::get_max);
     ClassDB::bind_method(D_METHOD("get_pixel_size"), &GeoRasterLayer::get_pixel_size);
     ClassDB::bind_method(D_METHOD("clone"), &GeoRasterLayer::clone);
-    ClassDB::bind_method(D_METHOD("load_from_file", "file_path", "write_access"),
-                         &GeoRasterLayer::load_from_file);
+    ClassDB::bind_method(D_METHOD("set_write_access", "write_access"), &GeoRasterLayer::set_write_access);
 }
 
 bool GeoRasterLayer::is_valid() {
@@ -888,11 +887,8 @@ Ref<GeoRasterLayer> GeoRasterLayer::clone() {
     return layer_clone;
 }
 
-void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
-    String resource_path = file_path + (write_access ? "w" : "");
-    
-    this->write_access = write_access;
-    set_native_dataset(VectorExtractor::open_dataset(file_path.utf8().get_data(), write_access));
+void GeoRasterLayer::set_file(String file_path) {
+    set_native_dataset(VectorExtractor::open_dataset(file_path.utf8().get_data(), false));
 
 #ifdef DEBUG_ENABLED
     ERR_FAIL_COND_V_EDMSG(!dataset->is_valid(), , "Could not load GeoRasterLayer from path '" + file_path + "'!");
@@ -904,7 +900,11 @@ void GeoRasterLayer::load_from_file(String file_path, bool write_access) {
 
     // For Godot resource caching
     // Note that we don't check the cache here, so make sure this is only called if there is nothing in the cache already!
-    take_over_path(resource_path);
+    take_over_path(file_path);
+}
+
+void GeoRasterLayer::set_write_access(bool write_access) {
+    this->write_access = write_access;
 }
 
 void GeoRasterLayer::set_native_dataset(std::shared_ptr<NativeDataset> new_dataset) {

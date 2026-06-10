@@ -1,7 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://bcskckor4f0cv"]
+[gd_scene format=3 uid="uid://bcskckor4f0cv"]
 
 [ext_resource type="Script" uid="uid://cdyrjxdnjqeyn" path="res://RasterDemo.gd" id="1"]
-[ext_resource type="Script" uid="uid://c053i1rlaf3s" path="res://Camera.gd" id="3"]
+[ext_resource type="Script" uid="uid://c6at57etcey31" path="res://Camera.gd" id="3"]
 
 [sub_resource type="Shader" id="1"]
 code = "shader_type spatial;
@@ -45,23 +45,23 @@ fog_density = 0.08
 fog_aerial_perspective = 1.0
 volumetric_fog_sky_affect = 0.0
 
-[node name="RasterDemo" type="Node3D"]
+[node name="RasterDemo" type="Node3D" unique_id=1274864423]
 script = ExtResource("1")
-heightmap_data_path = "geodata/vienna-test-dsm.tif"
-ortho_data_path = "geodata/vienna-test-ortho.jpg"
+heightmap_data_path = "res://geodata/vienna-test-dsm.tif"
+ortho_data_path = "res://geodata/vienna-test-ortho.jpg"
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=878602825]
 mesh = SubResource("3")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1540622178]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0154812, 5.6217, 3.60627)
 far = 10000.0
 script = ExtResource("3")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=634842747]
 environment = SubResource("Environment_fry7n")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment" unique_id=1202278701]
 transform = Transform3D(1, 0, 0, 0, 0.299257, 0.954172, 0, -0.954172, 0.299257, 0, 7, 0)
 light_energy = 2.0
 shadow_enabled = true

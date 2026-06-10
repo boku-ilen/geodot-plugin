@@ -5,13 +5,13 @@ var center_y := 6151034.9
 var radius :=  1000.0
 var max_streets = 50
 
-var streets_shapefile_path = "geodata/streets_webm.shp"
+var streets_shapefile_path = "res://geodata/streets_webm.shp"
 
 var street_scene = preload("res://Street.tscn")
 
 
 func _ready() -> void:
-	var layer = Geodot.get_dataset(streets_shapefile_path).get_feature_layer("streets_webm")
+	var layer = load(streets_shapefile_path).get_feature_layer("streets_webm")
 	var lines = layer.get_features_near_position(center_x, center_y, radius, max_streets)
 	print(lines.size())
 
