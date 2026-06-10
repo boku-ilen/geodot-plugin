@@ -118,8 +118,10 @@ Array&#160;</td><td class="memItemRight" valign="bottom"><b>get_feature_layers</
 <tr class="separator:ae0c1decc70d9eaa96f66fa3d5290a47c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a945f96c7bc9d2d822d6fb5f098cf5a1e"><td class="memItemLeft" align="right" valign="top">Ref&lt; <a class="el" href="classgodot_1_1GeoFeatureLayer.html">GeoFeatureLayer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoDataset.html#a945f96c7bc9d2d822d6fb5f098cf5a1e">get_sql_feature_layer</a> (String query)</td></tr>
 <tr class="separator:a945f96c7bc9d2d822d6fb5f098cf5a1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a53d01be78a5e3201416f71624b237351"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoDataset.html#a53d01be78a5e3201416f71624b237351">load_from_file</a> (String file_path, bool write_access)</td></tr>
-<tr class="separator:a53d01be78a5e3201416f71624b237351"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64866058e85a62f7a4246d2c0df5ccc3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoDataset.html#a64866058e85a62f7a4246d2c0df5ccc3">set_file</a> (String file_path)</td></tr>
+<tr class="separator:a64866058e85a62f7a4246d2c0df5ccc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fe2c77846135fd78f0348d16b28f089"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoDataset.html#a8fe2c77846135fd78f0348d16b28f089">set_write_access</a> (bool write_access)</td></tr>
+<tr class="separator:a8fe2c77846135fd78f0348d16b28f089"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afccdda02c07587f171302e2458938e06"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoDataset.html#afccdda02c07587f171302e2458938e06">set_native_dataset</a> (std::shared_ptr&lt; <a class="el" href="classNativeDataset.html">NativeDataset</a> &gt; new_dataset)</td></tr>
 <tr class="separator:afccdda02c07587f171302e2458938e06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -204,28 +206,18 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>_bind_methods<
 
 </div>
 </div>
-<a id="a53d01be78a5e3201416f71624b237351" name="a53d01be78a5e3201416f71624b237351"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a53d01be78a5e3201416f71624b237351">&#9670;&#160;</a></span>load_from_file()</h2>
+<a id="a64866058e85a62f7a4246d2c0df5ccc3" name="a64866058e85a62f7a4246d2c0df5ccc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a64866058e85a62f7a4246d2c0df5ccc3">&#9670;&#160;</a></span>set_file()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void godot::GeoDataset::load_from_file </td>
+          <td class="memname">void godot::GeoDataset::set_file </td>
           <td>(</td>
           <td class="paramtype">String&#160;</td>
-          <td class="paramname"><em>file_path</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"><em>file_path</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>write_access</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -249,6 +241,25 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>_bind_methods<
       </table>
 </div><div class="memdoc">
 <p >Set the GDALDataset object directly. Not exposed to Godot since Godot doesn't know about GDALDatasets - this is only for internal use. </p>
+
+</div>
+</div>
+<a id="a8fe2c77846135fd78f0348d16b28f089" name="a8fe2c77846135fd78f0348d16b28f089"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fe2c77846135fd78f0348d16b28f089">&#9670;&#160;</a></span>set_write_access()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void godot::GeoDataset::set_write_access </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>write_access</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Define whether layers of this dataset should be loaded in read-only or update mode. </p>
 
 </div>
 </div>

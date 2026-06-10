@@ -149,10 +149,12 @@ Rect2&#160;</td><td class="memItemRight" valign="bottom"><b>get_extent</b> ()</t
 float&#160;</td><td class="memItemRight" valign="bottom"><b>get_pixel_size</b> ()</td></tr>
 <tr class="memdesc:a9c2ec9a1c54553c7eccf835e7a1ec083"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the length of a side of a pixel in the dataset, in meters. <br /></td></tr>
 <tr class="separator:a9c2ec9a1c54553c7eccf835e7a1ec083"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2acd7398aee73dc927ba7f19b52bfff6"><td class="memItemLeft" align="right" valign="top"><a id="a2acd7398aee73dc927ba7f19b52bfff6" name="a2acd7398aee73dc927ba7f19b52bfff6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>load_from_file</b> (String file_path, bool write_access)</td></tr>
-<tr class="memdesc:a2acd7398aee73dc927ba7f19b52bfff6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a raster dataset file such as a GeoTIFF into this object. <br /></td></tr>
-<tr class="separator:a2acd7398aee73dc927ba7f19b52bfff6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8d459c3a689bc4fa2e2724cc9cbc239"><td class="memItemLeft" align="right" valign="top"><a id="ab8d459c3a689bc4fa2e2724cc9cbc239" name="ab8d459c3a689bc4fa2e2724cc9cbc239"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_file</b> (String file_path)</td></tr>
+<tr class="memdesc:ab8d459c3a689bc4fa2e2724cc9cbc239"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a raster dataset file such as a GeoTIFF into this object. <br /></td></tr>
+<tr class="separator:ab8d459c3a689bc4fa2e2724cc9cbc239"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d9d8ffc978705f8722ac5072454e414"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoRasterLayer.html#a3d9d8ffc978705f8722ac5072454e414">set_write_access</a> (bool write_access)</td></tr>
+<tr class="separator:a3d9d8ffc978705f8722ac5072454e414"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af4ab9cb8096fe07f08c9fe246a0a3499"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoRasterLayer.html#af4ab9cb8096fe07f08c9fe246a0a3499">set_native_dataset</a> (std::shared_ptr&lt; <a class="el" href="classNativeDataset.html">NativeDataset</a> &gt; new_dataset)</td></tr>
 <tr class="separator:af4ab9cb8096fe07f08c9fe246a0a3499"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa259588fb7841da7e85bbe613c547f4b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgodot_1_1GeoRasterLayer.html#aa259588fb7841da7e85bbe613c547f4b">set_origin_dataset</a> (Ref&lt; <a class="el" href="classgodot_1_1GeoDataset.html">GeoDataset</a> &gt; dataset)</td></tr>
@@ -579,6 +581,25 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>_bind_methods<
       </table>
 </div><div class="memdoc">
 <p >Replaces exactly one pixel at the given position with the given value. The value must correspond to this layer's type (e.g. a float for Float32 images and a Color for RGB images). Useful for modifying datasets on a small scale, e.g. correcting land-use values. </p>
+
+</div>
+</div>
+<a id="a3d9d8ffc978705f8722ac5072454e414" name="a3d9d8ffc978705f8722ac5072454e414"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d9d8ffc978705f8722ac5072454e414">&#9670;&#160;</a></span>set_write_access()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void godot::GeoRasterLayer::set_write_access </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>write_access</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Define whether layers of this dataset should be loaded in read-only or update mode. </p>
 
 </div>
 </div>
