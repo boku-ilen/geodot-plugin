@@ -48,9 +48,9 @@ jobs:
           brew install scons
           brew install dylibbundler
       
-      - name: check brew info gdal
+      - name: check brew prefix gdal
         run: |
-          brew info gdal
+          brew --prefix gdal
       
       - name: Generate Godot-CPP bindings
         if: steps.cache-bindings.outputs.cache-hit != 'true'
