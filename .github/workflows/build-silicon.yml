@@ -48,6 +48,10 @@ jobs:
           brew install scons
           brew install dylibbundler
       
+      - name: check brew info gdal
+        run: |
+          brew info gdal
+      
       - name: Generate Godot-CPP bindings
         if: steps.cache-bindings.outputs.cache-hit != 'true'
         run: scons platform=macos use_hot_reload=yes arch=arm64 generate_bindings=yes
