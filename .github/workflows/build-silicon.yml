@@ -48,17 +48,13 @@ jobs:
           brew install scons
           brew install dylibbundler
       
-      - name: check brew prefix gdal
-        run: |
-          brew --prefix gdal
-      
       - name: Generate Godot-CPP bindings
         if: steps.cache-bindings.outputs.cache-hit != 'true'
         run: scons platform=macos use_hot_reload=yes arch=arm64 generate_bindings=yes
         working-directory: godot-cpp
         
       - name: Build Geodot
-        run: scons platform=macos arch=arm64 osgeo_path=$(brew info gdal | grep '/opt/homebrew/Cellar/' | cut -d ' ' -f 1)
+        run: scons platform=macos arch=arm64 osgeo_path=$(brew --prefix gdal)
         
       - name: Bundle dependencies
         run: dylibbundler -of -b -x ./demo/addons/geodot/macos/libgeodot.dylib -d ./demo/addons/geodot/macos/ -p @loader_path
