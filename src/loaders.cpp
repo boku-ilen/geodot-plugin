@@ -59,9 +59,10 @@ PackedStringArray GeoRasterLayerLoader::_get_recognized_extensions() const {
     PackedStringArray extensions;
 
     // FIXME: Use https://gis.stackexchange.com/questions/175610/list-of-gdal-raster-file-extensions to generate this list
+    // "geojpg" is not commonly used, but otherwise we risk Godot trying to load normal jpg textures with Geodot...
 
     extensions.append("tif");
-    extensions.append("jpg");
+    extensions.append("geojpg");
     extensions.append("mbtiles");
 
     return extensions;

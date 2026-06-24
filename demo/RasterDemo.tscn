@@ -48,7 +48,7 @@ volumetric_fog_sky_affect = 0.0
 [node name="RasterDemo" type="Node3D" unique_id=1274864423]
 script = ExtResource("1")
 heightmap_data_path = "res://geodata/vienna-test-dsm.tif"
-ortho_data_path = "res://geodata/vienna-test-ortho.jpg"
+ortho_data_path = "res://geodata/vienna-test-ortho.geojpg"
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=878602825]
 mesh = SubResource("3")
