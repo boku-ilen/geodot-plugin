@@ -14,6 +14,8 @@ Feel free to join our Discord for talking about geospatial Godot: https://discor
 
 ## Usage
 
+Geodot is a C++ GDExtension and needs to be compiled before it can be used. You can either clone the repository and compile Geodot yourself (see below) or [download the latest pre-combiled build](https://github.com/boku-ilen/geodot-plugin/actions). The GitHub Action builds come embedded in a demo project.
+
 The included Godot project offers various demo scenes - we recommend looking through that code to get started. Just do give you an idea, this is how you would load a heightmap at a given position and size:
 
 ```gdscript
